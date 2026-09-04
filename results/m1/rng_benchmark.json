@@ -1,0 +1,116 @@
+{
+  "provenance": {
+    "config_hash": "2f38ba062972",
+    "seed": 123
+  },
+  "uniform": {
+    "n": 1000000,
+    "seed": 123,
+    "mean": 0.49972139671965066,
+    "mean_theory": 0.5,
+    "variance": 0.08341162939850565,
+    "variance_theory": 0.08333333333333333,
+    "min": 2.3610384221051106e-06,
+    "max": 0.9999975705934671,
+    "chi2_stat_10bins_df9": 12.68416,
+    "chi2_crit_alpha_0.05": 16.919,
+    "chi2_crit_alpha_0.001": 27.877,
+    "bin_counts": [
+      100503,
+      99972,
+      100141,
+      99699,
+      100242,
+      99360,
+      100231,
+      100166,
+      99452,
+      100234
+    ],
+    "expected_count_per_bin": 100000.0
+  },
+  "normal": {
+    "n": 1000000,
+    "seed": 123,
+    "mean": 0.0003881713678650584,
+    "variance": 1.000036773724296,
+    "skewness": 0.0035070573650067952,
+    "excess_kurtosis": 0.0038355872390298806,
+    "max_abs_empirical_cdf_diff_over_grid": 0.0005641627229711621
+  },
+  "poisson": {
+    "4.0": {
+      "n": 200000,
+      "lambda": 4.0,
+      "branch": "knuth",
+      "mean": 4.001305,
+      "variance": 4.0045832969749995,
+      "mc_standard_error_mean": 0.00447213595499958,
+      "mc_standard_error_variance": 0.012649110640673518
+    },
+    "10.0": {
+      "n": 200000,
+      "lambda": 10.0,
+      "branch": "knuth",
+      "mean": 9.998205,
+      "variance": 9.941861777975001,
+      "mc_standard_error_mean": 0.007071067811865475,
+      "mc_standard_error_variance": 0.03162277660168379
+    },
+    "25.0": {
+      "n": 200000,
+      "lambda": 25.0,
+      "branch": "knuth",
+      "mean": 24.991285,
+      "variance": 25.011749048775002,
+      "mc_standard_error_mean": 0.011180339887498949,
+      "mc_standard_error_variance": 0.07905694150420949
+    },
+    "100.0": {
+      "n": 200000,
+      "lambda": 100.0,
+      "branch": "normal_approx",
+      "mean": 100.003805,
+      "variance": 100.112540521975,
+      "mc_standard_error_mean": 0.022360679774997897,
+      "mc_standard_error_variance": 0.31622776601683794
+    },
+    "1000.0": {
+      "n": 200000,
+      "lambda": 1000.0,
+      "branch": "normal_approx",
+      "mean": 1000.004005,
+      "variance": 1002.2855189599748,
+      "mc_standard_error_mean": 0.07071067811865475,
+      "mc_standard_error_variance": 3.1622776601683795
+    },
+    "pmf_check_lambda_1": {
+      "n": 500000,
+      "values": {
+        "0": {
+          "empirical": 0.36742,
+          "theory": 0.36787944117144233
+        },
+        "1": {
+          "empirical": 0.367372,
+          "theory": 0.36787944117144233
+        },
+        "2": {
+          "empirical": 0.184584,
+          "theory": 0.18393972058572117
+        }
+      }
+    }
+  },
+  "neave_effect": {
+    "n": 1000000,
+    "autocorrelation_by_lag": {
+      "1": -0.00014272744560620118,
+      "2": -0.00017160279873540255,
+      "3": 0.00039520709675731284,
+      "4": 0.00033298950425176356,
+      "5": 9.960750254777443e-05
+    },
+    "se_under_iid_null": 0.001
+  }
+}

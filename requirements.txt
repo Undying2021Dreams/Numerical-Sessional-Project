@@ -1,0 +1,12 @@
+# Pinned to the versions this repo was developed and tested against.
+# numpy: array storage/elementwise ops in src/ (Track A), plus Track B
+#   reference calls (numpy.linalg.solve/lstsq/cond, numpy.random) confined to
+#   tests/ and experiments/ per CLAUDE.md section 1.
+# scipy: Track B reference only (e.g. scipy.integrate.solve_ivp from M2
+#   onward); never imported under src/.
+# matplotlib: figures only.
+# pytest: test runner.
+numpy==2.2.6
+scipy==1.13.1
+matplotlib==3.9.2
+pytest==9.1.1
