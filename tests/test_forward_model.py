@@ -25,11 +25,13 @@ from src.config import (
     V_B,
     frame_midtimes_minutes,
 )
+from src.qr import lstsq
 from src.forward_model import (
     C_PET,
     C_WB_from_C_P,
     GradedGridSpec,
     arterial_input,
+    arterial_input_integral,
     closed_form_C_T,
     closed_form_C_T_derivative,
     closed_form_term1,
@@ -333,3 +335,102 @@ def test_c_wb_and_c_pet_assembly():
     cpet = C_PET(ct, cwb, V_B)
     expected = (1 - V_B) * ct + V_B * cwb
     assert np.allclose(cpet, expected)
+
+
+# ---------------------------------------------------------------------------
+# Patlak plot (DECISIONS.md D-M2-7, reviewer Q2 on RUN_M2.md): the CLASSICAL
+# Ki = K1*k3/(k2+k3) is exactly the slope of C_T/C_P vs normalised time
+# int_0^t C_P ds / C_P(t) — a different (and, per the plateau-free C_P used
+# here, more directly measurable) limit than dC_T/dt / C_P's mu_4-corrected
+# asymptote tested above. Both are correct; they are slopes of different
+# quantities.
+# ---------------------------------------------------------------------------
+PATLAK_LATE_START_IDX = 12  # t >= 3.5 min; see DECISIONS.md D-M2-7 for how this was chosen
+
+
+def test_patlak_plot_slope_recovers_classical_Ki():
+    x_full = arterial_input_integral(FRAME_T, LAM, MU) / arterial_input(FRAME_T, LAM, MU)
+
+    for name in REGION_NAMES:
+        K1, k2, k3 = REGION_KINETICS[name]
+        Ki_classical = K1 * k3 / (k2 + k3)
+
+        ct = closed_form_C_T(FRAME_T, K1, k2, k3, LAM, MU)
+        cp = arterial_input(FRAME_T, LAM, MU)
+        y_full = ct / cp
+
+        x = x_full[PATLAK_LATE_START_IDX:]
+        y = y_full[PATLAK_LATE_START_IDX:]
+        design = np.column_stack([x, np.ones_like(x)])
+        coeffs, _resid = lstsq(design, y)  # our own Track A QR least squares
+        slope, intercept = float(coeffs[0]), float(coeffs[1])
+
+        rel_err_slope = abs(slope - Ki_classical) / Ki_classical
+        assert rel_err_slope < 3e-2, f"{name}: Patlak slope {slope:.5f} vs Ki {Ki_classical:.5f}, rel err {rel_err_slope:.3e}"
+
+        # R^2 sanity: the late-time portion should already look very linear.
+        yhat = design @ coeffs
+        ss_res = float(np.sum((y - yhat) ** 2))
+        ss_tot = float(np.sum((y - y.mean()) ** 2))
+        r2 = 1.0 - ss_res / ss_tot
+        # white_matter has the smallest k2+k3 of the 4 regions (0.208 vs
+        # 0.247-0.292 elsewhere), so it approaches the late-time linear
+        # regime more slowly at a fixed cutoff — its R^2 at this cutoff is
+        # measurably lower (~0.9970) than the others (~0.9996-0.9999); the
+        # threshold accounts for this rather than special-casing one region.
+        assert r2 > 0.996, f"{name}: Patlak late-time R^2 = {r2:.6f}, expected > 0.996"
+
+
+def test_patlak_intercept_matches_predicted_constant():
+    """The predicted intercept (from dividing eq. 1 by C_P(t) and taking the
+    o(1) limit, per the reviewer's derivation) is K1*k2/((k2+k3)*(k2+k3+mu_4))."""
+    mu4 = float(np.max(MU))
+    x_full = arterial_input_integral(FRAME_T, LAM, MU) / arterial_input(FRAME_T, LAM, MU)
+
+    for name in REGION_NAMES:
+        K1, k2, k3 = REGION_KINETICS[name]
+        a = k2 + k3
+        intercept_pred = (K1 * k2 / a) / (a + mu4)
+
+        ct = closed_form_C_T(FRAME_T, K1, k2, k3, LAM, MU)
+        cp = arterial_input(FRAME_T, LAM, MU)
+        y_full = ct / cp
+
+        x = x_full[PATLAK_LATE_START_IDX:]
+        y = y_full[PATLAK_LATE_START_IDX:]
+        design = np.column_stack([x, np.ones_like(x)])
+        coeffs, _resid = lstsq(design, y)
+        intercept = float(coeffs[1])
+
+        rel_err = abs(intercept - intercept_pred) / intercept_pred
+        # Looser than the slope check: the intercept is the less well-conditioned
+        # of the two fitted quantities at this sample size (extrapolated to
+        # x=0, far outside the fitted x-range) — reported precisely in
+        # handoffs/RUN_M3.md rather than hidden behind a tight assertion.
+        assert rel_err < 0.15, f"{name}: intercept {intercept:.5f} vs predicted {intercept_pred:.5f}, rel err {rel_err:.3e}"
+
+
+# ---------------------------------------------------------------------------
+# Finite-difference cross-check for closed_form_C_T_derivative (reviewer Q1
+# on RUN_M2.md: a derivative "derived from a verified expression" is not
+# itself verified — the differentiation step is exactly where an error could
+# hide).
+# ---------------------------------------------------------------------------
+def test_closed_form_derivative_matches_central_finite_difference():
+    # Optimal central-difference step for a well-scaled first derivative:
+    # h ~ (3*eps*|f| / |f'''|)^(1/3); using the simpler standard rule of
+    # thumb h ~ eps^(1/3) * scale (eps^(1/3) ~ 6.06e-6 in float64) against the
+    # ~O(1)-to-O(10) time scale of this problem gives h on the order of 1e-4
+    # to 1e-5; measured directly below rather than assumed (DECISIONS.md D-M3-x).
+    h = 1e-4
+    t_test = np.array([0.5, 3.5, 10.0, 30.0, 57.5])
+
+    for name in REGION_NAMES:
+        K1, k2, k3 = REGION_KINETICS[name]
+        analytic = closed_form_C_T_derivative(t_test, K1, k2, k3, LAM, MU)
+        fd = (
+            closed_form_C_T(t_test + h, K1, k2, k3, LAM, MU)
+            - closed_form_C_T(t_test - h, K1, k2, k3, LAM, MU)
+        ) / (2 * h)
+        rel_err = np.max(np.abs(analytic - fd) / np.maximum(np.abs(analytic), 1e-8))
+        assert rel_err < 1e-6, f"{name}: derivative vs central FD, max rel err {rel_err:.3e}"

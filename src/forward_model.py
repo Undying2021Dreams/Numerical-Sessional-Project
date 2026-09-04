@@ -56,6 +56,16 @@ def parent_plasma_fraction(t: np.ndarray, A: float, xi1: float, xi2: float) -> n
     return A * np.exp(xi1 * t) + (1.0 - A) * np.exp(xi2 * t)
 
 
+def arterial_input_integral(t: np.ndarray, lam: np.ndarray, mu: np.ndarray) -> np.ndarray:
+    """int_0^t C_P(s) ds = t * sum_j lambda_j * phi1(mu_j t) (same phi1 stability
+    trick as `closed_form_C_T`; exact for mu_j == 0 too). Used for the Patlak
+    plot's normalised-time axis (DECISIONS.md D-M2-7): x(t) = this / C_P(t)."""
+    t = np.asarray(t, dtype=np.float64)
+    lam = np.asarray(lam, dtype=np.float64)
+    mu = np.asarray(mu, dtype=np.float64)
+    return t * (_phi1(np.outer(t, mu)) @ lam)
+
+
 def C_WB_from_C_P(C_P_values: np.ndarray, f_values: np.ndarray) -> np.ndarray:
     """C_WB(t) = C_P(t) / f(t) (Section 2, the relation defining f)."""
     return np.asarray(C_P_values) / np.asarray(f_values)

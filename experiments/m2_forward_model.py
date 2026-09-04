@@ -255,6 +255,133 @@ def late_time_slope_table():
 
 
 # ---------------------------------------------------------------------------
+# Patlak plot (D-M2-7): the OTHER late-time slope, verified as a linear
+# regression via our own src.qr.lstsq — course outcome CO2.
+# ---------------------------------------------------------------------------
+from src.forward_model import arterial_input_integral
+from src.qr import lstsq as our_lstsq
+
+PATLAK_LATE_START_IDX = 12  # t >= 3.5 min
+
+
+def patlak_analysis():
+    x_full = arterial_input_integral(FRAME_T, LAM, MU) / arterial_input(FRAME_T, LAM, MU)
+    cp = arterial_input(FRAME_T, LAM, MU)
+    mu4 = float(np.max(MU))
+    rows = {}
+    for name in REGION_NAMES:
+        K1, k2, k3 = REGION_KINETICS[name]
+        a = k2 + k3
+        Ki = K1 * k3 / a
+        intercept_pred = (K1 * k2 / a) / (a + mu4)
+
+        ct = closed_form_C_T(FRAME_T, K1, k2, k3, LAM, MU)
+        y_full = ct / cp
+
+        x_late = x_full[PATLAK_LATE_START_IDX:]
+        y_late = y_full[PATLAK_LATE_START_IDX:]
+        design = np.column_stack([x_late, np.ones_like(x_late)])
+        coeffs, _resid = our_lstsq(design, y_late)
+        slope, intercept = float(coeffs[0]), float(coeffs[1])
+        yhat = design @ coeffs
+        r2 = 1.0 - float(np.sum((y_late - yhat) ** 2)) / float(np.sum((y_late - y_late.mean()) ** 2))
+
+        rows[name] = {
+            "Ki_classical": Ki,
+            "fitted_slope": slope,
+            "rel_error_slope": abs(slope - Ki) / Ki,
+            "intercept_predicted": intercept_pred,
+            "fitted_intercept": intercept,
+            "rel_error_intercept": abs(intercept - intercept_pred) / intercept_pred,
+            "r2_late_fit": r2,
+            "n_late_points": int(len(x_late)),
+        }
+    return {
+        "late_start_idx": PATLAK_LATE_START_IDX,
+        "late_start_t": float(FRAME_T[PATLAK_LATE_START_IDX]),
+        "x_full": x_full.tolist(),
+        "regions": rows,
+    }
+
+
+def make_patlak_figure(patlak: dict):
+    import matplotlib.pyplot as plt
+
+    set_style()
+    fig, ax = plt.subplots(figsize=(7, 5))
+    x_full = np.array(patlak["x_full"])
+    cp = arterial_input(FRAME_T, LAM, MU)
+    for name in REGION_NAMES:
+        K1, k2, k3 = REGION_KINETICS[name]
+        ct = closed_form_C_T(FRAME_T, K1, k2, k3, LAM, MU)
+        y_full = ct / cp
+        r = patlak["regions"][name]
+        line, = ax.plot(x_full, y_full, "o", ms=3, label=f"{name} (fit slope={r['fitted_slope']:.4f}, Ki={r['Ki_classical']:.4f})")
+        xs = np.linspace(x_full[PATLAK_LATE_START_IDX], x_full[-1], 10)
+        ax.plot(xs, r["fitted_slope"] * xs + r["fitted_intercept"], "--", color=line.get_color(), linewidth=1)
+    ax.axvline(x_full[PATLAK_LATE_START_IDX], color="gray", linestyle=":", linewidth=1,
+               label=f"late-time cutoff (t={patlak['late_start_t']:.1f} min)")
+    ax.set_xlabel(r"normalised time $\int_0^t C_P\,ds \,/\, C_P(t)$")
+    ax.set_ylabel(r"$C_T(t)/C_P(t)$")
+    ax.set_title("Patlak plot: slope recovers classical $K_i = K_1 k_3/(k_2+k_3)$")
+    ax.legend(fontsize=7)
+    return fig
+
+
+def make_figure2_acquisition_window():
+    """Second Figure-2 analogue, windowed to the actual 25-frame acquisition
+    schedule with frame midpoints marked (DECISIONS.md D-M2-8 / reviewer Q4)."""
+    import matplotlib.pyplot as plt
+    from src.config import frame_edges_minutes
+
+    set_style()
+    edges = frame_edges_minutes()
+    t_dense = np.linspace(max(edges[1] * 0.5, 1e-3), edges[-1], 1000)
+    f_vals = parent_plasma_fraction(t_dense, F_A, F_XI1, F_XI2)
+    cp_vals = arterial_input(t_dense, LAM, MU)
+    cwb_vals = C_WB_from_C_P(cp_vals, f_vals)
+
+    fig, axes = plt.subplots(2, 2, figsize=(11, 8))
+    axes[0, 0].plot(t_dense, f_vals)
+    axes[0, 0].plot(FRAME_T, parent_plasma_fraction(FRAME_T, F_A, F_XI1, F_XI2), "k.", ms=4)
+    axes[0, 0].set_xscale("log")
+    axes[0, 0].set_title("$f(t)$, acquisition window")
+    axes[0, 0].set_xlabel("Time (min)")
+
+    axes[0, 1].plot(t_dense, cwb_vals)
+    axes[0, 1].plot(FRAME_T, C_WB_from_C_P(arterial_input(FRAME_T, LAM, MU), parent_plasma_fraction(FRAME_T, F_A, F_XI1, F_XI2)), "k.", ms=4)
+    axes[0, 1].set_xscale("log")
+    axes[0, 1].set_title("$C_{WB}$, acquisition window")
+    axes[0, 1].set_xlabel("Time (min)")
+
+    axes[1, 0].plot(t_dense, cp_vals)
+    axes[1, 0].plot(FRAME_T, arterial_input(FRAME_T, LAM, MU), "k.", ms=4, label="25 frame midpoints")
+    axes[1, 0].set_xscale("log")
+    axes[1, 0].set_title("$C_P$, acquisition window")
+    axes[1, 0].set_xlabel("Time (min)")
+    axes[1, 0].legend(fontsize=8)
+
+    for name in REGION_NAMES:
+        K1, k2, k3 = REGION_KINETICS[name]
+        ct = closed_form_C_T(t_dense, K1, k2, k3, LAM, MU)
+        ct_frames = closed_form_C_T(FRAME_T, K1, k2, k3, LAM, MU)
+        cwb_dense = C_WB_from_C_P(cp_vals, f_vals)
+        cwb_frames = C_WB_from_C_P(arterial_input(FRAME_T, LAM, MU), parent_plasma_fraction(FRAME_T, F_A, F_XI1, F_XI2))
+        cpet = C_PET(ct, cwb_dense, V_B)
+        cpet_frames = C_PET(ct_frames, cwb_frames, V_B)
+        line, = axes[1, 1].plot(t_dense, cpet, label=name)
+        axes[1, 1].plot(FRAME_T, cpet_frames, ".", color=line.get_color(), ms=4)
+    axes[1, 1].set_xscale("log")
+    axes[1, 1].set_title("$C_{PET}$ (4 regions), acquisition window")
+    axes[1, 1].set_xlabel("Time (min)")
+    axes[1, 1].legend(fontsize=8)
+
+    fig.suptitle(f"Acquisition-window figure: t in [{edges[1]:.3f}, {edges[-1]:.1f}] min, 25 frame midpoints marked")
+    fig.tight_layout()
+    return fig
+
+
+# ---------------------------------------------------------------------------
 # Figures
 # ---------------------------------------------------------------------------
 def make_degeneracy_figure(sweep: dict):
@@ -355,6 +482,14 @@ if __name__ == "__main__":
               f"rel_err_classical={r['rel_error_classical_at_t_last_frame']:.3e}  "
               f"rel_err_corrected={r['rel_error_corrected_at_t_last_frame']:.3e}")
 
+    print("\nPatlak plot analysis...")
+    patlak = patlak_analysis()
+    for name, r in patlak["regions"].items():
+        print(f"  {name:12s}: Ki={r['Ki_classical']:.5f}  fitted_slope={r['fitted_slope']:.5f}  "
+              f"rel_err_slope={r['rel_error_slope']:.3e}  intercept_pred={r['intercept_predicted']:.5f}  "
+              f"fitted_intercept={r['fitted_intercept']:.5f}  rel_err_intercept={r['rel_error_intercept']:.3e}  "
+              f"R2={r['r2_late_fit']:.6f}")
+
     fig1 = make_degeneracy_figure(sweep)
     p1 = save_fig(fig1, "m2", "near_degeneracy_sweep")
     print("\nfigure saved:", p1)
@@ -362,6 +497,14 @@ if __name__ == "__main__":
     fig2 = make_figure2_analogue()
     p2 = save_fig(fig2, "m2", "figure2_analogue")
     print("figure saved:", p2)
+
+    fig3 = make_patlak_figure(patlak)
+    p3 = save_fig(fig3, "m2", "patlak_plot")
+    print("figure saved:", p3)
+
+    fig4 = make_figure2_acquisition_window()
+    p4 = save_fig(fig4, "m2", "figure2_acquisition_window")
+    print("figure saved:", p4)
 
     out = save_json(
         "m2",
@@ -374,6 +517,7 @@ if __name__ == "__main__":
                 k: v for k, v in sweep.items() if k not in ("closed_vals", "quad_vals", "mu5_values")
             },
             "late_time_slope_table": slope_table,
+            "patlak_analysis": {k: v for k, v in patlak.items() if k != "x_full"},
         },
     )
     print("summary saved:", out)

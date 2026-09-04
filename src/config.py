@@ -119,6 +119,24 @@ def frame_widths_minutes() -> np.ndarray:
 
 
 # ---------------------------------------------------------------------------
+# 5b. Blood-sample ("q") time points for the F^2 block of the forward
+#     operator (paper eq. 18-20: F^2 compares q measurements of C_WB*f
+#     against the model's C_P). q = 4, per M3's Jacobian shape spec
+#     (n*T + q = 4*25 + 4 = 104). Chosen as 4 of the existing frame
+#     midtimes (physically: blood draws timed with scan frames), spread
+#     across the dynamic range: one during the fast initial decay, one just
+#     after it, one mid-scan, one at the last frame. See DECISIONS.md D-M3-1.
+# ---------------------------------------------------------------------------
+BLOOD_SAMPLE_FRAME_INDICES: tuple[int, ...] = (3, 10, 17, 24)
+Q_BLOOD_SAMPLES: int = len(BLOOD_SAMPLE_FRAME_INDICES)
+
+
+def blood_sample_times_minutes() -> np.ndarray:
+    mids = frame_midtimes_minutes()
+    return mids[np.array(BLOOD_SAMPLE_FRAME_INDICES)]
+
+
+# ---------------------------------------------------------------------------
 # 6. Unknown parameter vector layout, 23 parameters total:
 #    (lambda_1..4, mu_1..4, m_1..3, K1^1,k2^1,k3^1, ..., K1^4,k2^4,k3^4)
 #    m_1..3 are (A, xi1, xi2) of the biexponential f. Order of regions follows
@@ -135,6 +153,24 @@ UNKNOWN_LAYOUT: tuple[str, ...] = (
 
 N_PARAMS: int = len(UNKNOWN_LAYOUT)  # == 23
 assert N_PARAMS == 4 + 4 + 3 + 3 * N_REGIONS == 23
+
+# Index slices into the 23-vector, per block (M3: Jacobian, projection, regularisation).
+LAMBDA_SLICE = slice(0, 4)
+MU_SLICE = slice(4, 8)
+M_SLICE = slice(8, 11)
+METABOLIC_START = 11  # first index of the 12 K1/k2/k3 entries
+
+
+def region_slice(region_index: int) -> slice:
+    """Slice into the 23-vector for region `region_index`'s (K1, k2, k3)."""
+    start = METABOLIC_START + 3 * region_index
+    return slice(start, start + 3)
+
+
+# D(F) domain, paper eq. (18): lambda, mu unconstrained; m in [0,inf) x
+# (-inf,0]^2; each of the 12 metabolic parameters in [eps, inf). eps = 1e-3
+# per the reviewer's M3 spec — see DECISIONS.md D-M3-2 for why this value.
+PROJECTION_EPS: float = 1e-3
 
 
 def ground_truth_vector() -> np.ndarray:
