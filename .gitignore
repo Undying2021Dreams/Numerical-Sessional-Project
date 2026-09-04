@@ -9,8 +9,5 @@ CLAUDE.md
 DECISIONS.md
 PLAN.md
 
-# Course/paper source materials — copyrighted / institutional, not code
-*.pdf
-
 # OS cruft
 .DS_Store
