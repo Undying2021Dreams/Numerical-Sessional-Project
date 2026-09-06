@@ -105,12 +105,25 @@ def unpack(x: np.ndarray):
 # Forward operator F
 # ---------------------------------------------------------------------------
 def forward_operator(
-    x: np.ndarray, t_frames: np.ndarray, s_blood: np.ndarray, C_WB_data: np.ndarray
+    x: np.ndarray,
+    t_frames: np.ndarray,
+    s_blood: np.ndarray,
+    C_WB_data: np.ndarray,
+    *,
+    include_blood: bool = True,
 ) -> np.ndarray:
-    """F(x) in R^(n*T+q): F^1 (C_T, all regions x all frames, row-major by
-    region) followed by F^2 (C_WB_data*f_m - C_P, at the q blood times).
-    `C_WB_data` is FIXED problem data (the ground-truth C_WB at s_blood), not
-    a function of x — matches the paper's eq. (20).
+    """F(x) in R^(n*T+q) or R^(n*T) depending on `include_blood`.
+
+    F^1 (C_T, all regions x all frames, row-major by region) is always
+    included.  F^2 (C_WB_data*f_m - C_P, at the q blood times) is
+    appended only when `include_blood=True` (the default, matching the
+    paper's eq. 18-20).  Set `include_blood=False` to run the tissue-only
+    forward operator needed by M4.2 Setup A and the identifiability
+    experiment (M4.4).
+
+    `C_WB_data` is FIXED problem data (the ground-truth C_WB at s_blood),
+    not a function of x — matches the paper's eq. (20).
+    `s_blood` and `C_WB_data` are ignored when `include_blood=False`.
     """
     lam, mu, m, K1, k2, k3 = unpack(x)
     A, xi1, xi2 = m
@@ -119,6 +132,9 @@ def forward_operator(
     F1 = np.empty(N_REGIONS * T)
     for i in range(N_REGIONS):
         F1[i * T : (i + 1) * T] = closed_form_C_T(t_frames, K1[i], k2[i], k3[i], lam, mu)
+
+    if not include_blood:
+        return F1
 
     from src.forward_model import arterial_input, parent_plasma_fraction
 
@@ -184,20 +200,30 @@ def _dCT_block(t: np.ndarray, K1: float, k2: float, k3: float, lam: np.ndarray, 
 
 
 def analytic_jacobian(
-    x: np.ndarray, t_frames: np.ndarray, s_blood: np.ndarray, C_WB_data: np.ndarray
+    x: np.ndarray,
+    t_frames: np.ndarray,
+    s_blood: np.ndarray,
+    C_WB_data: np.ndarray,
+    *,
+    include_blood: bool = True,
 ) -> np.ndarray:
-    """F'(x) in R^((n*T+q) x 23). See module docstring for the block
-    structure; `_dCT_block` for the per-region tissue derivatives.
-    `C_WB_data` is fixed problem data (see `forward_operator`), needed for
-    the m-block of F^2 (F^2 = C_WB_data*f_m - C_P, so d(F^2)/dm scales with
-    C_WB_data)."""
+    """F'(x) in R^((n*T+q) x 23) or R^(n*T x 23) depending on `include_blood`.
+
+    See module docstring for the block structure; `_dCT_block` for the
+    per-region tissue derivatives.  `C_WB_data` is fixed problem data (see
+    `forward_operator`), needed for the m-block of F^2.
+    When `include_blood=False`, only the F^1 rows are returned (the F^2
+    block is dropped entirely, as required for M4.2 Setup A and M4.4).
+    `s_blood` and `C_WB_data` are ignored when `include_blood=False`.
+    """
     lam, mu, m, K1, k2, k3 = unpack(x)
     A, xi1, xi2 = m
     T = len(t_frames)
     q = len(s_blood)
     n = N_REGIONS
 
-    Jac = np.zeros((n * T + q, N_PARAMS))
+    n_rows = n * T + (q if include_blood else 0)
+    Jac = np.zeros((n_rows, N_PARAMS))
 
     for i in range(n):
         dK1, dk2, dk3, dlam, dmu = _dCT_block(t_frames, K1[i], k2[i], k3[i], lam, mu)
@@ -209,6 +235,9 @@ def analytic_jacobian(
         Jac[rows, rs.start + 1] = dk2
         Jac[rows, rs.start + 2] = dk3
         # M block (F^1 does not depend on m at all): stays zero.
+
+    if not include_blood:
+        return Jac
 
     # F^2 block: C_WB_data(s_l)*f_m(s_l) - C_P(lam,mu)(s_l)
     s = np.asarray(s_blood, dtype=np.float64)

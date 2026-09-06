@@ -860,3 +860,47 @@ records the resulting decisions.
   paper's own choice for its noiseless-data figures (Section 6/Figures 4-6) exactly**
   — not independently chosen, adopted because PLAN.md item 6 names this value
   directly and it matches the paper.
+
+## M4 — Noise, measurement setups, and Monte Carlo grid
+
+- **D-M4-1: TAC noise is Poisson-derived; C_WB blood noise is Gaussian.** For TAC
+  frames, the Poisson-derived model (`add_poisson_noise` via `src.rng.poisson`) is
+  physically motivated: PET image frames arise from photon counting, which is a Poisson
+  process. For C_WB blood-sample measurements in Setup C, a Gaussian proportional model
+  (`add_gaussian_noise`) is used instead; blood draws are a low-volume measurement where
+  the Poisson character of the imaging chain no longer dominates, and Gaussian is the
+  standard approximation for counting noise in this regime. The open M4 question
+  (D-M1-11) is thus resolved: Poisson for TACs, Gaussian for blood. Both generators
+  were built and calibrated (as required) and the choice is recorded here, not quietly
+  assumed.
+
+- **D-M4-2: calibrated noise constants are hardcoded in `src/montecarlo.py` rather
+  than re-read from `results/m4/noise_calibration.json` at runtime.** This makes the
+  Monte Carlo harness self-contained: a single import of `src.montecarlo` is
+  reproducible without depending on a pre-existing JSON artifact. The exact values
+  (alpha = 88198.85 / 6255.53 / 160.55 for Poisson; sigma_rel = 0.002969 / 0.011139 /
+  0.070945 for Gaussian) were produced by `experiments/m4_noise_calibration.py`
+  (seed 20240401, 20-realisation bisection) and pasted in with their source noted in a
+  comment. If the calibration is rerun with a different seed or sample count, the
+  constants in `src/montecarlo.py` must be updated to match.
+
+- **D-M4-3: `ROOT_SEED = 20240401` for the M4 Monte Carlo grid.** Chosen to be
+  distinct from M3's `ROOT_SEED = 20240301` so that M4 seed streams are independent
+  of M3's, even if the `derive_seed` label strings happen to collide. The year-month-day
+  naming convention (YYYYMMDD) is a project-wide convention from M3.
+
+- **D-M4-4: Figure 7 analogue uses `MAX_ITER = 200` (not 300).** The paper's own
+  Figure 7 shows iterations up to 200 on its x-axis, and the figure's purpose is to
+  illustrate the trajectory shape and the stopping iteration, not the full 300-step
+  noiseless-recovery budget. Using 200 here matches the paper's visual and keeps the
+  representative runs comparable to the paper's figure. The grid itself (M4.3) still
+  uses 300 for all cells (matching the noiseless setting's budget), with early stopping
+  via the discrepancy principle for noisy runs.
+
+- **D-M4-5: the `active_mask` and `include_blood` mechanism (M4.2) is a single
+  implementation in `src/jacobian.py` and `src/irgnm.py`, not separate forks.**
+  `remaining_task.md` §4.2 explicitly requires this. The mask is a boolean array of
+  length N_PARAMS=23; when provided, only the True columns of the Jacobian are used in
+  the linear sub-solve, and the result is scattered back into a full delta before the
+  projection step. The `include_blood` flag drops F² rows from the stacked system
+  entirely. Both M4.2 and M4.4 use the same parameters; no forking was needed.

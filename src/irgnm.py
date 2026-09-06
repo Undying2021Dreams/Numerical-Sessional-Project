@@ -86,23 +86,59 @@ def irgnm_step(
     C_WB_data: np.ndarray,
     reg_diag: np.ndarray,
     solver: str = "qr",
+    *,
+    active_mask: np.ndarray | None = None,
+    include_blood: bool = True,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """One IRGNM step (eq. 26). Returns (x_{i+1} (projected), F(x_i), F'[x_i])."""
-    Fx = forward_operator(x_i, t_frames, s_blood, C_WB_data)
+    """One IRGNM step (eq. 26). Returns (x_{i+1} (projected), F(x_i), F'[x_i]).
+
+    Parameters
+    ----------
+    active_mask : boolean array of length N_PARAMS (23), or None.
+        When provided, only the True entries are treated as free parameters
+        in this step.  The linear sub-problem is solved for the active
+        sub-vector; the inactive parameters are held fixed at x_i.
+        This is the mechanism for M4.2 Setup A (fix the 3 plasma-fraction
+        parameters m) without forking the solver.
+    include_blood : passed to forward_operator / analytic_jacobian.
+        When False, the F^2 blood-data block is dropped from the residual
+        and Jacobian (M4.4 identifiability experiment, M4.2 Setup A).
+    """
+    Fx = forward_operator(x_i, t_frames, s_blood, C_WB_data, include_blood=include_blood)
     r = y_delta - Fx
-    Fp = analytic_jacobian(x_i, t_frames, s_blood, C_WB_data)
+    Fp = analytic_jacobian(x_i, t_frames, s_blood, C_WB_data, include_blood=include_blood)
+
+    # --- Restrict to active columns if a mask is given -------------------
+    if active_mask is not None:
+        active_mask = np.asarray(active_mask, dtype=bool)
+        Fp_active = Fp[:, active_mask]
+        reg_active = reg_diag[active_mask]
+        x0_active  = x0[active_mask]
+        x_i_active = x_i[active_mask]
+    else:
+        Fp_active  = Fp
+        reg_active = reg_diag
+        x0_active  = x0
+        x_i_active = x_i
 
     if solver == "lu":
-        M = Fp.T @ Fp + np.diag(reg_diag)
-        rhs = Fp.T @ r + reg_diag * (x0 - x_i)
-        delta = lu_solve(M, rhs)
+        M = Fp_active.T @ Fp_active + np.diag(reg_active)
+        rhs = Fp_active.T @ r + reg_active * (x0_active - x_i_active)
+        delta_active = lu_solve(M, rhs)
     elif solver == "qr":
-        sq = np.sqrt(reg_diag)
-        A_stack = np.vstack([Fp, np.diag(sq)])
-        b_stack = np.concatenate([r, sq * (x0 - x_i)])
-        delta, _resid = qr_lstsq(A_stack, b_stack)
+        sq = np.sqrt(reg_active)
+        A_stack = np.vstack([Fp_active, np.diag(sq)])
+        b_stack = np.concatenate([r, sq * (x0_active - x_i_active)])
+        delta_active, _resid = qr_lstsq(A_stack, b_stack)
     else:
         raise ValueError(f"unknown solver {solver!r}, expected 'lu' or 'qr'")
+
+    # Scatter active delta back into a full N_PARAMS vector -----------------
+    if active_mask is not None:
+        delta = np.zeros(len(x_i))
+        delta[active_mask] = delta_active
+    else:
+        delta = delta_active
 
     x_next = project(x_i + delta)
     return x_next, Fx, Fp
@@ -120,17 +156,25 @@ def run_irgnm(
     max_iter: int = 300,
     solver: str = "qr",
     x_true: np.ndarray | None = None,
+    *,
+    active_mask: np.ndarray | None = None,
+    include_blood: bool = True,
 ) -> dict:
-    """Run IRGNM from initial guess `x0` (also used as the fixed
-    regularisation reference point, per eq. 26) until the discrepancy
-    principle fires (`||F(x_i)-y_delta|| <= tau*delta_y`) or `max_iter` is
-    reached. For noiseless data (`delta_y=0`), the discrepancy rule
-    essentially never fires, so the loop runs the full `max_iter` — per
-    PLAN.md M3 item 6/7.
+    """Run IRGNM from initial guess `x0` until the discrepancy principle fires
+    or `max_iter` is reached.  For noiseless data (`delta_y=0`), the rule
+    cannot fire, so the loop runs the full `max_iter`.
 
-    If `x_true` is given, the relative error trajectory `||x_i - x_true|| /
-    ||x_true||` (total and per parameter block) is recorded at every
-    iteration, for the noiseless-recovery convergence plots.
+    Parameters
+    ----------
+    active_mask : optional boolean array of length N_PARAMS (23).
+        When provided, only the True parameters are updated at each step.
+        Inactive parameters are frozen at their x0 values.  Used for
+        M4.2 Setup A (fix the 3 plasma-fraction parameters m_1..3).
+    include_blood : when False, drop F^2 from the forward operator and
+        Jacobian throughout the run.  Used for M4.2 Setup A and the
+        M4.4 identifiability experiment.
+
+    If `x_true` is given, the relative error trajectory is recorded.
     """
     x_i = project(x0.copy())
     history: dict[str, list] = {
@@ -159,7 +203,7 @@ def run_irgnm(
                 denom = float(np.sqrt(t @ t))
                 history[f"rel_error_{name}"].append(float(np.sqrt(d @ d)) / denom if denom > 0 else float("nan"))
 
-    Fx0 = forward_operator(x_i, t_frames, s_blood, C_WB_data)
+    Fx0 = forward_operator(x_i, t_frames, s_blood, C_WB_data, include_blood=include_blood)
     r0 = y_delta - Fx0
     r_norm = float(np.sqrt(r0 @ r0))
     _record(x_i, r_norm)
@@ -179,7 +223,12 @@ def run_irgnm(
                 break
             reg_diag = schedule.diag(i)
             try:
-                x_next, _Fx, _Fp = irgnm_step(x_i, x0, y_delta, t_frames, s_blood, C_WB_data, reg_diag, solver)
+                x_next, _Fx, _Fp = irgnm_step(
+                    x_i, x0, y_delta, t_frames, s_blood, C_WB_data,
+                    reg_diag, solver,
+                    active_mask=active_mask,
+                    include_blood=include_blood,
+                )
             except Exception as exc:  # noqa: BLE001 — log as a divergence, don't crash the sweep
                 diverged = True
                 history["failure_reason"] = str(exc)
@@ -190,7 +239,7 @@ def run_irgnm(
                 break
 
             x_i = x_next
-            Fx_i = forward_operator(x_i, t_frames, s_blood, C_WB_data)
+            Fx_i = forward_operator(x_i, t_frames, s_blood, C_WB_data, include_blood=include_blood)
             r_i = y_delta - Fx_i
             r_norm = float(np.sqrt(r_i @ r_i))
             if not np.isfinite(r_norm):

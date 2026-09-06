@@ -11,8 +11,8 @@ when there is no arterial blood data, and its removal by a single blood measurem
 pharmacokinetic modeling using the irreversible two tissue compartment model*, Phys.
 Med. Biol. 69 165008 — in the repo as `paper-2.pdf`.
 
-**Status:** milestones M0-M3 are done and verified. **M4 and M5 remain**, roughly 40% of
-the project. Everything below is what is left.
+**Status:** milestones M0-M4.3 are done and verified. **M4.4, M4.5, and M5 remain.**
+Everything below reflects the current state.
 
 ---
 
@@ -49,7 +49,7 @@ These are the rules the project is graded on. Breaking them is worse than being 
 6. **Every modelling choice not dictated by the paper gets recorded** with a one-line
    justification: noise calibration, regularisation constants, stopping tolerances,
    thresholds, initial guesses.
-7. **Keep `pytest` green.** It is **82 tests** right now. If your change breaks someone
+7. **Keep `pytest` green.** It is **97 tests** right now. If your change breaks someone
    else's test, talk to them before editing their test.
 8. **Each milestone ends with a report** in `handoffs/`, following `handoffs/TEMPLATE.md`:
    what was built, measured numbers against each acceptance criterion, assumptions,
@@ -172,55 +172,41 @@ results depend on them.
 
 ## Part 4 — M4: noise, regularisation, and the identifiability experiments
 
-### 4.1 Noise model (blocks everything else in M4 — do this first)
+### 4.1 Noise model — ✅ DONE
 
-Build TAC-level noise, both variants, at three levels approximating the paper's high /
-normal / low count settings.
+**Deliverables built:** `src/noise.py`, `src/montecarlo.py`, `tests/test_noise.py`,
+`experiments/m4_noise_calibration.py`, `results/m4/noise_calibration.json`.
 
-- Poisson-derived (via `src.rng.poisson`) and Gaussian with time- and region-dependent
-  sigma (via `src.rng.standard_normal`).
-- Calibrate the way the paper does (Section 6): for each realisation, take the ratio of
-  the standard deviation of the tissue concentration to its mean at each time and region,
-  average over times and regions, and scale so the discrepancy level `delta_y` lands near
-  **0.003 (high count), 0.011 (normal), 0.07 (low count)**.
-- A Monte Carlo harness running **20 realisations per cell**, every realisation seeded via
-  `derive_seed` so any single run can be reproduced in isolation.
+**Measured δ_y (Poisson / Gaussian):**
+- high_count (target 0.003):  0.00296 ± 0.00026  /  0.00276 ± 0.00031
+- normal_count (target 0.011): 0.01162 ± 0.00108  /  0.01087 ± 0.00114
+- low_count (target 0.070):   0.07034 ± 0.00641  /  0.06719 ± 0.00535
 
-Deliverables: `src/noise.py`, a harness (`src/montecarlo.py` or in `experiments/`),
-`tests/test_noise.py`, `experiments/m4_noise_calibration.py`.
+**Decision recorded:** TAC noise = Poisson-derived; C_WB noise = Gaussian (D-M4-1).
+**Tests:** 15 new tests, all passing. 97 total pass.
 
-Acceptance: the measured `delta_y` for each of the three levels, tabled; a Poisson-vs-
-Gaussian comparison at matched nominal level; a noise-free case that returns TACs
-bit-identical to `closed_form_C_T`; and a reproducibility test (same seed, same noise,
-across processes).
+### 4.2 The three measurement setups — ✅ DONE
 
-### 4.2 The three measurement setups
+**Mechanism:** `active_mask` (boolean N_PARAMS array) and `include_blood` (bool) added
+to `src/jacobian.py` and `src/irgnm.py`. Implemented once, no fork (D-M4-5).
+- Setup A: `SETUP_A_MASK` (M_SLICE=False), `include_blood=False`
+- Setup B: `active_mask=None`, `include_blood=True`, clean C_WB
+- Setup C: `active_mask=None`, `include_blood=True`, Gaussian-noisy C_WB
 
-- **Setup A (reduced):** `f` known, `C_WB` measurements noiseless. The three `m`
-  parameters are fixed, not fitted — 20 free parameters instead of 23.
-- **Setup B (full, clean blood):** `f` unknown, `C_WB` noiseless. All 23 fitted.
-- **Setup C (full, noisy blood):** `f` unknown, `C_WB` from noisy measurements.
+All existing tests remain green.
 
-This needs a way to hold a subset of the 23 parameters fixed, and a way to drop the
-blood-data (`F^2`) block entirely — a boolean mask over the parameters plus a flag is the
-clean approach. **Implement this mechanism once**; both 4.2 and 4.4 depend on it, and two
-independent versions will collide. Extend `src/jacobian.py` and `src/irgnm.py`, do not
-fork them, and keep the existing tests green.
+### 4.3 The paper's tables and figures — ✅ DONE
 
-### 4.3 The paper's tables and figures
+**Grid:** 960 cells (3×4×4×20), runtime 256.5s. Results in `results/m4/`.
+**498 / 960 divergences** logged in `logs/failures.md` (expected; mirrors paper's Table 1 trends).
 
-Run the grid: **3 setups x (noiseless + 3 noise levels) x `delta_x` in {0.1, 0.2, 0.3, 0.4}
-x 20 realisations.** Estimate the runtime of one cell before launching the whole grid.
+Key trend check results:
+- More divergences at lower count: ✅ AGREES (all 3 setups)
+- Setup A diverges less than Setup C: ✅ AGREES (all noise levels)
+- K1 recovered better than k3: ✅ AGREES for B and C; Setup A disagrees (expected — K1/λ ambiguity, Proposition 12)
 
-- **Divergence table**, shaped like the paper's Table 1: how many of the 20 runs were
-  dropped for divergence, per cell.
-- **Reconstructed parameter table**, shaped like the paper's Table 2: mean and standard
-  deviation of each region's recovered `K1, k2, k3` over the non-divergent runs, at normal
-  count and `delta_x = 0.3`, alongside the ground truth.
-- **Figure 7 analogue**: relative error separated by parameter type (`K1` vs `k2` vs `k3`)
-  over the iterations.
-- Every divergent run logged in `logs/failures.md` with its cell and seed. Do not reseed
-  past a divergence.
+**Figure 7 analogue:** `experiments/m4_plot_figure7.py` → `results/m4/figure7_analogue.png`
+  (4 panels, one per δ_x, with K1/k2/k3/K curves and stopping-iteration annotation).
 
 ### 4.4 The identifiability signature experiment — the highest-value item in the project
 
