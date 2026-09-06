@@ -3,8 +3,8 @@ __pycache__/
 .pytest_cache/
 
 # Internal process / planning docs — not part of the shared codebase
-handoffs/
-logs/
+# (handoffs/ and logs/ ARE tracked: they are the milestone reports and the
+#  failure log, which the team needs. See remaining_task.md.)
 CLAUDE.md
 DECISIONS.md
 PLAN.md
