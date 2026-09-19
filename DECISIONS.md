@@ -904,3 +904,98 @@ records the resulting decisions.
   the linear sub-solve, and the result is scattered back into a full delta before the
   projection step. The `include_blood` flag drops F² rows from the stacked system
   entirely. Both M4.2 and M4.4 use the same parameters; no forking was needed.
+
+- **D-M4-6: "a single C_P measurement" (M4.4 step 5) is implemented as the existing
+  F² block with `s_blood` truncated to one time point — no new forward operator.**
+  F² is defined as `C_WB_data(s)·f_m(s) − C_P(λ,μ)(s)` (eq. 20). In the M4.4 runs the
+  plasma-fraction parameters m are frozen at ground truth, so `f_m` is the true f and
+  `C_WB_data·f_true = C_P_true` exactly; F² therefore reduces to
+  `C_P_true(s) − C_P(λ,μ)(s)`, which is *literally* a measurement of C_P at s. This is
+  asserted as an identity in
+  `tests/test_identifiability.py::test_blood_block_vanishes_at_ground_truth`
+  (|F²(x_true)| < 1e-12 at all four candidate times). Writing a separate direct-C_P
+  operator would have duplicated code to compute the same residual.
+  Which of the four candidate blood times to use was *measured*, not assumed, per
+  project rule 6 — all four are swept in `experiments/m4_identifiability.py`.
+
+- **D-M4-7: the blood measurement in the M4.4 step-5 runs is left noiseless even when
+  the TACs are noisy.** Step 5 asks what an *exact* C_P value does to ζ; adding blood
+  noise at the same time would confound "the ambiguity is removed" with "the
+  measurement that removes it is itself uncertain". Noisy blood data is already
+  covered by M4.3 Setup C, so nothing is lost. `build_observations` therefore applies
+  Poisson TAC noise only.
+
+- **D-M4-8: M4.4 adds a relative-residual acceptance gate, `FIT_RESIDUAL_TOL = 1e-6`,
+  local to `src/identifiability.py`.** `run_irgnm`'s `diverged` flag only checks that
+  the iterates stayed finite. That is necessary but not sufficient for *noiseless*
+  data: with δ_y = 0 the discrepancy principle cannot fire, so a run that stalls far
+  from the data still exits after `max_iter` with `diverged=False`, and its ζ is
+  meaningless. Measured over 20 seeds at δ_x = 0.1, tissue-only: 18 runs land at
+  relative residual 1.9e-10 to 2.3e-9, one returns NaN (correctly flagged by the
+  existing check), and one (seed_idx=5) stalls at **3.05e+03** while reporting
+  `diverged=False` — with K1-ratio spread 4.3e-02 and k3 error 5.6e-01, i.e. visibly
+  garbage. The good/bad gap spans twelve orders of magnitude, so the threshold is not
+  delicate; 1e-6 sits well inside it and means "the fit reproduces the data to six
+  significant figures". For *noisy* data the gate defers to the paper's own criterion
+  (the discrepancy principle fired), since the residual floor is then set by δ_y.
+  Note this **tightens** acceptance — a stalled fit is counted and reported as a
+  failure rather than averaged into the statistics — so it is not a rule-4 tolerance
+  loosening. It is deliberately scoped to this module: `src/irgnm.py` is untouched and
+  M4.3's published divergence counts are unchanged.
+  **Open item this raises for M4.5/M5:** M4.3's noiseless cells used the same
+  finiteness-only criterion, so some of its "converged" runs may be stalls of this
+  kind. Re-auditing the M4.3 tables against this gate was left out of M4.4 as
+  out-of-scope; it is logged here so the decision is visible rather than forgotten.
+
+- **D-M4-9: M4.4 step 6 runs BOTH discrepancy-principle conventions side by side,
+  because the existing one never fires.** `src.noise.compute_delta_y` returns an RMS
+  (`||C_noisy − C_clean|| / sqrt(n_obs)`), but `run_irgnm` stops when `||r|| ≤ τ·δ_y`
+  where `||r||` is a plain 2-norm. The comparison is therefore `sqrt(n_obs) = 10x` too
+  strict, and **measured: the rule fires in zero of 240 noisy tissue-only runs** — every
+  one reaches `max_iter = 300`. This was inherited from M4.3 (its "converged" counts are
+  really "did not go non-finite" counts). Two conventions are now selectable via
+  `run_identifiability_case(stopping=...)`:
+    - `"rms"` — δ_y passed through unchanged. M4.3's convention; kept so M4.4's counts
+      stay comparable with M4.3's Table 1.
+    - `"morozov"` — δ_y passed as `δ_y·sqrt(n_obs)`, i.e. the actual noise *norm*, which
+      is what the Morozov discrepancy principle compares against. Dimensionally
+      consistent; the rule then fires at iteration ~24–71.
+  Neither was adopted as "the" answer because they answer different questions, and the
+  difference is itself a result: measured at high_count, δ_x = 0.1, seed 0 — `rms` runs
+  to 300 iterations and gives K1-ratio spread 8.5e-03 with k3 error 5.7e-01, while
+  `morozov` stops at iteration 71 and gives spread 2.7e-02 with k3 error 4.4e-02. Running
+  to convergence settles the iterates onto the null manifold (tight spread) at the cost
+  of fitting noise; stopping early regularises (better k3) but truncates the signature
+  before it has fully formed. The M4.4 report gives both tables.
+  `src/irgnm.py` is **not** modified — the scaling is applied by the caller — so M4.3's
+  published numbers are untouched.
+
+- **D-M4-10: noisy acceptance gate, `NOISY_RESIDUAL_FACTOR = 2.0` × the noise floor,
+  for the `"rms"` convention only.** Under `"rms"` the discrepancy rule never fires, so
+  there is no stopping-rule criterion to defer to and D-M4-8's noiseless threshold
+  (1e-6) is meaningless — the residual cannot go below the noise. The natural floor is
+  `||noise|| / ||y|| = δ_y·sqrt(n_obs) / ||y||`. Measured over the 240 noisy tissue-only
+  cells: non-diverged fits cluster at **0.78–0.97×** that floor (just below it, as
+  expected once the iterates begin fitting noise), while failures sit at **5.6–10.9×**.
+  2.0 lies inside that gap with roughly 2x headroom on each side. Under `"morozov"` the
+  gate defers to the discrepancy principle instead, since there it genuinely fires.
+
+- **D-M4-11: a `"morozov"` run whose discrepancy rule fires at iteration 0 is rejected,
+  not counted as a fit.** Such a run has taken no IRGNM step at all — verified:
+  `x_final` is bit-identical to the projected initial guess, and the ζ it reports is
+  exactly the initial guess's ζ (1.0624496260234935 in both, at low_count, δ_x = 0.1,
+  seed_idx 0). It says nothing whatever about identifiability. **Measured: this happens
+  in 20 of 20 runs at low_count, δ_x = 0.1**, because `τ·δ_y·sqrt(n_obs) = 6.8·0.073·10
+  = 5.0` already exceeds the initial residual. That is the discrepancy principle working
+  correctly — it is telling us the data is too noisy to improve on the guess — but
+  reporting its ζ as evidence would have been badly misleading, since the tables would
+  have shown a *tighter*-looking ζ range at low_count than at high_count purely because
+  no fitting occurred. `fit_accepted` therefore requires `converged_at >= 1` under
+  `"morozov"`, and `summarise` reports `n_trivial` as its own column, distinct from
+  divergences and stalls.
+
+- **D-M4-12: `zeta_from_lambda` returns NaN for a λ component that is exactly zero**
+  rather than raising or emitting a divide-by-zero warning. Divergent iterates can drive
+  a λ component to 0; `spread` already maps any non-finite ratio set to NaN, so the
+  failure propagates visibly into the statistics instead of being hidden by a warning
+  printed once and then suppressed.

@@ -645,3 +645,509 @@ Total: 498 divergent cells out of 960
 | C | low_count | 0.4 | 18 | 16679127070899030163 | 135 | non-finite iterate |
 | C | low_count | 0.4 | 19 | 8797205902935713565 | 128 | non-finite iterate |
 
+
+## M4.4 identifiability signature — rejected runs (noiseless stage)
+
+**58 of 400 runs rejected: 53 diverged (non-finite iterate), 5 stalled.**
+Tissue-only 14/80; single-C_P 44/320.
+
+Two distinct failure modes, deliberately counted separately:
+
+- **non-finite iterate** — the same mode as M4.3: an unconstrained `mu` is pushed into
+  a region where `exp(mu*t)` overflows. Already caught by `run_irgnm`.
+- **stalled** — *new in M4.4, and the reason D-M4-8 exists.* The run stays finite for
+  all 300 iterations but never approaches the data, exiting with `diverged=False`. At
+  δ_y = 0 the discrepancy principle cannot fire, so nothing in `run_irgnm` notices.
+  The five stalls sit at relative residual **5.7e-02 to 2.5e+04**, against ~1e-09 for
+  an accepted fit — at minimum seven orders of magnitude outside the accepted band,
+  and at least four orders above the `FIT_RESIDUAL_TOL = 1e-6` gate. Without that gate
+  they would have been averaged into the headline spread statistic and corrupted it
+  (the worst of them reports a K1-ratio spread of 4.3e-02, against 1.8e-08 for the
+  accepted runs).
+
+Rejection rates rise with δ_x exactly as in M4.3 (tissue-only: 2, 3, 3, 6 out of 20 at
+δ_x = 0.1, 0.2, 0.3, 0.4). Nothing was reseeded to clean this up.
+
+Reproduce any row: `run_identifiability_case(delta_x=..., seed_idx=...,
+blood_frame_indices=(frame,) or ())`, root seed 20240401.
+
+| variant | blood frame | delta_x | seed_idx | seed | n_iter | reason |
+|---|---|---|---|---|---|---|
+| tissue-only | — | 0.1 | 5 | 6779265272785279763 | 300 | stalled (rel. residual 3.054e+03) |
+| tissue-only | — | 0.1 | 18 | 15255070336721197181 | 175 | non-finite iterate |
+| tissue-only | — | 0.2 | 2 | 6455790221252972928 | 188 | non-finite iterate |
+| tissue-only | — | 0.2 | 9 | 7981606890290359029 | 135 | non-finite iterate |
+| tissue-only | — | 0.2 | 17 | 16007838611052960654 | 178 | non-finite iterate |
+| tissue-only | — | 0.3 | 11 | 13701067627814082227 | 151 | non-finite iterate |
+| tissue-only | — | 0.3 | 14 | 15769737435926983028 | 193 | non-finite iterate |
+| tissue-only | — | 0.3 | 16 | 4670806921951123494 | 186 | non-finite iterate |
+| tissue-only | — | 0.4 | 1 | 13036721228353021585 | 135 | non-finite iterate |
+| tissue-only | — | 0.4 | 2 | 9816833731244394585 | 212 | non-finite iterate |
+| tissue-only | — | 0.4 | 6 | 1263358949774442368 | 172 | non-finite iterate |
+| tissue-only | — | 0.4 | 11 | 11256229709133109221 | 189 | non-finite iterate |
+| tissue-only | — | 0.4 | 16 | 16845001384696147547 | 185 | non-finite iterate |
+| tissue-only | — | 0.4 | 17 | 1274918935039283633 | 191 | non-finite iterate |
+| +1 C_P | 3 | 0.1 | 0 | 10700753966500982286 | 300 | stalled (rel. residual 1.785e+02) |
+| +1 C_P | 3 | 0.1 | 18 | 15255070336721197181 | 171 | non-finite iterate |
+| +1 C_P | 3 | 0.2 | 17 | 16007838611052960654 | 185 | non-finite iterate |
+| +1 C_P | 3 | 0.3 | 0 | 15394035201083549913 | 100 | non-finite iterate |
+| +1 C_P | 3 | 0.3 | 14 | 15769737435926983028 | 193 | non-finite iterate |
+| +1 C_P | 3 | 0.3 | 17 | 12480438160523480641 | 39 | non-finite iterate |
+| +1 C_P | 3 | 0.4 | 2 | 9816833731244394585 | 265 | non-finite iterate |
+| +1 C_P | 3 | 0.4 | 5 | 8589059646236421522 | 163 | non-finite iterate |
+| +1 C_P | 3 | 0.4 | 6 | 1263358949774442368 | 198 | non-finite iterate |
+| +1 C_P | 3 | 0.4 | 10 | 11783052124265024513 | 141 | non-finite iterate |
+| +1 C_P | 3 | 0.4 | 13 | 2163911853804287808 | 146 | non-finite iterate |
+| +1 C_P | 3 | 0.4 | 15 | 2190457922699464978 | 300 | stalled (rel. residual 5.725e-02) |
+| +1 C_P | 3 | 0.4 | 16 | 16845001384696147547 | 203 | non-finite iterate |
+| +1 C_P | 3 | 0.4 | 17 | 1274918935039283633 | 173 | non-finite iterate |
+| +1 C_P | 10 | 0.1 | 5 | 6779265272785279763 | 300 | stalled (rel. residual 2.494e+04) |
+| +1 C_P | 10 | 0.1 | 18 | 15255070336721197181 | 157 | non-finite iterate |
+| +1 C_P | 10 | 0.2 | 2 | 6455790221252972928 | 210 | non-finite iterate |
+| +1 C_P | 10 | 0.2 | 9 | 7981606890290359029 | 192 | non-finite iterate |
+| +1 C_P | 10 | 0.3 | 0 | 15394035201083549913 | 51 | non-finite iterate |
+| +1 C_P | 10 | 0.3 | 4 | 1195345485378046392 | 177 | non-finite iterate |
+| +1 C_P | 10 | 0.3 | 14 | 15769737435926983028 | 216 | non-finite iterate |
+| +1 C_P | 10 | 0.3 | 16 | 4670806921951123494 | 189 | non-finite iterate |
+| +1 C_P | 10 | 0.4 | 2 | 9816833731244394585 | 253 | non-finite iterate |
+| +1 C_P | 10 | 0.4 | 5 | 8589059646236421522 | 131 | non-finite iterate |
+| +1 C_P | 10 | 0.4 | 6 | 1263358949774442368 | 217 | non-finite iterate |
+| +1 C_P | 10 | 0.4 | 7 | 1721363678429367093 | 86 | non-finite iterate |
+| +1 C_P | 10 | 0.4 | 10 | 11783052124265024513 | 157 | non-finite iterate |
+| +1 C_P | 10 | 0.4 | 11 | 11256229709133109221 | 209 | non-finite iterate |
+| +1 C_P | 10 | 0.4 | 15 | 2190457922699464978 | 300 | stalled (rel. residual 5.725e-02) |
+| +1 C_P | 10 | 0.4 | 16 | 16845001384696147547 | 212 | non-finite iterate |
+| +1 C_P | 10 | 0.4 | 17 | 1274918935039283633 | 190 | non-finite iterate |
+| +1 C_P | 17 | 0.2 | 2 | 6455790221252972928 | 129 | non-finite iterate |
+| +1 C_P | 17 | 0.2 | 9 | 7981606890290359029 | 120 | non-finite iterate |
+| +1 C_P | 17 | 0.3 | 14 | 15769737435926983028 | 211 | non-finite iterate |
+| +1 C_P | 17 | 0.4 | 2 | 9816833731244394585 | 243 | non-finite iterate |
+| +1 C_P | 17 | 0.4 | 10 | 11783052124265024513 | 194 | non-finite iterate |
+| +1 C_P | 17 | 0.4 | 17 | 1274918935039283633 | 213 | non-finite iterate |
+| +1 C_P | 24 | 0.2 | 9 | 7981606890290359029 | 116 | non-finite iterate |
+| +1 C_P | 24 | 0.3 | 0 | 15394035201083549913 | 60 | non-finite iterate |
+| +1 C_P | 24 | 0.3 | 4 | 1195345485378046392 | 122 | non-finite iterate |
+| +1 C_P | 24 | 0.3 | 14 | 15769737435926983028 | 157 | non-finite iterate |
+| +1 C_P | 24 | 0.4 | 2 | 9816833731244394585 | 245 | non-finite iterate |
+| +1 C_P | 24 | 0.4 | 10 | 11783052124265024513 | 162 | non-finite iterate |
+| +1 C_P | 24 | 0.4 | 17 | 1274918935039283633 | 215 | non-finite iterate |
+
+
+## M4.4 step 6 — rejected runs (under noise)
+
+**386 of 960 noisy runs rejected: 275 diverged, 84 trivial stops, 27 stalled.**
+(The grid is 1280 runs; its 320 noiseless cells are omitted here because they are the
+same seeds already logged in the section above — the two stopping conventions coincide
+exactly when delta_y = 0.)
+
+Three distinct failure modes, counted separately because they mean different things:
+
+- **non-finite iterate** (275) — an unconstrained `mu` overflows `exp(mu*t)`.
+  Same mode as M4.3. Almost entirely under the `rms` convention, which runs all 300
+  iterations; `morozov`'s early stopping nearly eliminates it.
+- **trivial stop** (84) — *`morozov` only, and entirely at low_count.*
+  `tau*delta_y*sqrt(n_obs) = 6.8*0.073*10 = 5.0` already exceeds the initial residual, so
+  the rule fires at iteration 0 and `x_final` is bit-identical to the initial guess.
+  Verified directly: the reported zeta equals the initial guess's zeta to all 16 digits.
+  The discrepancy principle is behaving correctly — it is saying the data is too noisy to
+  improve on the guess — but this is not a fit, so it is rejected rather than averaged
+  into the tables. See DECISIONS.md D-M4-11.
+- **stalled** (27) — finite for all 300 iterations but never reaching the
+  noise floor (rejected above 2x it, D-M4-10). `rms` only, since `morozov` has a working
+  stopping rule to defer to.
+
+The most important number here is what is missing: at low_count under `rms`, the
+tissue-only arm leaves **2 survivors out of 80** and the one-C_P arm leaves **0 out of
+80**. Nothing was reseeded and no tolerance was relaxed to manufacture survivors.
+
+Reproduce any row: `run_identifiability_case(delta_x=..., seed_idx=..., noise_level=...,
+stopping=..., blood_frame_indices=(3,) or ())`, root seed 20240401.
+
+| variant | stopping | noise | delta_x | seed_idx | seed | n_iter | reason |
+|---|---|---|---|---|---|---|---|
+| tissue-only | rms | high_count | 0.1 | 5 | 6779265272785279763 | 170 | non-finite iterate |
+| tissue-only | rms | high_count | 0.1 | 10 | 12413828073962532520 | 300 | stalled (rel. residual 3.212e-02 vs floor 2.939e-03) |
+| tissue-only | rms | high_count | 0.1 | 17 | 6487172617831067072 | 300 | stalled (rel. residual 1.333e-02 vs floor 3.017e-03) |
+| tissue-only | rms | high_count | 0.1 | 18 | 15255070336721197181 | 186 | non-finite iterate |
+| tissue-only | rms | high_count | 0.1 | 19 | 418620421686733813 | 300 | stalled (rel. residual 1.679e-02 vs floor 2.693e-03) |
+| tissue-only | rms | high_count | 0.2 | 2 | 6455790221252972928 | 203 | non-finite iterate |
+| tissue-only | rms | high_count | 0.2 | 10 | 3017423835907537192 | 300 | stalled (rel. residual 3.189e-02 vs floor 2.939e-03) |
+| tissue-only | rms | high_count | 0.2 | 17 | 16007838611052960654 | 165 | non-finite iterate |
+| tissue-only | rms | high_count | 0.2 | 19 | 2741174279437232974 | 300 | stalled (rel. residual 1.689e-02 vs floor 2.693e-03) |
+| tissue-only | rms | high_count | 0.3 | 4 | 1195345485378046392 | 156 | non-finite iterate |
+| tissue-only | rms | high_count | 0.3 | 10 | 1744425451868730087 | 300 | stalled (rel. residual 3.200e-02 vs floor 2.939e-03) |
+| tissue-only | rms | high_count | 0.3 | 11 | 13701067627814082227 | 157 | non-finite iterate |
+| tissue-only | rms | high_count | 0.3 | 14 | 15769737435926983028 | 185 | non-finite iterate |
+| tissue-only | rms | high_count | 0.3 | 16 | 4670806921951123494 | 188 | non-finite iterate |
+| tissue-only | rms | high_count | 0.3 | 17 | 12480438160523480641 | 300 | stalled (rel. residual 1.366e-02 vs floor 3.017e-03) |
+| tissue-only | rms | high_count | 0.3 | 19 | 4147642332521141727 | 300 | stalled (rel. residual 1.933e-02 vs floor 2.693e-03) |
+| tissue-only | rms | high_count | 0.4 | 2 | 9816833731244394585 | 216 | non-finite iterate |
+| tissue-only | rms | high_count | 0.4 | 6 | 1263358949774442368 | 163 | non-finite iterate |
+| tissue-only | rms | high_count | 0.4 | 10 | 11783052124265024513 | 158 | non-finite iterate |
+| tissue-only | rms | high_count | 0.4 | 11 | 11256229709133109221 | 202 | non-finite iterate |
+| tissue-only | rms | high_count | 0.4 | 17 | 1274918935039283633 | 187 | non-finite iterate |
+| tissue-only | rms | high_count | 0.4 | 19 | 18325154317230509695 | 300 | stalled (rel. residual 1.945e-02 vs floor 2.693e-03) |
+| tissue-only | rms | normal_count | 0.1 | 2 | 14817441891826887226 | 173 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.1 | 3 | 7087585902345953051 | 195 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.1 | 7 | 13482974565168760413 | 171 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.1 | 8 | 8422819710394504569 | 224 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.1 | 10 | 12413828073962532520 | 222 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.1 | 13 | 4020597517779351662 | 235 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.1 | 16 | 6458611781295944111 | 176 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.1 | 18 | 15255070336721197181 | 181 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.2 | 2 | 6455790221252972928 | 180 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.2 | 3 | 11475075126778771796 | 172 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.2 | 7 | 3699861140717967782 | 300 | stalled (rel. residual 7.056e-02 vs floor 1.024e-02) |
+| tissue-only | rms | normal_count | 0.2 | 8 | 2603647793336573112 | 223 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.2 | 10 | 3017423835907537192 | 227 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.2 | 13 | 9714517516883929489 | 247 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.2 | 16 | 12699396853484669392 | 171 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.2 | 18 | 2228552658003644967 | 185 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 0 | 15394035201083549913 | 92 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 1 | 10837233372687690179 | 300 | stalled (rel. residual 6.191e-02 vs floor 1.114e-02) |
+| tissue-only | rms | normal_count | 0.3 | 2 | 8630701097559126812 | 175 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 3 | 8224609558890423419 | 187 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 4 | 1195345485378046392 | 219 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 7 | 10748816607767354200 | 174 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 8 | 13819258390552285198 | 219 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 10 | 1744425451868730087 | 195 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 11 | 13701067627814082227 | 152 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 13 | 3127501782791377564 | 242 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 14 | 15769737435926983028 | 208 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 16 | 4670806921951123494 | 178 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.3 | 18 | 10775730971693991329 | 193 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 1 | 13036721228353021585 | 171 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 2 | 9816833731244394585 | 225 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 3 | 16829860601542314652 | 197 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 6 | 1263358949774442368 | 246 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 7 | 1721363678429367093 | 168 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 8 | 14509634575753145916 | 229 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 10 | 11783052124265024513 | 200 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 11 | 11256229709133109221 | 215 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 13 | 2163911853804287808 | 241 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 16 | 16845001384696147547 | 184 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 17 | 1274918935039283633 | 207 | non-finite iterate |
+| tissue-only | rms | normal_count | 0.4 | 18 | 7850155921149193305 | 197 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 0 | 10700753966500982286 | 132 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 1 | 5424990108287796935 | 184 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 2 | 14817441891826887226 | 156 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 3 | 7087585902345953051 | 158 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 4 | 1807916131356517894 | 141 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 5 | 6779265272785279763 | 140 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 6 | 6351801794234391670 | 190 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 7 | 13482974565168760413 | 124 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 8 | 8422819710394504569 | 98 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 9 | 13743115229075106723 | 126 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 10 | 12413828073962532520 | 173 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 11 | 10046158082345470303 | 181 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 12 | 12078227055911820856 | 163 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 13 | 4020597517779351662 | 146 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 14 | 17481229501335906182 | 135 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 15 | 12375987125319700978 | 140 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 16 | 6458611781295944111 | 145 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 17 | 6487172617831067072 | 136 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 18 | 15255070336721197181 | 153 | non-finite iterate |
+| tissue-only | rms | low_count | 0.1 | 19 | 418620421686733813 | 147 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 0 | 16048746028836443131 | 127 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 1 | 11976309891222107669 | 193 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 2 | 6455790221252972928 | 163 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 3 | 11475075126778771796 | 163 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 4 | 9289978634712585093 | 151 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 5 | 5022816374395219446 | 153 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 6 | 15437077184617616928 | 187 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 7 | 3699861140717967782 | 145 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 9 | 7981606890290359029 | 158 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 10 | 3017423835907537192 | 174 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 11 | 2897091825132234232 | 145 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 12 | 363812672167313503 | 159 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 13 | 9714517516883929489 | 145 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 14 | 13146475485835159100 | 128 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 15 | 9262293349555376351 | 133 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 16 | 12699396853484669392 | 115 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 17 | 16007838611052960654 | 130 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 18 | 2228552658003644967 | 172 | non-finite iterate |
+| tissue-only | rms | low_count | 0.2 | 19 | 2741174279437232974 | 137 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 0 | 15394035201083549913 | 61 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 1 | 10837233372687690179 | 177 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 2 | 8630701097559126812 | 150 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 3 | 8224609558890423419 | 152 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 4 | 1195345485378046392 | 140 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 5 | 14328312662999330441 | 155 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 6 | 9515698613298086135 | 182 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 7 | 10748816607767354200 | 120 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 9 | 937075788011410 | 127 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 10 | 1744425451868730087 | 179 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 11 | 13701067627814082227 | 146 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 12 | 16741359367466339730 | 168 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 13 | 3127501782791377564 | 143 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 14 | 15769737435926983028 | 130 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 15 | 10357364574037529739 | 135 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 16 | 4670806921951123494 | 148 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 17 | 12480438160523480641 | 134 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 18 | 10775730971693991329 | 148 | non-finite iterate |
+| tissue-only | rms | low_count | 0.3 | 19 | 4147642332521141727 | 184 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 0 | 16302708932768381610 | 120 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 1 | 13036721228353021585 | 168 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 2 | 9816833731244394585 | 149 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 3 | 16829860601542314652 | 116 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 4 | 17753438639555747836 | 119 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 5 | 8589059646236421522 | 148 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 6 | 1263358949774442368 | 158 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 7 | 1721363678429367093 | 110 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 8 | 14509634575753145916 | 71 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 9 | 4055570380557324569 | 135 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 10 | 11783052124265024513 | 139 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 11 | 11256229709133109221 | 131 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 12 | 9612667308351000028 | 169 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 13 | 2163911853804287808 | 143 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 14 | 17210172978620341560 | 119 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 15 | 2190457922699464978 | 67 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 16 | 16845001384696147547 | 145 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 17 | 1274918935039283633 | 174 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 18 | 7850155921149193305 | 135 | non-finite iterate |
+| tissue-only | rms | low_count | 0.4 | 19 | 18325154317230509695 | 161 | non-finite iterate |
+| tissue-only | morozov | normal_count | 0.1 | 8 | 8422819710394504569 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 0 | 10700753966500982286 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 1 | 5424990108287796935 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 2 | 14817441891826887226 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 3 | 7087585902345953051 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 4 | 1807916131356517894 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 5 | 6779265272785279763 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 6 | 6351801794234391670 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 7 | 13482974565168760413 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 8 | 8422819710394504569 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 9 | 13743115229075106723 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 10 | 12413828073962532520 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 11 | 10046158082345470303 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 12 | 12078227055911820856 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 13 | 4020597517779351662 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 14 | 17481229501335906182 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 15 | 12375987125319700978 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 16 | 6458611781295944111 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 17 | 6487172617831067072 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 18 | 15255070336721197181 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.1 | 19 | 418620421686733813 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 0 | 16048746028836443131 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 2 | 6455790221252972928 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 4 | 9289978634712585093 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 5 | 5022816374395219446 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 6 | 15437077184617616928 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 7 | 3699861140717967782 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 8 | 2603647793336573112 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 10 | 3017423835907537192 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 11 | 2897091825132234232 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 12 | 363812672167313503 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 14 | 13146475485835159100 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 15 | 9262293349555376351 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.2 | 17 | 16007838611052960654 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.3 | 0 | 15394035201083549913 | 61 | non-finite iterate |
+| tissue-only | morozov | low_count | 0.3 | 1 | 10837233372687690179 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.3 | 2 | 8630701097559126812 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.3 | 3 | 8224609558890423419 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.3 | 4 | 1195345485378046392 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.3 | 6 | 9515698613298086135 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.3 | 17 | 12480438160523480641 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.4 | 3 | 16829860601542314652 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.4 | 5 | 8589059646236421522 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.4 | 12 | 9612667308351000028 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.4 | 14 | 17210172978620341560 | 0 | trivial stop (rule fired at iteration 0) |
+| tissue-only | morozov | low_count | 0.4 | 17 | 1274918935039283633 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | rms | high_count | 0.1 | 0 | 10700753966500982286 | 202 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.1 | 5 | 6779265272785279763 | 196 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.1 | 6 | 6351801794234391670 | 300 | stalled (rel. residual 4.858e-02 vs floor 2.915e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.1 | 7 | 13482974565168760413 | 300 | stalled (rel. residual 2.245e-02 vs floor 3.265e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.1 | 9 | 13743115229075106723 | 300 | stalled (rel. residual 1.099e-02 vs floor 2.850e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.1 | 12 | 12078227055911820856 | 300 | stalled (rel. residual 1.483e-02 vs floor 3.122e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.1 | 17 | 6487172617831067072 | 123 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.1 | 18 | 15255070336721197181 | 182 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.2 | 2 | 6455790221252972928 | 195 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.2 | 6 | 15437077184617616928 | 300 | stalled (rel. residual 4.417e-02 vs floor 2.915e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.2 | 7 | 3699861140717967782 | 300 | stalled (rel. residual 2.673e-02 vs floor 3.265e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.2 | 9 | 7981606890290359029 | 300 | stalled (rel. residual 1.247e-02 vs floor 2.850e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.2 | 12 | 363812672167313503 | 300 | stalled (rel. residual 1.569e-02 vs floor 3.122e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.2 | 17 | 16007838611052960654 | 202 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.2 | 18 | 2228552658003644967 | 159 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 0 | 15394035201083549913 | 67 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 4 | 1195345485378046392 | 152 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 6 | 9515698613298086135 | 300 | stalled (rel. residual 4.417e-02 vs floor 2.915e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 7 | 10748816607767354200 | 300 | stalled (rel. residual 2.145e-02 vs floor 3.265e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 9 | 937075788011410 | 58 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 11 | 13701067627814082227 | 157 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 12 | 16741359367466339730 | 300 | stalled (rel. residual 1.569e-02 vs floor 3.122e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 14 | 15769737435926983028 | 163 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 16 | 4670806921951123494 | 300 | stalled (rel. residual 8.819e+03 vs floor 2.884e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.3 | 17 | 12480438160523480641 | 47 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 2 | 9816833731244394585 | 229 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 5 | 8589059646236421522 | 165 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 6 | 1263358949774442368 | 177 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 9 | 4055570380557324569 | 300 | stalled (rel. residual 1.098e-02 vs floor 2.850e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 10 | 11783052124265024513 | 141 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 11 | 11256229709133109221 | 197 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 12 | 9612667308351000028 | 300 | stalled (rel. residual 1.483e-02 vs floor 3.122e-03) |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 15 | 2190457922699464978 | 137 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 16 | 16845001384696147547 | 187 | non-finite iterate |
+| +1 C_P (frame 3) | rms | high_count | 0.4 | 17 | 1274918935039283633 | 183 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.1 | 0 | 10700753966500982286 | 171 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.1 | 1 | 5424990108287796935 | 201 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.1 | 5 | 6779265272785279763 | 173 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.1 | 7 | 13482974565168760413 | 240 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.1 | 12 | 12078227055911820856 | 191 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.1 | 14 | 17481229501335906182 | 172 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.1 | 16 | 6458611781295944111 | 196 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.1 | 18 | 15255070336721197181 | 168 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 0 | 16048746028836443131 | 300 | stalled (rel. residual 2.357e-02 vs floor 1.103e-02) |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 1 | 11976309891222107669 | 201 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 2 | 6455790221252972928 | 181 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 7 | 3699861140717967782 | 209 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 12 | 363812672167313503 | 237 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 13 | 9714517516883929489 | 175 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 16 | 12699396853484669392 | 201 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 17 | 16007838611052960654 | 196 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.2 | 18 | 2228552658003644967 | 177 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 0 | 15394035201083549913 | 91 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 1 | 10837233372687690179 | 188 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 4 | 1195345485378046392 | 161 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 7 | 10748816607767354200 | 238 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 11 | 13701067627814082227 | 147 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 12 | 16741359367466339730 | 176 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 13 | 3127501782791377564 | 200 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 14 | 15769737435926983028 | 187 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 16 | 4670806921951123494 | 200 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 18 | 10775730971693991329 | 176 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.3 | 19 | 4147642332521141727 | 205 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 0 | 16302708932768381610 | 300 | stalled (rel. residual 6.956e-02 vs floor 1.103e-02) |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 1 | 13036721228353021585 | 185 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 2 | 9816833731244394585 | 191 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 5 | 8589059646236421522 | 161 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 6 | 1263358949774442368 | 177 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 10 | 11783052124265024513 | 139 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 11 | 11256229709133109221 | 190 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 12 | 9612667308351000028 | 179 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 13 | 2163911853804287808 | 150 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 15 | 2190457922699464978 | 85 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 16 | 16845001384696147547 | 200 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 17 | 1274918935039283633 | 193 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 18 | 7850155921149193305 | 177 | non-finite iterate |
+| +1 C_P (frame 3) | rms | normal_count | 0.4 | 19 | 18325154317230509695 | 172 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 0 | 10700753966500982286 | 149 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 1 | 5424990108287796935 | 180 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 2 | 14817441891826887226 | 158 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 3 | 7087585902345953051 | 182 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 4 | 1807916131356517894 | 178 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 5 | 6779265272785279763 | 143 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 6 | 6351801794234391670 | 141 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 7 | 13482974565168760413 | 220 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 8 | 8422819710394504569 | 175 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 9 | 13743115229075106723 | 192 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 10 | 12413828073962532520 | 155 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 11 | 10046158082345470303 | 136 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 12 | 12078227055911820856 | 135 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 13 | 4020597517779351662 | 216 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 14 | 17481229501335906182 | 142 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 15 | 12375987125319700978 | 137 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 16 | 6458611781295944111 | 294 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 17 | 6487172617831067072 | 149 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 18 | 15255070336721197181 | 137 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.1 | 19 | 418620421686733813 | 120 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 0 | 16048746028836443131 | 145 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 1 | 11976309891222107669 | 186 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 2 | 6455790221252972928 | 163 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 3 | 11475075126778771796 | 172 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 4 | 9289978634712585093 | 177 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 5 | 5022816374395219446 | 181 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 6 | 15437077184617616928 | 140 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 7 | 3699861140717967782 | 230 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 8 | 2603647793336573112 | 170 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 9 | 7981606890290359029 | 176 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 10 | 3017423835907537192 | 134 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 11 | 2897091825132234232 | 115 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 12 | 363812672167313503 | 117 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 13 | 9714517516883929489 | 222 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 14 | 13146475485835159100 | 120 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 15 | 9262293349555376351 | 164 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 16 | 12699396853484669392 | 271 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 17 | 16007838611052960654 | 133 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 18 | 2228552658003644967 | 141 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.2 | 19 | 2741174279437232974 | 159 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 0 | 15394035201083549913 | 62 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 1 | 10837233372687690179 | 178 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 2 | 8630701097559126812 | 110 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 3 | 8224609558890423419 | 169 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 4 | 1195345485378046392 | 161 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 5 | 14328312662999330441 | 167 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 6 | 9515698613298086135 | 151 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 7 | 10748816607767354200 | 221 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 8 | 13819258390552285198 | 188 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 9 | 937075788011410 | 210 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 10 | 1744425451868730087 | 133 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 11 | 13701067627814082227 | 140 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 12 | 16741359367466339730 | 139 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 13 | 3127501782791377564 | 206 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 14 | 15769737435926983028 | 135 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 15 | 10357364574037529739 | 140 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 16 | 4670806921951123494 | 198 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 17 | 12480438160523480641 | 51 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 18 | 10775730971693991329 | 143 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.3 | 19 | 4147642332521141727 | 122 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 0 | 16302708932768381610 | 145 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 1 | 13036721228353021585 | 160 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 2 | 9816833731244394585 | 149 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 3 | 16829860601542314652 | 164 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 4 | 17753438639555747836 | 162 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 5 | 8589059646236421522 | 132 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 6 | 1263358949774442368 | 185 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 7 | 1721363678429367093 | 126 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 8 | 14509634575753145916 | 179 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 9 | 4055570380557324569 | 178 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 10 | 11783052124265024513 | 141 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 11 | 11256229709133109221 | 121 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 12 | 9612667308351000028 | 128 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 13 | 2163911853804287808 | 135 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 14 | 17210172978620341560 | 149 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 15 | 2190457922699464978 | 139 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 16 | 16845001384696147547 | 190 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 17 | 1274918935039283633 | 158 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 18 | 7850155921149193305 | 133 | non-finite iterate |
+| +1 C_P (frame 3) | rms | low_count | 0.4 | 19 | 18325154317230509695 | 135 | non-finite iterate |
+| +1 C_P (frame 3) | morozov | high_count | 0.3 | 0 | 15394035201083549913 | 67 | non-finite iterate |
+| +1 C_P (frame 3) | morozov | high_count | 0.3 | 9 | 937075788011410 | 58 | non-finite iterate |
+| +1 C_P (frame 3) | morozov | high_count | 0.3 | 17 | 12480438160523480641 | 47 | non-finite iterate |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 0 | 10700753966500982286 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 1 | 5424990108287796935 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 2 | 14817441891826887226 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 3 | 7087585902345953051 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 4 | 1807916131356517894 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 5 | 6779265272785279763 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 6 | 6351801794234391670 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 7 | 13482974565168760413 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 8 | 8422819710394504569 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 9 | 13743115229075106723 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 10 | 12413828073962532520 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 11 | 10046158082345470303 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 12 | 12078227055911820856 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 13 | 4020597517779351662 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 14 | 17481229501335906182 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 15 | 12375987125319700978 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 16 | 6458611781295944111 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 17 | 6487172617831067072 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 18 | 15255070336721197181 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.1 | 19 | 418620421686733813 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 0 | 16048746028836443131 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 2 | 6455790221252972928 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 6 | 15437077184617616928 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 7 | 3699861140717967782 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 8 | 2603647793336573112 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 9 | 7981606890290359029 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 10 | 3017423835907537192 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 12 | 363812672167313503 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 14 | 13146475485835159100 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 15 | 9262293349555376351 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.2 | 17 | 16007838611052960654 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.3 | 2 | 8630701097559126812 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.3 | 3 | 8224609558890423419 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.3 | 6 | 9515698613298086135 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.3 | 17 | 12480438160523480641 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.4 | 3 | 16829860601542314652 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.4 | 5 | 8589059646236421522 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.4 | 12 | 9612667308351000028 | 0 | trivial stop (rule fired at iteration 0) |
+| +1 C_P (frame 3) | morozov | low_count | 0.4 | 14 | 17210172978620341560 | 0 | trivial stop (rule fired at iteration 0) |
