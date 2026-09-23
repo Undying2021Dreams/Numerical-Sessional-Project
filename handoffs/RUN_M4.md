@@ -1,7 +1,7 @@
 # RUN_M4.md — M4 handoff report
 
 **Milestone:** M4 — Noise, regularisation, and identifiability experiments  
-**Status:** M4.1 ✅  M4.2 ✅  M4.3 ✅  M4.4 ✅ (all six steps)  M4.5 ☐  
+**Status:** M4.1 ✅  M4.2 ✅  M4.3 ✅  M4.4 ✅ (all six steps)  M4.5 ✅
 
 ---
 
@@ -168,7 +168,7 @@ not a rule-4 tolerance loosening, and it is scoped to `src/identifiability.py` �
 
 `spread` = `max(K1_est/K1_true) / min(K1_est/K1_true) − 1` over the four regions.
 
-**The headline number: the four K1 ratios coincide to 1.8e-08 in the worst of 66
+**The headline number: the four K1 ratios coincide to 1.83e-08 in the worst of 66
 accepted runs, while K1 itself is wrong by up to 127%.** The two quantities differ by
 a factor of 7.0e+07. k2 and k3 are recovered to ≤ 1.4e-06 in the very same runs — a
 factor of 9.3e+05 better than K1.
@@ -217,7 +217,7 @@ affordable, take it early.
 | Criterion (remaining_task.md 4.4) | Verdict | Measured |
 |---|---|---|
 | 1. Fit with tissue TACs only | ✅ | 80 runs, 66 accepted |
-| 2. Four K1 ratios coincide; report spread | ✅ | worst spread **1.80e-08** |
+| 2. Four K1 ratios coincide; report spread | ✅ | worst spread **1.83e-08** |
 | 3. k2, k3 accurate in the same run | ✅ | ≤ 1.36e-06 and ≤ 5.31e-07 |
 | 4. C_P scaled by 1/ζ | ✅ | ζ(K1) vs ζ(λ) agree to 9.19e-08 |
 | 5. One C_P measurement ⇒ ζ → 1 | ✅ | |ζ−1| ≤ 7.65e-08 (best sample) |
@@ -397,5 +397,78 @@ worth knowing, and not something to average over silently.
 
 ## What was not done
 
-- M4.5 consistency and regularisation checks — next
 - No matplotlib figure for M4.4 yet (both JSONs hold everything a plot would need)
+
+---
+
+# M4.5 — Consistency and regularisation checks
+
+**Status:** both M4.5 checks run; low-count consistency cannot be estimated
+because the corrected discrepancy rule stops before any step in all 20 cases.
+**Script:** `experiments/m4_consistency_regularization.py`, root seed 20240401;
+**artifacts:** `results/m4/consistency_regularization.json` and
+`results/m4/consistency_regularization.png` (config hash `2f38ba062972`).
+
+The consistency arm fits the 12 regional kinetic parameters with one exact
+arterial sample at frame 3, frozen plasma-fraction parameters, `delta_x=0.1`,
+20 seeds per count level, and the dimensionally correct Morozov noise norm
+(D-M4-13). The error is `||K_est-K_true||_2/||K_true||_2` over all 12 kinetics.
+Theorem 21 is an asymptotic consistency claim; the following is a finite-noise
+check, not a proof of it.
+
+| noise | measured mean RMS δ_y | accepted / 20 | divergence | trivial stop | mean kinetic error ± SD |
+|---|---:|---:|---:|---:|---:|
+| noiseless | 0 | 18 | 1 | 0 | 1.876e-07 ± 1.064e-07 |
+| high_count | 0.002894 | 20 | 0 | 0 | 0.12109 ± 0.04940 |
+| normal_count | 0.011220 | 20 | 0 | 0 | 0.14430 ± 0.04052 |
+| low_count | 0.068866 | **0** | 0 | **20** | unavailable |
+
+The mean error falls by 0.02321 from normal to high count; 16/20 paired
+seed indices improve, with paired-difference SD 0.04053. It then falls from
+0.12109 to 1.876e-07 in the noiseless accepted runs. The low-count outcome
+is a failure of the reconstruction test at that noise level, not an error of
+zero: the rule judges the data too noisy to improve on the initial guess.
+Only 18 noiseless fits passed the residual gate; all rejections are in
+`logs/failures.md`.
+
+For the regularisation comparison (D-M4-14), each on/off pair receives the
+same observations and starting vector. The sample variance statistic is the
+sum of variances of each of the 12 estimates divided by its true value.
+The full nonlinear fit uses Morozov stopping; the table uses only the 14
+seeds in each noise group where **both** arms stopped after at least one step.
+
+| noise | on accepted | off accepted | off diverged | common seeds | variance on | variance off | off/on |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| high_count | 20/20 | 14/20 | 5/20 | 14 | 0.16263 | 0.28668 | 1.76 |
+| normal_count | 20/20 | 14/20 | 6/20 | 14 | 0.30952 | 1.35754 | 4.39 |
+
+The remaining high-count off run reached iteration 300 without satisfying
+Morozov. Because selecting common survivors can bias variance, a second
+paired check fixes `x0` and its Jacobian, takes exactly one IRGNM step at
+schedule iteration 70, and retains all 20 observations. It isolates variance
+caused by noise; the one-step vectors are a diagnostic, not final fits.
+
+| noise | one-step variance on | one-step variance off | off/on |
+|---|---:|---:|---:|
+| high_count | 1.451e-04 | 0.32372 | 2231 |
+| normal_count | 0.002279 | 2.85241 | 1251 |
+| low_count | 0.094631 | 39.75078 | 420 |
+
+**Acceptance:** the noise-error trend is measured for noiseless, high, and
+normal count, with the low-count failure exposed; regularisation lowers
+parameter variance in both full fitted survivors and the controlled paired
+step. The figure plots both checks. `src/` was unchanged; the new test
+checks the seeded paired variance effect. Swapping the on/off diagonals
+made that test fail (1 failed); the mutation was reverted. Final
+verification: **134 passed** in the full suite and **3 passed** in
+`tests/test_no_library_solvers.py`.
+
+**Reproduce:** `python experiments/m4_consistency_regularization.py` with
+`requirements.txt` installed. On the current machine the default Anaconda
+Matplotlib extension is incompatible with its NumPy; the numerical JSON was
+generated with `/opt/anaconda3/bin/python ... --no-plot`, then the PNG from
+the unchanged JSON with the compatible `m1-aligner` Python and `--plot-only`.
+The PNG embeds the root seed and config hash in its metadata.
+
+**Open for M5:** re-audit M4.3's old finiteness-only convergence counts and
+its RMS stopping convention before treating its tables as stopped fits.

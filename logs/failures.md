@@ -1151,3 +1151,27 @@ stopping=..., blood_frame_indices=(3,) or ())`, root seed 20240401.
 | +1 C_P (frame 3) | morozov | low_count | 0.4 | 5 | 8589059646236421522 | 0 | trivial stop (rule fired at iteration 0) |
 | +1 C_P (frame 3) | morozov | low_count | 0.4 | 12 | 9612667308351000028 | 0 | trivial stop (rule fired at iteration 0) |
 | +1 C_P (frame 3) | morozov | low_count | 0.4 | 14 | 17210172978620341560 | 0 | trivial stop (rule fired at iteration 0) |
+
+## M4.5 consistency and regularisation checks
+
+Reproduce with `experiments/m4_consistency_regularization.py`, root seed
+20240401, `delta_x=0.1`, one exact C_P measurement at frame 3, 20 seeds, and
+`delta_y*sqrt(n_obs)` for Morozov stopping. Individual outcomes and seeds are in
+`results/m4/consistency_regularization.json`.
+
+- Consistency arm, noiseless: seed_idx 0 (seed 10700753966500982286) stayed
+  finite but failed the `1e-6` relative-residual gate; seed_idx 18 (seed
+  15255070336721197181) diverged. Thus 18/20 fits were accepted.
+- Consistency arm, low_count: **all seed_idx 0..19 stopped at iteration 0**.
+  None is called a reconstruction; the error statistic is reported as missing.
+- Full-fit regularisation-off arm, high_count: seed_idx 0, 1, 3, 5, 18
+  diverged; seed_idx 6 remained finite but did not satisfy Morozov by
+  iteration 300. Regularisation on stopped successfully for all 20.
+- Full-fit regularisation-off arm, normal_count: seed_idx 1, 3, 8, 14, 18,
+  19 diverged. Regularisation on stopped successfully for all 20.
+- The default Anaconda plotting stack on this machine failed to import
+  Matplotlib (`numpy 2.0.2` with a NumPy-1.x-built Matplotlib extension).
+  Numeric artifacts were generated in that environment; the plot was then
+  generated from the stamped JSON using the separate compatible environment
+  and the script's `--plot-only` option. No numeric result was silently
+  regenerated in a different environment.

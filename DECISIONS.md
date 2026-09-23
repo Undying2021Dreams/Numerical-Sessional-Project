@@ -999,3 +999,23 @@ records the resulting decisions.
   a λ component to 0; `spread` already maps any non-finite ratio set to NaN, so the
   failure propagates visibly into the statistics instead of being hidden by a warning
   printed once and then suppressed.
+
+- **D-M4-13: M4.5 uses the corrected Morozov norm and one exact early C_P sample.**
+  `compute_delta_y` is an RMS, while IRGNM compares a 2-norm; pass
+  `delta_y*sqrt(n_obs)` as in D-M4-9. The single sample at frame 3 removes the
+  structural K1/lambda ambiguity measured in M4.4. Freeze the unobservable
+  plasma-fraction block at truth and use delta_x=0.1, 20 fixed seeds; this is a
+  controlled consistency check of identifiable kinetic parameters, not a repeat
+  of the full 23-parameter M4.3 grid. Reject iteration-0 stops and report them.
+
+- **D-M4-14: variance is compared on paired observations in two ways.** The
+  primary full-fit comparison uses the same observations and initial guess for
+  regularisation on/off at each seed; variance is the sum of sample variances
+  of the 12 truth-normalised kinetic parameters, computed only on seeds where
+  *both* fits stopped after at least one step. Report failures separately because
+  conditioning on survivors can bias a variance. A fixed-Jacobian one-step
+  check at the same x0 and schedule iteration 70 isolates observation-noise
+  variance with all 20 seeds retained. Iteration 70 lies in the high-count
+  stopping range measured in M4.4; it is a diagnostic, not a claim that a
+  one-step iterate is a complete reconstruction. Zero diagonal means all six
+  regularisation strengths are exactly off; no alternative fitter is used.

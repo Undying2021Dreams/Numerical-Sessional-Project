@@ -11,7 +11,7 @@ when there is no arterial blood data, and its removal by a single blood measurem
 pharmacokinetic modeling using the irreversible two tissue compartment model*, Phys.
 Med. Biol. 69 165008 — in the repo as `paper-2.pdf`.
 
-**Status:** milestones M0-M4.3 are done and verified. **M4.4, M4.5, and M5 remain.**
+**Status:** milestones M0-M4.5 are done and verified. **M5 remains.**
 Everything below reflects the current state.
 
 ---
@@ -49,7 +49,7 @@ These are the rules the project is graded on. Breaking them is worse than being 
 6. **Every modelling choice not dictated by the paper gets recorded** with a one-line
    justification: noise calibration, regularisation constants, stopping tolerances,
    thresholds, initial guesses.
-7. **Keep `pytest` green.** It is **97 tests** right now. If your change breaks someone
+7. **Keep `pytest` green.** It is **134 tests** right now. If your change breaks someone
    else's test, talk to them before editing their test.
 8. **Each milestone ends with a report** in `handoffs/`, following `handoffs/TEMPLATE.md`:
    what was built, measured numbers against each acceptance criterion, assumptions,
@@ -208,7 +208,10 @@ Key trend check results:
 **Figure 7 analogue:** `experiments/m4_plot_figure7.py` → `results/m4/figure7_analogue.png`
   (4 panels, one per δ_x, with K1/k2/k3/K curves and stopping-iteration annotation).
 
-### 4.4 The identifiability signature experiment — the highest-value item in the project
+### 4.4 The identifiability signature experiment — ✅ DONE
+
+Measured worst four-ratio spread 1.83e-08 across 66 accepted noiseless
+tissue-only fits. The full noisy comparison is in `handoffs/RUN_M4.md`.
 
 This is the experiment that shows the paper's mathematics is genuinely encoded in our
 code, rather than its formulas merely transcribed. Everything else in M4 is supporting
@@ -238,7 +241,14 @@ actual fitted parameters is the much stronger claim.
 Jacobian/solver has a bug or the theory is being misapplied — and either is far more
 valuable surfaced than worked around.
 
-### 4.5 Two supporting checks
+### 4.5 Two supporting checks — ✅ DONE
+
+At `delta_x=0.1`, mean kinetic error is 1.876e-07 noiseless, 0.12109 at
+high count and 0.14430 at normal count. Low count causes 20/20 trivial
+stops. On the 14 common successful full-fit seeds per noisy level,
+regularisation reduces relative-parameter variance by 1.76x (high) and
+4.39x (normal). See `handoffs/RUN_M4.md` and
+`experiments/m4_consistency_regularization.py`.
 
 - **Consistency (the paper's Theorem 21):** reconstruction error decreases as the noise
   level decreases. Plot it, report the numbers.
