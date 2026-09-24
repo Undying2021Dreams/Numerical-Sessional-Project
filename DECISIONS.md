@@ -1019,3 +1019,90 @@ records the resulting decisions.
   stopping range measured in M4.4; it is a diagnostic, not a claim that a
   one-step iterate is a complete reconstruction. Zero diagonal means all six
   regularisation strengths are exactly off; no alternative fitter is used.
+
+- **D-M5-1: `run_all.py` invokes every experiment script as a fresh subprocess**
+  (same interpreter, `sys.executable`), rather than importing and calling each
+  script's functions in one process. Reason: several scripts set module-level
+  matplotlib state, and a couple (`m4_grid.py`, `m4_identifiability_noisy.py`)
+  take minutes and print progress meant to be read live — subprocess isolation
+  keeps one script's state from leaking into the next and keeps stdout
+  attributable to the script that produced it. Default behaviour is fail-fast
+  (a later script that reads an earlier script's JSON would fail anyway with a
+  more confusing error); `--continue` overrides this for a full pass/fail
+  report.
+
+- **D-M5-2: the IRGNM solver's "timing vs problem size" is measured on
+  synthetic stacked systems, not the real PET problem.** The real problem is
+  fixed at 104 residuals x 23 parameters — there is no meaningful way to "make
+  it bigger" without changing the model. What actually scales with problem
+  size is the stacked least-squares solve `src.qr.lstsq` performs once per
+  IRGNM iteration (`irgnm_step`'s `"qr"` path); that exact call is benchmarked
+  on synthetic matrices that preserve the real problem's rows:cols aspect
+  ratio (104:23 ~= 4.52:1), so the *shape* of the linear system is faithful
+  even though the entries are synthetic. A single real `run_irgnm` call at the
+  actual fixed size is also timed (ms/iteration) to ground the synthetic curve
+  in one concrete number. `numpy.linalg.lstsq` is the Track B reference at
+  the same synthetic sizes.
+
+- **D-M5-3: the IRGNM-vs-`scipy.optimize.least_squares` Track B comparison
+  gives scipy the same analytic Jacobian and the same D(F) box bounds** (via
+  `jac=analytic_jacobian`, `bounds=`), so the comparison is between two
+  optimisation *strategies* on identical residual/derivative code, not between
+  two different Jacobians. **Measured result, delta_x=0.1, seed_idx=0,
+  noiseless, tissue+blood:** our regularised IRGNM reaches final relative
+  error 9.27e-07 in 300 iterations (0.49s); `scipy.optimize.least_squares`
+  (method="trf", unregularised) reports `status=2` ("xtol satisfied", i.e. it
+  believes it converged) after 40 function evaluations (0.05s) at final
+  relative error 1.05 — **worse than the initial guess**. This is not a bug in
+  either solver: it is the expected behaviour of an unregularised
+  Gauss-Newton-family method on the paper's genuinely ill-posed inverse
+  problem (the whole reason Tikhonov regularisation via IRGNM's six-block
+  schedule is the paper's method, not incidental). Reported as a positive
+  result for the project's central claim, not filed as a scipy bug.
+
+- **D-M5-4: the M5 trend checklist's "known C_P vs clean/noisy C_WB"
+  comparison uses `rel_error_K_final`** (the 12 kinetic parameters K1/k2/k3
+  only) from the raw M4.3 grid records for Setup B/C, not
+  `table2_parameters.json`'s `mean_rel_error_total` (all 23 parameters,
+  including arterial lambda/mu and plasma-fraction m). The M4.5 known-C_P arm's
+  `metabolic_error` function measures the same 12-parameter subset; comparing
+  it against a 23-parameter total would have been apples-to-oranges and had
+  understated Setup B/C's kinetic accuracy in an earlier draft of this
+  analysis. Even with the metric fixed, the comparison remains only
+  *informative*, not fully controlled: the known-C_P arm freezes m at truth
+  and uses the corrected Morozov stopping rule (D-M4-9), while Setup B/C fit
+  all 23 parameters under the uncorrected `rms` convention, and only 7-13 of
+  20 seeds per cell survive (non-diverged) at normal_count/high_count.
+  Similarly, the "low-count fails, especially for f" trend's per-noise-level
+  mean m-error on *survivors* is reported alongside the divergence rate, not
+  in place of it: at low_count only 3 of 60 runs converge at all, so the
+  survivors' mean error is a 3-sample statistic dominated by survivorship
+  bias and must not be read as "f recovers fine at low_count".
+
+- **D-M5-5: committed M1-M4 results are kept as the reference; they are
+  reproducible bit-for-bit only on the numerical stack that produced them.**
+  A full `run_all.py` pass (15/15 scripts OK, 997 s) on numpy 2.2.6 / scipy
+  1.14.1 / OpenBLAS 0.3.29 is bit-identical run-to-run (M4.5 rerun compared with
+  `cmp`), but differs from the committed files (Anaconda, numpy 2.0.2) by last-bit
+  round-off (~1e-15 relative), which near-divergent IRGNM trajectories amplify
+  into different discrete outcomes: 11 of 48 Table 1 cells change by +-1-2
+  divergences (**total unchanged, 498/960**); M3 noiseless divergences at
+  delta_x=0.3/0.4 go 4->3 and 9->8; M4.4 accepted fits 66->68 with the **worst
+  K1-ratio spread unchanged at 1.83e-08**; M4.5 noiseless accepted 18->17. Every
+  headline conclusion is unchanged. The committed files are restored rather than
+  overwritten, because RUN_M4.md cites them and they are a teammate's published
+  numbers; the environment sensitivity is itself the result.
+
+- **D-M5-6: the Simpson round-off floor is a property of our formulation, not of
+  Simpson's rule — this revises D-M1-6.** D-M1-6 described the rising error at
+  fine grids as "expected ... not a defect". The M5 Track B comparison on the same
+  uniform grids (sin on [0, pi]) shows `scipy.integrate.simpson` decaying to
+  2.2e-16 at n=12801 while ours *rises* to 1.8e-07 (4.1e-07 at n=25601); the two
+  agree to within 2x up to n=401. The cause is `_quadratic_segment_integral`
+  evaluating cubic antiderivatives in absolute coordinates and differencing them
+  over a segment of width 2h, divided by a denominator of order h^2 — catastrophic
+  cancellation that grows as h shrinks. Not fixed in M5: changing
+  `src/quadrature.py` would shift every M1/M2 number, and at the pipeline's grid
+  (`n=1601`, graded) the error is already bounded by the measured 5.9e-10
+  closed-form-vs-quadrature agreement. Evaluating the basis integrals in local
+  coordinates (shift by x0) is the likely fix, left as an open item.

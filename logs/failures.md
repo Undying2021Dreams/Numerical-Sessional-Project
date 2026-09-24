@@ -1175,3 +1175,26 @@ Reproduce with `experiments/m4_consistency_regularization.py`, root seed
   generated from the stamped JSON using the separate compatible environment
   and the script's `--plot-only` option. No numeric result was silently
   regenerated in a different environment.
+
+## M5 analysis and regeneration
+
+- **Cross-environment reproducibility.** `experiments/run_all.py` on numpy 2.2.6 /
+  scipy 1.14.1 / OpenBLAS 0.3.29 (15/15 scripts OK, 997 s) is bit-identical
+  run-to-run but not bit-identical to the committed results (Anaconda, numpy
+  2.0.2): 11 of 48 Table 1 cells change by +-1-2 divergences (total unchanged at
+  498/960); M3 noiseless divergences at delta_x=0.3/0.4 go 4->3 and 9->8; M4.5
+  noiseless seed_idx 0 flips from finite-but-rejected to diverged. Headlines
+  unchanged. Committed files kept as the reference (DECISIONS.md D-M5-5).
+- **`m4_grid.py` duplicated its section in this file on every rerun.** It
+  appended rather than replaced, so each `run_all.py` pass added another 500-line
+  M4.3 table. Fixed: the section is now rewritten in place; verified idempotent
+  (two consecutive writes produce identical files, one M4.3 heading).
+- **Our Simpson has a round-off floor that scipy's does not** (sin on [0, pi],
+  uniform grid): ours 1.8e-07 at n=12801 and 4.1e-07 at n=25601, scipy 2.2e-16
+  at n=12801. Cancellation in `_quadratic_segment_integral`; not fixed
+  (DECISIONS.md D-M5-6).
+- **`scipy.optimize.least_squares` (Track B, unregularised TRF) fails on the
+  noiseless problem** with the same residual, analytic Jacobian and D(F) bounds
+  as IRGNM: `status=2` after 40 evaluations at final relative error 1.046, worse
+  than the initial guess (delta_x=0.1, seed_idx=0, root seed 20240301). IRGNM
+  reaches 9.27e-07. Expected for an ill-posed problem (DECISIONS.md D-M5-3).

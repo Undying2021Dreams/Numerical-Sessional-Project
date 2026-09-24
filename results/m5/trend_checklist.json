@@ -1,0 +1,90 @@
+{
+  "provenance": {
+    "config_hash": "2f38ba062972",
+    "seed": null
+  },
+  "trend1_K1_vs_k3": {
+    "per_setup": {
+      "A": {
+        "n_runs_used": 182,
+        "mean_K1_rel_error": 0.2379345762839718,
+        "mean_k3_rel_error": 0.17370915139614512,
+        "K1_better_than_k3": false
+      },
+      "B": {
+        "n_runs_used": 146,
+        "mean_K1_rel_error": 0.01033861052372718,
+        "mean_k3_rel_error": 0.1593223152014267,
+        "K1_better_than_k3": true
+      },
+      "C": {
+        "n_runs_used": 134,
+        "mean_K1_rel_error": 0.016433445145111126,
+        "mean_k3_rel_error": 0.08638990307408415,
+        "K1_better_than_k3": true
+      }
+    },
+    "verdict_setup_B": "AGREES",
+    "verdict_setup_C": "AGREES",
+    "verdict_setup_A": "DISAGREES (expected: Setup A has no arterial data at all, so the K1/lambda ambiguity of Proposition 12 applies \u2014 this disagreement IS the M4.4 finding)"
+  },
+  "trend2_known_cp_vs_cwb": {
+    "rows": {
+      "high_count": {
+        "known_C_P_mean_kinetic_error": 0.12108934224694275,
+        "setup_B_clean_C_WB_mean_rel_error_K": 0.1271834092705035,
+        "setup_B_n_runs": 13,
+        "setup_C_noisy_C_WB_mean_rel_error_K": 0.15163016065122387,
+        "setup_C_n_runs": 13,
+        "known_cp_beats_clean_cwb": true,
+        "clean_cwb_beats_noisy_cwb": true
+      },
+      "normal_count": {
+        "known_C_P_mean_kinetic_error": 0.14429534962070892,
+        "setup_B_clean_C_WB_mean_rel_error_K": 0.41489031328995274,
+        "setup_B_n_runs": 7,
+        "setup_C_noisy_C_WB_mean_rel_error_K": 0.3581976515701883,
+        "setup_C_n_runs": 7,
+        "known_cp_beats_clean_cwb": true,
+        "clean_cwb_beats_noisy_cwb": false
+      }
+    },
+    "caveat": "known-C_P arm (M4.5) freezes the plasma-fraction block m at truth and uses the corrected Morozov stopping rule (delta_y*sqrt(n_obs), D-M4-9); Setup B/C (M4.3 grid) fit all 23 parameters under the uncorrected rms convention, and only 7-13 of 20 seeds survive (non-diverged) per cell at normal_count/high_count. Informative, not a fully controlled comparison (DECISIONS.md D-M5-4).",
+    "verdict_known_cp_beats_clean_cwb": "AGREES",
+    "verdict_clean_beats_noisy_cwb": "MIXED/DISAGREES \u2014 see rows"
+  },
+  "trend3_low_count_fails": {
+    "by_noise_level": {
+      "noiseless": {
+        "n_total": 240,
+        "n_diverged": 32,
+        "divergence_rate": 0.13333333333333333,
+        "n_survivors_with_m_error": 208,
+        "mean_m_rel_error_on_survivors": 0.13467199519923104
+      },
+      "high_count": {
+        "n_total": 240,
+        "n_diverged": 78,
+        "divergence_rate": 0.325,
+        "n_survivors_with_m_error": 162,
+        "mean_m_rel_error_on_survivors": 2.8945051640905644
+      },
+      "normal_count": {
+        "n_total": 240,
+        "n_diverged": 151,
+        "divergence_rate": 0.6291666666666667,
+        "n_survivors_with_m_error": 89,
+        "mean_m_rel_error_on_survivors": 0.7007731820042257
+      },
+      "low_count": {
+        "n_total": 240,
+        "n_diverged": 237,
+        "divergence_rate": 0.9875,
+        "n_survivors_with_m_error": 3,
+        "mean_m_rel_error_on_survivors": 0.4819967163347172
+      }
+    },
+    "verdict": "AGREES",
+    "caveat": "the divergence rate (near-total at low_count: 99%) is the primary evidence for this trend, not the mean_m_err on survivors. Only 3 of 60 low_count runs converge at all, so their mean m-error is a 3-sample statistic dominated by survivorship bias (the few non-diverged cases are not a representative sample) \u2014 it should not be read as 'f recovers fine at low_count', only 'almost nothing survives to be measured'."
+  }
+}

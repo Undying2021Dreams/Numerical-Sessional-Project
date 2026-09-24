@@ -1,0 +1,82 @@
+{
+  "provenance": {
+    "config_hash": "2f38ba062972",
+    "seed": 20240301
+  },
+  "linear_solve": {
+    "routine": "src.linalg.solve (LU, partial pivoting)",
+    "reference": "numpy.linalg.solve",
+    "max_rel_error_vs_numpy": 4.993498740276437e-16,
+    "our_total_time_s": 0.09383928999886848,
+    "numpy_total_time_s": 0.011527659005878377,
+    "n_systems": 200
+  },
+  "least_squares_linear": {
+    "routine": "src.qr.lstsq (Householder QR)",
+    "reference": "numpy.linalg.solve (square case, from the same 200-system sweep)",
+    "max_rel_error_vs_numpy": 1.349194633659795e-15,
+    "our_total_time_s": 0.15149257298799057,
+    "numpy_total_time_s": 0.011527659005878377,
+    "n_systems": 200
+  },
+  "quadrature": {
+    "routine": "src.quadrature.simpson / trapezoid",
+    "reference": "exact integral (scipy comparison in results/m5/timing_complexity.json)",
+    "simpson_measured_order": {
+      "sin_0_pi": 4.012508798511679,
+      "exp_0_1": 3.9987429916120956,
+      "runge_0_1": 5.998865214122414
+    },
+    "trapezoid_measured_order": {
+      "sin_0_pi": 2.000827445902934,
+      "exp_0_1": 1.9999163663614794,
+      "runge_0_1": 1.9999991353891742
+    }
+  },
+  "ode_forward_model": {
+    "routine": "src.forward_model.closed_form_C_T / quadrature_C_T",
+    "reference": "scipy.integrate.solve_ivp (method=Radau)",
+    "max_rel_diff_closed_vs_radau": 1.721567712811939e-13,
+    "max_rel_diff_quad_vs_radau": 5.87957255693019e-10,
+    "solve_ivp_radau_time_s_per_region": {
+      "frontal": 0.5692746249987977,
+      "temporal": 0.5663164159996086,
+      "occipital": 0.5592354160035029,
+      "white_matter": 0.6050164170010248
+    },
+    "note": "closed-form and quadrature evaluate a single time in ~microseconds (not separately re-timed here); solve_ivp times are per full-region ODE integration."
+  },
+  "eigenvalues": {
+    "routine": "src.eigen.power_method / inverse_power_iteration / symmetric_eigendecomposition",
+    "reference": "numpy.linalg.eigvalsh / svd",
+    "largest_eigenvalue": {
+      "ours_power_method": 22320.47840938283,
+      "iterations": 7,
+      "time_s": 8.81669984664768e-05,
+      "numpy_ref": 22320.478409382835
+    },
+    "smallest_eigenvalue": {
+      "ours_inverse_power": 4.169837782795755e-06,
+      "iterations": 9,
+      "time_s": 0.0012175419979030266,
+      "numpy_ref": 4.1698381556527235e-06
+    }
+  },
+  "fit_optimise": {
+    "setup": "noiseless, tissue+blood (Setup B-like), delta_x=0.1, seed_idx=0, same analytic Jacobian and D(F) box bounds passed to both solvers",
+    "ours_irgnm": {
+      "final_rel_error": 9.271488953538655e-07,
+      "n_iterations": 300,
+      "diverged": false,
+      "time_s": 0.505597300012596
+    },
+    "scipy_least_squares": {
+      "final_rel_error": 1.0460381722805974,
+      "n_iterations": 40,
+      "converged": true,
+      "status": 2,
+      "time_s": 0.04917340003885329
+    },
+    "note": "IRGNM is Tikhonov-regularised (six-block schedule); scipy's least_squares here is UNregularised trust-region reflective, so a different final answer is expected, not a bug \u2014 this compares the two as competing whole-problem fitters on identical residual+Jacobian code, not as two implementations of the same algorithm."
+  }
+}

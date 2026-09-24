@@ -11,7 +11,8 @@ when there is no arterial blood data, and its removal by a single blood measurem
 pharmacokinetic modeling using the irreversible two tissue compartment model*, Phys.
 Med. Biol. 69 165008 — in the repo as `paper-2.pdf`.
 
-**Status:** milestones M0-M4.5 are done and verified. **M5 remains.**
+**Status:** milestones M0-M5 are done. See `handoffs/RUN_M5.md`. Part 5 below
+is kept for reference.
 Everything below reflects the current state.
 
 ---

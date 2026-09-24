@@ -300,10 +300,15 @@ def main():
 
 
 def _append_failures(failure_log: list[dict]):
-    """Append M4.3 divergent run entries to logs/failures.md."""
+    """Write M4.3 divergent run entries to logs/failures.md.
+
+    Replaces this script's own section in place if it already exists, so
+    re-running (e.g. via run_all.py) does not append a duplicate table.
+    """
+    heading = "## M4.3 Monte Carlo grid divergences\n"
     failures_path = Path("logs/failures.md")
     lines = [
-        "\n\n## M4.3 Monte Carlo grid divergences\n",
+        heading,
         f"Total: {len(failure_log)} divergent cells out of 960\n\n",
         "| setup | noise | delta_x | seed_idx | seed | n_iter | reason |\n",
         "|---|---|---|---|---|---|---|\n",
@@ -314,9 +319,17 @@ def _append_failures(failure_log: list[dict]):
             f"| {f['setup']} | {f['noise_level']} | {f['delta_x']} "
             f"| {f['seed_idx']} | {f['seed']} | {f['n_iterations']} | {reason} |\n"
         )
-    with open(failures_path, "a", encoding="utf-8") as fh:
-        fh.writelines(lines)
-    print(f"\nAppended {len(failure_log)} divergences to logs/failures.md")
+    section = "".join(lines)
+    text = failures_path.read_text(encoding="utf-8")
+    start = text.find(heading)
+    if start == -1:
+        text = text.rstrip("\n") + "\n\n" + section
+    else:
+        end = text.find("\n## ", start + len(heading))
+        tail = "" if end == -1 else "\n" + text[end + 1:]
+        text = text[:start] + section + tail
+    failures_path.write_text(text, encoding="utf-8")
+    print(f"\nWrote {len(failure_log)} divergences to logs/failures.md")
 
 
 def _trend_check(divergence_table: dict, parameter_table: dict):

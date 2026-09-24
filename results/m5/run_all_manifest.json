@@ -1,0 +1,132 @@
+{
+  "provenance": {
+    "config_hash": "2f38ba062972",
+    "seed": null
+  },
+  "total_time_s": 997.1555954000214,
+  "n_ok": 15,
+  "n_failed": 0,
+  "n_skipped": 0,
+  "records": [
+    {
+      "label": "M1 linalg",
+      "script": "m1_linalg_benchmark.py",
+      "ok": true,
+      "time_s": 1.624604900018312,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M1 quadrature",
+      "script": "m1_quadrature_benchmark.py",
+      "ok": true,
+      "time_s": 1.990398699999787,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M1 rng",
+      "script": "m1_rng_benchmark.py",
+      "ok": true,
+      "time_s": 8.22630099998787,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M2 forward model",
+      "script": "m2_forward_model.py",
+      "ok": true,
+      "time_s": 25.05364830000326,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M3 jacobian and solver",
+      "script": "m3_jacobian_and_solver.py",
+      "ok": true,
+      "time_s": 1.684577599982731,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M3 IRGNM recovery",
+      "script": "m3_irgnm_recovery.py",
+      "ok": true,
+      "time_s": 39.372167900030036,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M4.1 noise calibration",
+      "script": "m4_noise_calibration.py",
+      "ok": true,
+      "time_s": 4.02171439997619,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M4.3 grid (long pole, ~250-300s)",
+      "script": "m4_grid.py",
+      "ok": true,
+      "time_s": 347.4401230000076,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M4.3 Figure 7 analogue",
+      "script": "m4_plot_figure7.py",
+      "ok": true,
+      "time_s": 4.464449399965815,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M4.4 identifiability (noiseless)",
+      "script": "m4_identifiability.py",
+      "ok": true,
+      "time_s": 172.13392779999413,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M4.4 identifiability (noisy, ~270s)",
+      "script": "m4_identifiability_noisy.py",
+      "ok": true,
+      "time_s": 336.1569320000126,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M4.5 consistency & regularisation",
+      "script": "m4_consistency_regularization.py",
+      "ok": true,
+      "time_s": 17.78618729999289,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M5 timing & complexity",
+      "script": "m5_timing_complexity.py",
+      "ok": true,
+      "time_s": 34.87615640001604,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M5 Track A vs Track B",
+      "script": "m5_track_ab_comparison.py",
+      "ok": true,
+      "time_s": 1.8577324000070803,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M5 trend checklist",
+      "script": "m5_trend_checklist.py",
+      "ok": true,
+      "time_s": 0.46429560001706704,
+      "returncode": 0,
+      "stderr_tail": ""
+    }
+  ]
+}
