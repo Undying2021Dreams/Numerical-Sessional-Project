@@ -1106,3 +1106,29 @@ records the resulting decisions.
   (`n=1601`, graded) the error is already bounded by the measured 5.9e-10
   closed-form-vs-quadrature agreement. Evaluating the basis integrals in local
   coordinates (shift by x0) is the likely fix, left as an open item.
+
+- **D-M5-7: the Table 1 gap is tested by rerunning the grid under the paper's
+  settings, added as switches to `run_one_cell` that all default to off.** With
+  every switch off the output is bit-identical to M4.3 (48 sample cells compared
+  against the committed `src/montecarlo.py`), so M4.3's results and RUN_M4 stay
+  valid; `experiments/m4_grid_paper_settings.py` writes its own file,
+  `results/m4/grid_paper_settings.json`. Switches: the noise norm
+  `delta_y*sqrt(100)` in the stopping rule (the D-M4-9 correction, using the 100
+  tissue values the RMS is taken over); a 200-step cap on noisy runs; the paper's
+  per-setup regularisation and tau (p. 22: reduced 10*2^(-i/5), 600*2^(-i/7),
+  tau 9.2; noisy C_WB 3000*2^(-i/8), 100*2^(-i/8), 400*2^(-i/8), tau 17.6); Setup
+  A given the clean blood block, as in the paper's reduced setup; and blood
+  readings at all 25 frames, as in the paper's Algorithm 1, instead of D-M3-1's 4.
+  Each run is counted both as our "diverged" (non-finite) and by the paper's
+  criterion (final error not below the initial error). The paper's published
+  values are used exactly, not tuned further. **Measured (960 fits per variant,
+  root seed 20240401):** blow-ups 498 original, 65 with the stopping fix alone, 53
+  with the paper's settings, 86 with 25 blood samples. By the paper's criterion:
+  517, 179, 232, 211 against the paper's 97. Under the paper's settings, 158 of the
+  161 low-count failures stop at iteration 0 (tau*delta already exceeds the
+  initial residual), with none blowing up. So the low-count remainder is a
+  noise-level mismatch from our TAC-level noise model, not solver failure.
+  Excluding low count, the paper's settings give 71 against the paper's 55: high
+  count 18 vs 19, normal 20 vs 35, noiseless 33 vs 1. The noiseless blow-ups at
+  delta_x 0.3-0.4 (unchanged by every switch, since noiseless runs never stop
+  early) are the one gap left unexplained.

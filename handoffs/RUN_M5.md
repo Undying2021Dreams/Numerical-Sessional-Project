@@ -128,6 +128,42 @@ does not require every method in a general numerical-methods course.
 | Numerical integration: Romberg's integration, Richardson's extrapolation | **Not used** | — | the project's dense graded quadrature grid already reaches Simpson's round-off floor (D-M1 gotcha: more points is not automatically safer, see M1), so no Richardson-style extrapolation layer was added on top |
 | Numerical differentiation | Yes (verification tool) | `experiments/m3_jacobian_and_solver.py` (`_fd_column`, central finite differences) | independent check of the analytic Jacobian per parameter block — not a headline result, a correctness cross-check |
 
+## 5c. Follow-up: the grid rerun under the paper's settings (D-M5-7)
+
+The Table 1 gap (498 blow-ups vs the paper's 97) was tested by rerunning all 960
+fits with the paper's settings switched on step by step
+(`experiments/m4_grid_paper_settings.py`). Every run is counted both ways.
+
+| Variant | Blow-ups (ours) | No improvement (paper's criterion) |
+|---|---|---|
+| Paper, Table 1 | — | 97 |
+| Original M4.3 settings | 498 | 517 |
+| + stopping-rule fix, 200-step cap | 65 | 179 |
+| + paper's per-setup settings, paper-style Setup A | 53 | 232 |
+| + blood readings at all 25 frames | 86 | 211 |
+
+By noise level, with the paper's settings (paper's criterion, out of 240 each):
+
+| Noise | Paper | Ours |
+|---|---|---|
+| Noiseless | 1 | 33 |
+| High count | 19 | 18 |
+| Normal count | 35 | 20 |
+| Low count | 42 | 161 |
+
+What this shows:
+
+1. **The stopping-rule bug caused most of the gap:** fixing it alone cuts blow-ups
+   from 498 to 65.
+2. **High and normal count now match the paper** (18 vs 19, 20 vs 35).
+3. **Low count:** 158 of 161 failures stop at iteration 0 without blowing up. The
+   stopping rule judges the data too noisy to improve on the starting guess. This
+   is a noise-level mismatch from adding noise straight to the curves instead of
+   simulating the scanner.
+4. **Noiseless:** 33 blow-ups against the paper's 1, all at larger starting
+   distances. They are unchanged by every switch, because noiseless runs never
+   stop early. This is the one gap left unexplained.
+
 ## 6. Figures produced
 
 | File | What it shows | What the reader should look for |
@@ -262,6 +298,10 @@ with M3's IRGNM recovery study for the same x0), none needed for the trend check
    milestone's verified routine.
 5. Should `requirements.txt` pin exact numpy/scipy versions, so `run_all.py` reproduces
    the committed results bit-for-bit (D-M5-5)?
+6. With the paper's settings, 33 of 240 noiseless runs still blow up against the
+   paper's 1, all from the farther starting points (§5c). What differs? Candidates
+   are the projection onto the allowed ranges, or how the paper's initial guesses
+   were drawn.
 
 ## 13. Proposed next step
 

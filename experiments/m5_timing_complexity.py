@@ -221,12 +221,22 @@ def make_figure(simpson_res: dict, irgnm_res: dict):
     ax.set_ylabel("wall time (s)")
     ax.set_title("IRGNM inner solve runtime vs problem size")
     ax.legend(fontsize=8)
+    # Log-axis minor labels collide on this narrow range; label the measured sizes instead.
+    ax.set_xticks(irgnm_res["cols"])
+    ax.set_xticklabels([str(c) for c in irgnm_res["cols"]])
+    ax.minorticks_off()
 
     fig.tight_layout()
     return fig
 
 
 if __name__ == "__main__":
+    if "--plot-only" in sys.argv:
+        saved = json.loads((RESULTS_DIR / "m5" / "timing_complexity.json").read_text())
+        fig_path = save_fig(make_figure(saved["simpson"], saved["irgnm_inner_solve"]), "m5", "timing_complexity")
+        print("figure redrawn from the saved JSON (no re-timing):", fig_path)
+        sys.exit(0)
+
     print("Loading LU/QR scaling from results/m1/linalg_benchmark.json...")
     linalg_path = RESULTS_DIR / "m1" / "linalg_benchmark.json"
     linalg_summary = json.loads(linalg_path.read_text())["sweep"]

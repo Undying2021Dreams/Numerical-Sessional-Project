@@ -59,7 +59,7 @@ from src.forward_model import (
     closed_form_C_T,
     parent_plasma_fraction,
 )
-from src.irgnm import DEFAULT_SCHEDULE, DEFAULT_TAU, project, run_irgnm
+from src.irgnm import DEFAULT_SCHEDULE, DEFAULT_TAU, RegularizationSchedule, project, run_irgnm
 from src.jacobian import forward_operator, unpack
 from src.noise import (
     add_gaussian_noise,
@@ -128,11 +128,41 @@ SETUP_A_MASK: np.ndarray = np.ones(N_PARAMS, dtype=bool)
 SETUP_A_MASK[M_SLICE] = False  # freeze m_1, m_2, m_3
 
 
+# ---------------------------------------------------------------------------
+# Paper-settings options for run_one_cell (all off by default; DECISIONS.md
+# D-M5-7). Values from the paper's Section 6, p. 22, converted from base 2
+# (c * 2^(-i/d)) to the a * exp(-b*i) form: b = ln(2)/d.
+# ---------------------------------------------------------------------------
+_LN2 = math.log(2.0)
+PAPER_SCHEDULES: dict[str, RegularizationSchedule] = {
+    # Reduced setup: f is known, so the gamma block is frozen and unused.
+    "A": RegularizationSchedule(a_alpha=10.0, b_alpha=_LN2 / 5, a_beta=600.0, b_beta=_LN2 / 7,
+                                a_gamma=DEFAULT_SCHEDULE.a_gamma, b_gamma=DEFAULT_SCHEDULE.b_gamma),
+    "B": DEFAULT_SCHEDULE,
+    "C": RegularizationSchedule(a_alpha=3000.0, b_alpha=_LN2 / 8, a_beta=100.0, b_beta=_LN2 / 8,
+                                a_gamma=400.0, b_gamma=_LN2 / 8),
+}
+PAPER_TAU: dict[str, float] = {"A": 9.2, "B": DEFAULT_TAU, "C": 17.6}
+PAPER_MAX_ITER_NOISY = 200  # paper: 300 noiseless, 200 for the count settings
+
+# The paper's C_WB is measured at every frame time t_1..t_T (Algorithm 1 input,
+# and p. 19: "corrected for each time t_1, ..., t_T"); ours uses 4 (D-M3-1).
+S_BLOOD_ALL_FRAMES: np.ndarray = T_FRAMES.copy()
+C_WB_CLEAN_ALL_FRAMES: np.ndarray = C_WB_from_C_P(
+    arterial_input(S_BLOOD_ALL_FRAMES, _lam, _mu),
+    parent_plasma_fraction(S_BLOOD_ALL_FRAMES, _A, _xi1, _xi2),
+)
+
+
 def _build_noisy_observations(
     noise_level: str,
     seed_idx: int,
     setup: str,
     delta_x: float,
+    *,
+    s_blood: np.ndarray = S_BLOOD,
+    c_wb_clean: np.ndarray = C_WB_CLEAN,
+    setup_a_blood: bool = False,
 ) -> tuple[np.ndarray, np.ndarray, float]:
     """Build the noisy y_delta observation vector and noisy C_WB for one cell.
 
@@ -141,17 +171,15 @@ def _build_noisy_observations(
       - C_WB_data : fixed blood data (noisy for Setup C, clean otherwise)
       - delta_y_tac : measured TAC-level discrepancy level (used as delta_y
                       in the discrepancy stopping criterion)
+
+    `setup_a_blood=True` gives Setup A the clean blood block, like the paper's
+    reduced setup; the default keeps M4.3's tissue-only Setup A.
     """
+    a_tissue_only = setup == "A" and not setup_a_blood
     if noise_level == "noiseless":
-        # y for Setup A: tissue only (no blood block)
-        # y for Setups B, C: tissue + blood block (clean)
-        if setup == "A":
-            y = forward_operator(X_TRUE, T_FRAMES, S_BLOOD, C_WB_CLEAN,
-                                 include_blood=False)
-        else:
-            y = forward_operator(X_TRUE, T_FRAMES, S_BLOOD, C_WB_CLEAN,
-                                 include_blood=True)
-        return y, C_WB_CLEAN.copy(), 0.0
+        y = forward_operator(X_TRUE, T_FRAMES, s_blood, c_wb_clean,
+                             include_blood=not a_tissue_only)
+        return y, c_wb_clean.copy(), 0.0
 
     # --- Noisy case ---
     # TAC noise: Poisson-derived for all setups
@@ -170,12 +198,12 @@ def _build_noisy_observations(
 
     if setup in ("A", "B"):
         # C_WB is noiseless for Setups A and B
-        C_WB_data = C_WB_CLEAN.copy()
-        if setup == "A":
+        C_WB_data = c_wb_clean.copy()
+        if a_tissue_only:
             y = F1_noisy
         else:
             # Append F^2 = C_WB_data * f(s) - C_P(s) at ground truth
-            F2 = forward_operator(X_TRUE, T_FRAMES, S_BLOOD, C_WB_CLEAN,
+            F2 = forward_operator(X_TRUE, T_FRAMES, s_blood, c_wb_clean,
                                   include_blood=True)[N_REGIONS * N_FRAMES:]
             y = np.concatenate([F1_noisy, F2])
 
@@ -184,14 +212,14 @@ def _build_noisy_observations(
         cwb_seed = derive_seed(ROOT_SEED, f"setup={setup}", f"dx={delta_x}",
                                f"noise={noise_level}", f"cwb", f"k={seed_idx}")
         cwb_rng = LCG(cwb_seed)
-        C_WB_noisy = add_gaussian_noise(cwb_rng, C_WB_CLEAN, sigma_rel=sigma_rel)
+        C_WB_noisy = add_gaussian_noise(cwb_rng, c_wb_clean, sigma_rel=sigma_rel)
         C_WB_data = C_WB_noisy
 
         # F^2 uses the NOISY C_WB_data in the data constraint
         # F^2 = C_WB_data * f_m(s) - C_P(lam, mu)(s)
         # At ground truth f_m, this is just the noisy version of the constraint
-        f_s = parent_plasma_fraction(S_BLOOD, _A, _xi1, _xi2)
-        C_P_s = arterial_input(S_BLOOD, _lam, _mu)
+        f_s = parent_plasma_fraction(s_blood, _A, _xi1, _xi2)
+        C_P_s = arterial_input(s_blood, _lam, _mu)
         F2_noisy = C_WB_noisy * f_s - C_P_s
         y = np.concatenate([F1_noisy, F2_noisy])
 
@@ -203,6 +231,12 @@ def run_one_cell(
     noise_level: str,
     delta_x: float,
     seed_idx: int,
+    *,
+    paper_hyperparams: bool = False,
+    fixed_stopping: bool = False,
+    setup_a_blood: bool = False,
+    blood_at_all_frames: bool = False,
+    paper_max_iter: bool = False,
 ) -> dict:
     """Run one Monte Carlo cell and return a result dict.
 
@@ -213,16 +247,29 @@ def run_one_cell(
     delta_x     : initial perturbation level in {0.1, 0.2, 0.3, 0.4}
     seed_idx    : integer in [0, N_SEEDS), used with derive_seed for reproducibility
 
+    Keyword options (all False reproduces M4.3 exactly; DECISIONS.md D-M5-7):
+    paper_hyperparams   : the paper's per-setup schedule and tau (PAPER_SCHEDULES, PAPER_TAU)
+    fixed_stopping      : pass the noise NORM delta_y*sqrt(n_tac) to the stopping
+                          rule instead of the RMS (the D-M4-9 correction)
+    setup_a_blood       : give Setup A the clean blood block (paper's reduced setup)
+    blood_at_all_frames : blood readings at all 25 frames instead of 4
+    paper_max_iter      : 200 iterations for noisy data, as in the paper
+
     Returns a dict with keys:
       seed, setup, noise_level, delta_x, seed_idx,
-      diverged, n_iterations, converged_at,
+      diverged, no_improvement, n_iterations, converged_at,
       x_final, rel_error_total (trajectory),
       rel_error_K, rel_error_lambda, rel_error_mu, rel_error_m,
       delta_y_tac, K1_recovered, k2_recovered, k3_recovered
+
+    `diverged` = an iterate became non-finite (ours); `no_improvement` = the
+    final error is not below the initial error (the paper's Table 1 criterion).
     """
     assert setup in SETUP_NAMES, f"Unknown setup {setup!r}"
     assert noise_level in NOISE_LEVELS, f"Unknown noise_level {noise_level!r}"
     assert delta_x in DELTA_X_VALUES, f"Unknown delta_x {delta_x}"
+    s_blood = S_BLOOD_ALL_FRAMES if blood_at_all_frames else S_BLOOD
+    c_wb_clean = C_WB_CLEAN_ALL_FRAMES if blood_at_all_frames else C_WB_CLEAN
 
     # --- Initial guess ---
     seed = derive_seed(ROOT_SEED, f"setup={setup}", f"dx={delta_x}",
@@ -238,25 +285,36 @@ def run_one_cell(
 
     # --- Observations ---
     y_delta, C_WB_data, delta_y_tac = _build_noisy_observations(
-        noise_level, seed_idx, setup, delta_x
+        noise_level, seed_idx, setup, delta_x,
+        s_blood=s_blood, c_wb_clean=c_wb_clean, setup_a_blood=setup_a_blood,
     )
 
     # --- Solver configuration ---
     active_mask = SETUP_A_MASK if setup == "A" else None
-    include_blood = (setup != "A")
-    delta_y_stop = delta_y_tac if noise_level != "noiseless" else 0.0
+    include_blood = setup != "A" or setup_a_blood
+    noisy = noise_level != "noiseless"
+    delta_y_stop = delta_y_tac if noisy else 0.0
+    if fixed_stopping:
+        delta_y_stop *= math.sqrt(N_REGIONS * N_FRAMES)
+    schedule = PAPER_SCHEDULES[setup] if paper_hyperparams else DEFAULT_SCHEDULE
+    tau = PAPER_TAU[setup] if paper_hyperparams else DEFAULT_TAU
+    max_iter = PAPER_MAX_ITER_NOISY if (paper_max_iter and noisy) else MAX_ITER
 
     # --- Run IRGNM ---
     result = run_irgnm(
-        x0, y_delta, T_FRAMES, S_BLOOD, C_WB_data,
-        schedule=DEFAULT_SCHEDULE,
-        tau=DEFAULT_TAU,
+        x0, y_delta, T_FRAMES, s_blood, C_WB_data,
+        schedule=schedule,
+        tau=tau,
         delta_y=delta_y_stop,
-        max_iter=MAX_ITER,
+        max_iter=max_iter,
         solver="qr",
         x_true=X_TRUE,
         active_mask=active_mask,
         include_blood=include_blood,
+    )
+    traj = result["rel_error_total"]
+    no_improvement = bool(
+        result["diverged"] or not traj or not np.isfinite(traj[-1]) or traj[-1] >= traj[0]
     )
 
     # --- Extract regional K1, k2, k3 from x_final ---
@@ -272,6 +330,7 @@ def run_one_cell(
         "noise_level": noise_level,
         "delta_x": delta_x,
         "diverged": bool(result["diverged"]),
+        "no_improvement": no_improvement,
         "n_iterations": int(result["n_iterations"]),
         "converged_at": result["converged_at"],
         "delta_y_tac": float(delta_y_tac),

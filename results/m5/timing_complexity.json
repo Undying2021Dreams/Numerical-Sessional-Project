@@ -21,26 +21,26 @@
       25601
     ],
     "our_time_s": [
-      0.0002286000526510179,
-      0.00045270001282915473,
-      0.0009133999701589346,
-      0.0018341999966651201,
-      0.00361509999493137,
-      0.007398000045213848,
-      0.014811000030022115,
-      0.029967400012537837,
-      0.05933060002280399
+      0.00023629999486729503,
+      0.000471699982881546,
+      0.0009388999897055328,
+      0.0019167999853380024,
+      0.0038099000230431557,
+      0.007192399993073195,
+      0.014690900017740205,
+      0.030207300005713478,
+      0.060079899994889274
     ],
     "scipy_time_s": [
-      3.160000778734684e-05,
-      3.189995186403394e-05,
-      3.370002377778292e-05,
-      3.7699996028095484e-05,
-      4.4899992644786835e-05,
-      5.4100004490464926e-05,
-      7.040001219138503e-05,
-      0.00010060000931844115,
-      0.0001601999974809587
+      3.539997851476073e-05,
+      3.559998003765941e-05,
+      3.530000685714185e-05,
+      4.089999129064381e-05,
+      4.5900000259280205e-05,
+      5.250002141110599e-05,
+      6.78999931551516e-05,
+      0.0001024999946821481,
+      0.00015400000847876072
     ],
     "our_abs_error": [
       1.0825324636698497e-08,
@@ -64,11 +64,11 @@
       2.220446049250313e-16,
       0.0
     ],
-    "our_fitted_exponent_p": 1.0060495774695837,
-    "our_fitted_constant_C": 2.1914123528388453e-06,
-    "scipy_fitted_exponent_p": 0.28358048526819823,
-    "scipy_fitted_constant_C": 6.586078778407583e-06,
-    "ours_over_scipy_predicted_ratio_at_n12801": 308.64123947129355,
+    "our_fitted_exponent_p": 0.9982143893770631,
+    "our_fitted_constant_C": 2.3694269243916705e-06,
+    "scipy_fitted_exponent_p": 0.2556091336727384,
+    "scipy_fitted_constant_C": 8.357757193933715e-06,
+    "ours_over_scipy_predicted_ratio_at_n12801": 318.13721426307166,
     "note": "our simpson is a pure-Python loop over quadratic segments (non-uniform-grid support, DECISIONS.md D-M1-4); scipy's is a vectorised C implementation, so a slower constant here is expected and not a correctness concern."
   },
   "irgnm_inner_solve": {
@@ -89,32 +89,32 @@
       3328
     ],
     "our_time_s": [
-      0.0006568999961018562,
-      0.0016973000019788742,
-      0.0057150000357069075,
-      0.0615618999581784,
-      0.7008226999896578,
-      5.325933899963275
+      0.0006679999933112413,
+      0.0020027999999001622,
+      0.011985100019956008,
+      0.0578584999893792,
+      0.5425211999972817,
+      4.621925400017062
     ],
     "numpy_time_s": [
-      0.00011570000788196921,
-      0.0006263999966904521,
-      0.005595399998128414,
-      0.02091170003404841,
-      0.057540200010407716,
-      0.2208274999866262
+      9.180000051856041e-05,
+      0.00067710000439547,
+      0.010405900015030056,
+      0.04516999999759719,
+      0.11501190002309158,
+      0.4502202000003308
     ],
-    "our_fitted_exponent_p": 2.697816297088096,
-    "our_fitted_constant_C": 6.661894087543731e-08,
-    "numpy_fitted_exponent_p": 2.1702171334641007,
-    "numpy_fitted_constant_C": 1.7792711611718476e-07,
+    "our_fitted_exponent_p": 2.5799322951900865,
+    "our_fitted_constant_C": 1.2774746161917173e-07,
+    "numpy_fitted_exponent_p": 2.446908676626751,
+    "numpy_fitted_constant_C": 7.185542643259942e-08,
     "theoretical_exponent": 3.0,
     "note": "synthetic stacked systems at the real problem's rows:cols aspect ratio (~4.52:1), benchmarking the exact src.qr.lstsq call irgnm_step makes every iteration. The real PET problem's own size (104x23) is fixed and not itself varied."
   },
   "real_irgnm_per_iteration": {
     "n_iterations": 100,
-    "total_time_s": 0.16793100000359118,
-    "ms_per_iteration": 1.6793100000359118,
+    "total_time_s": 0.17781320001813583,
+    "ms_per_iteration": 1.7781320001813583,
     "problem_shape": "104 residuals x 23 parameters (fixed by the model)"
   }
 }

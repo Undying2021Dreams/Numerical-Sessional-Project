@@ -49,6 +49,7 @@ SCRIPTS = [
     ("M3 IRGNM recovery", "m3_irgnm_recovery.py"),
     ("M4.1 noise calibration", "m4_noise_calibration.py"),
     ("M4.3 grid (long pole, ~250-300s)", "m4_grid.py"),
+    ("M4.3 grid under the paper's settings (~14 min)", "m4_grid_paper_settings.py"),
     ("M4.3 Figure 7 analogue", "m4_plot_figure7.py"),
     ("M4.4 identifiability (noiseless)", "m4_identifiability.py"),
     ("M4.4 identifiability (noisy, ~270s)", "m4_identifiability_noisy.py"),

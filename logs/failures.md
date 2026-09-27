@@ -1198,3 +1198,22 @@ Reproduce with `experiments/m4_consistency_regularization.py`, root seed
   as IRGNM: `status=2` after 40 evaluations at final relative error 1.046, worse
   than the initial guess (delta_x=0.1, seed_idx=0, root seed 20240301). IRGNM
   reaches 9.27e-07. Expected for an ill-posed problem (DECISIONS.md D-M5-3).
+
+## M5 follow-up: grid rerun under the paper's settings
+
+Reproduce with `experiments/m4_grid_paper_settings.py`, root seed 20240401, 960
+fits per variant (DECISIONS.md D-M5-7). Per-cell counts in
+`results/m4/grid_paper_settings.json`.
+
+| variant | blow-ups (ours) | no improvement (paper's criterion) | paper Table 1 |
+|---|---|---|---|
+| original | 498 | 517 | 97 |
+| stopping fix | 65 | 179 | 97 |
+| paper settings | 53 | 232 | 97 |
+| paper settings + 25 blood samples | 86 | 211 | 97 |
+
+- Under the paper's settings, 158 of the 161 low-count failures are
+  iteration-0 stops (tau*delta already exceeds the initial residual), not
+  blow-ups: A 54 of 56, B 30 of 31, C 74 of 74.
+- Noiseless runs blow up 32-34 times out of 240 in every variant (the paper: 1).
+  No switch changes this, since noiseless runs never stop early. Unexplained.
