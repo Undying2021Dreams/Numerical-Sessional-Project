@@ -2,9 +2,9 @@
   "provenance": {
     "config_hash": "2f38ba062972",
     "seed": null,
-    "python": "3.12.1",
+    "python": "3.10.6",
     "numpy": "2.2.6",
-    "platform": "Windows-11-10.0.26200-SP0",
+    "platform": "Windows-10-10.0.26200-SP0",
     "src_sha256": "9d11616d97b7d173ea30f60bf272c977235d34214cc170b9a433a554929b0942"
   },
   "sin_0_pi": {
@@ -60,13 +60,13 @@
       65,
       129
     ],
-    "trap_order_measured": 2.0008274459029356,
+    "trap_order_measured": 2.000827445902936,
     "simp_order_fit_ns": [
       9,
       17,
       33
     ],
-    "simp_order_measured": 4.012508725670426,
+    "simp_order_measured": 4.012508725670431,
     "simpson_error_floor_min_over_sweep": 6.616929226765933e-14,
     "simpson_error_floor_reached_at_n": 2001
   },
@@ -123,13 +123,13 @@
       65,
       129
     ],
-    "trap_order_measured": 1.9999163663614794,
+    "trap_order_measured": 1.999916366361479,
     "simp_order_fit_ns": [
       9,
       17,
       33
     ],
-    "simp_order_measured": 3.998743007830988,
+    "simp_order_measured": 3.998743007830987,
     "simpson_error_floor_min_over_sweep": 1.1102230246251565e-15,
     "simpson_error_floor_reached_at_n": 2001
   },
@@ -192,7 +192,7 @@
       17,
       33
     ],
-    "simp_order_measured": 5.998830554172259,
+    "simp_order_measured": 5.998830554172257,
     "simpson_error_floor_min_over_sweep": 2.220446049250313e-16,
     "simpson_error_floor_reached_at_n": 513
   }

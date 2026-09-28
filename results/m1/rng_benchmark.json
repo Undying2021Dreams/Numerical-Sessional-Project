@@ -2,9 +2,9 @@
   "provenance": {
     "config_hash": "2f38ba062972",
     "seed": 123,
-    "python": "3.12.1",
+    "python": "3.10.6",
     "numpy": "2.2.6",
-    "platform": "Windows-11-10.0.26200-SP0",
+    "platform": "Windows-10-10.0.26200-SP0",
     "src_sha256": "9d11616d97b7d173ea30f60bf272c977235d34214cc170b9a433a554929b0942"
   },
   "uniform": {

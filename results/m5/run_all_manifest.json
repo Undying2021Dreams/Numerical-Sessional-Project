@@ -1,10 +1,14 @@
 {
   "provenance": {
     "config_hash": "2f38ba062972",
-    "seed": null
+    "seed": null,
+    "python": "3.10.6",
+    "numpy": "2.2.6",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "src_sha256": "9d11616d97b7d173ea30f60bf272c977235d34214cc170b9a433a554929b0942"
   },
-  "total_time_s": 997.1555954000214,
-  "n_ok": 15,
+  "total_time_s": 2264.721686100005,
+  "n_ok": 18,
   "n_failed": 0,
   "n_skipped": 0,
   "records": [
@@ -12,7 +16,7 @@
       "label": "M1 linalg",
       "script": "m1_linalg_benchmark.py",
       "ok": true,
-      "time_s": 1.624604900018312,
+      "time_s": 1.5680213999876287,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -20,7 +24,7 @@
       "label": "M1 quadrature",
       "script": "m1_quadrature_benchmark.py",
       "ok": true,
-      "time_s": 1.990398699999787,
+      "time_s": 1.4818521999986842,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -28,7 +32,7 @@
       "label": "M1 rng",
       "script": "m1_rng_benchmark.py",
       "ok": true,
-      "time_s": 8.22630099998787,
+      "time_s": 7.822473299980629,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -36,7 +40,7 @@
       "label": "M2 forward model",
       "script": "m2_forward_model.py",
       "ok": true,
-      "time_s": 25.05364830000326,
+      "time_s": 12.255856200004928,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -44,7 +48,7 @@
       "label": "M3 jacobian and solver",
       "script": "m3_jacobian_and_solver.py",
       "ok": true,
-      "time_s": 1.684577599982731,
+      "time_s": 1.6956192000070587,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -52,7 +56,7 @@
       "label": "M3 IRGNM recovery",
       "script": "m3_irgnm_recovery.py",
       "ok": true,
-      "time_s": 39.372167900030036,
+      "time_s": 41.65191469999263,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -60,7 +64,7 @@
       "label": "M4.1 noise calibration",
       "script": "m4_noise_calibration.py",
       "ok": true,
-      "time_s": 4.02171439997619,
+      "time_s": 4.03142569999909,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -68,7 +72,15 @@
       "label": "M4.3 grid (long pole, ~250-300s)",
       "script": "m4_grid.py",
       "ok": true,
-      "time_s": 347.4401230000076,
+      "time_s": 400.11630480000167,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "M4.3 grid under the paper's settings (~14 min)",
+      "script": "m4_grid_paper_settings.py",
+      "ok": true,
+      "time_s": 933.8584461999999,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -76,7 +88,7 @@
       "label": "M4.3 Figure 7 analogue",
       "script": "m4_plot_figure7.py",
       "ok": true,
-      "time_s": 4.464449399965815,
+      "time_s": 4.538309199997457,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -84,7 +96,7 @@
       "label": "M4.4 identifiability (noiseless)",
       "script": "m4_identifiability.py",
       "ok": true,
-      "time_s": 172.13392779999413,
+      "time_s": 192.29862049999065,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -92,7 +104,7 @@
       "label": "M4.4 identifiability (noisy, ~270s)",
       "script": "m4_identifiability_noisy.py",
       "ok": true,
-      "time_s": 336.1569320000126,
+      "time_s": 359.8710233999882,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -100,7 +112,7 @@
       "label": "M4.5 consistency & regularisation",
       "script": "m4_consistency_regularization.py",
       "ok": true,
-      "time_s": 17.78618729999289,
+      "time_s": 19.566564200009452,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -108,7 +120,7 @@
       "label": "M5 timing & complexity",
       "script": "m5_timing_complexity.py",
       "ok": true,
-      "time_s": 34.87615640001604,
+      "time_s": 29.921961499989266,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -116,7 +128,7 @@
       "label": "M5 Track A vs Track B",
       "script": "m5_track_ab_comparison.py",
       "ok": true,
-      "time_s": 1.8577324000070803,
+      "time_s": 1.6979924000042956,
       "returncode": 0,
       "stderr_tail": ""
     },
@@ -124,7 +136,23 @@
       "label": "M5 trend checklist",
       "script": "m5_trend_checklist.py",
       "ok": true,
-      "time_s": 0.46429560001706704,
+      "time_s": 0.3014046000025701,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "Local Simpson comparison",
+      "script": "local_simpson.py",
+      "ok": true,
+      "time_s": 16.516389399999753,
+      "returncode": 0,
+      "stderr_tail": ""
+    },
+    {
+      "label": "Stable evaluation: paired noiseless fits",
+      "script": "numerical_stability.py",
+      "ok": true,
+      "time_s": 235.52505369999562,
       "returncode": 0,
       "stderr_tail": ""
     }

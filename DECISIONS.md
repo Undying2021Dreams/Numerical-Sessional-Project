@@ -1059,6 +1059,7 @@ records the resulting decisions.
   problem (the whole reason Tikhonov regularisation via IRGNM's six-block
   schedule is the paper's method, not incidental). Reported as a positive
   result for the project's central claim, not filed as a scipy bug.
+  *Superseded by D-M5-8: after the D-NUM changes, scipy reaches 0.094.*
 
 - **D-M5-4: the M5 trend checklist's "known C_P vs clean/noisy C_WB"
   comparison uses `rel_error_K_final`** (the 12 kinetic parameters K1/k2/k3
@@ -1106,6 +1107,7 @@ records the resulting decisions.
   (`n=1601`, graded) the error is already bounded by the measured 5.9e-10
   closed-form-vs-quadrature agreement. Evaluating the basis integrals in local
   coordinates (shift by x0) is the likely fix, left as an open item.
+  *Resolved by D-EXP-1 / D-NUM-1 (local Simpson weights); see D-M5-8.*
 
 - **D-M5-7: the Table 1 gap is tested by rerunning the grid under the paper's
   settings, added as switches to `run_one_cell` that all default to off.** With
@@ -1132,6 +1134,7 @@ records the resulting decisions.
   count 18 vs 19, normal 20 vs 35, noiseless 33 vs 1. The noiseless blow-ups at
   delta_x 0.3-0.4 (unchanged by every switch, since noiseless runs never stop
   early) are the one gap left unexplained.
+  *Numbers after the D-NUM changes: see D-M5-8.*
 
 ## Experimental numerical contribution
 
@@ -1189,3 +1192,21 @@ records the resulting decisions.
   Generated JSON now records environment and a source hash as well as config
   hash/seed. Historical reports remain identifiable as historical; current
   outcomes belong to NUMERICAL_CHANGES_README.md and the adoption handoff.
+
+- **D-M5-8: after merging `exp_changes` (D-EXP-1, D-NUM-1..5), all 18 scripts
+  were rerun and the M5 numbers updated from the new results.** `run_all.py`:
+  18/18 OK, 2264.7 s; `pytest` 176 passed. Headline results are unchanged: M4.4
+  worst K1-ratio spread 1.83e-08 (65 accepted fits, was 66), one C_P sample at
+  frame 3 gives |zeta-1| <= 7.65e-08 at delta_x=0.1, and IRGNM reaches 9.27e-07
+  on the D-M5-3 test. **What moved:** `scipy.optimize.least_squares` on that
+  test now ends at 0.094 relative error (was 1.046), still `status=2`, after 43
+  evaluations, better than its 0.301 start. IRGNM remains about 1e5 times more
+  accurate. The stable formulas give scipy more accurate numbers to work with;
+  IRGNM was already unaffected. The Simpson floor of D-M5-6 is gone: 1.3e-15 at
+  n=12801, where it was 1.8e-07. D-M5-7 grid, paper's criterion: original 512
+  (494 blow-ups), stopping fix 172 (58), paper settings 222 (43), 25 blood
+  samples 209 (84), against the paper's 97. By noise level, paper's settings:
+  noiseless 29 vs 1, high 14 vs 19, normal 18 vs 35, low 161 vs 42, of which 158
+  still stop at iteration 0. Other shifts are in the last digits or in 1-2 run
+  counts (e.g. M3 noiseless divergences at delta_x 0.3/0.4: 5 and 8, were 4 and
+  9). The deck and `handoffs/RUN_M5.md` quote these post-merge values.

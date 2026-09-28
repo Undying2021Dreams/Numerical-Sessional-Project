@@ -43,11 +43,11 @@ Simpson and to the IRGNM inner solve.
 
 | Criterion (from PLAN.md) | Target | Measured | Pass? |
 |---|---|---|---|
-| All figures regenerate from a single command with fixed seeds | `run_all.py` exits 0 | 15/15 scripts OK, exit 0, 997.2 s; bit-identical run-to-run; last-bit differences across numerical stacks (D-M5-5) | Pass, with caveat |
+| All figures regenerate from a single command with fixed seeds | `run_all.py` exits 0 | 18/18 scripts OK, exit 0, 2264.7 s (after the `exp_changes` merge, D-M5-8); bit-identical run-to-run; last-bit differences across numerical stacks (D-M5-5) | Pass, with caveat |
 | Results narrative states in advance what counts as agreement | qualitative trend agreement, not digit matching | stated at the top of §5, before the numbers | Pass |
-| Trend: K1 recovers better than k2/k3 | B, C agree; A expected to disagree (Prop. 12) | B: K1 0.0103 vs k3 0.1593; C: 0.0164 vs 0.0864; A: 0.2379 vs 0.1737 (disagrees, as predicted) | Agrees |
+| Trend: K1 recovers better than k2/k3 | B, C agree; A expected to disagree (Prop. 12) | B: K1 0.0106 vs k3 0.1576; C: 0.0160 vs 0.0850; A: 0.2307 vs 0.1737 (disagrees, as predicted) | Agrees |
 | Trend: known C_P beats clean C_WB-only, beats noisy C_WB | ordering holds | known > clean at both noise levels; clean > noisy at high_count only | Partly (see §5) |
-| Trend: low-count setting fails, especially for f | high divergence, poor m recovery | divergence rate 0.99 at low_count vs 0.13/0.33/0.63 | Agrees on divergence; the "especially f" part can't be tested (3 survivors) |
+| Trend: low-count setting fails, especially for f | high divergence, poor m recovery | divergence rate 0.99 at low_count vs 0.12/0.32/0.64 | Agrees on divergence; the "especially f" part can't be tested (3 survivors) |
 
 ## 5. Key numerical results
 
@@ -61,10 +61,10 @@ ordering. Matching digits isn't the test.
 
 | Trend | Measured | Verdict |
 |---|---|---|
-| 1. K1 better than k3 (mean per-seed relative error, all non-diverged M4.3 runs) | A: 0.2379 vs 0.1737 (182 runs); B: 0.0103 vs 0.1593 (146); C: 0.0164 vs 0.0864 (134) | **Agrees** for B, C. A disagrees exactly as Proposition 12 predicts |
-| 2a. Known C_P beats clean C_WB (kinetic-only error, delta_x=0.1) | high: 0.1211 vs 0.1272; normal: 0.1443 vs 0.4149 | **Agrees** |
-| 2b. Clean C_WB beats noisy C_WB | high: 0.1272 vs 0.1516 (n=13 each); normal: 0.4149 vs 0.3582 (n=7 each) | **Mixed**: holds at high_count, reverses at normal_count on 7-sample cells |
-| 3. Low count fails | divergence rate noiseless 0.13, high 0.33, normal 0.63, low **0.99** (3/240 survive) | **Agrees**. The "especially f" part isn't testable, since survivors are too few (D-M5-4) |
+| 1. K1 better than k3 (mean per-seed relative error, all non-diverged M4.3 runs) | A: 0.2307 vs 0.1737 (177 runs); B: 0.0106 vs 0.1576 (150); C: 0.0160 vs 0.0850 (139) | **Agrees** for B, C. A disagrees exactly as Proposition 12 predicts |
+| 2a. Known C_P beats clean C_WB (kinetic-only error, delta_x=0.1) | high: 0.1211 vs 0.1324; normal: 0.1443 vs 0.4149 | **Agrees** |
+| 2b. Clean C_WB beats noisy C_WB | high: 0.1324 vs 0.1668 (n=14, 13); normal: 0.4149 vs 0.3582 (n=7 each) | **Mixed**: holds at high_count, reverses at normal_count on 7-sample cells |
+| 3. Low count fails | divergence rate noiseless 0.12, high 0.32, normal 0.64, low **0.99** (3/240 survive) | **Agrees**. The "especially f" part isn't testable, since survivors are too few (D-M5-4) |
 
 ### Timing and complexity (`results/m5/timing_complexity.json`)
 
@@ -72,33 +72,33 @@ Fitted `time ~= C * n^p`, via our own `src.qr.lstsq` on log-log data.
 
 | Routine | Naive flop exponent | Measured p (ours) | Measured p (Track B) | Notes |
 |---|---|---|---|---|
-| LU solve (M1) | 3 | 1.180 | — | n = 20-100 |
-| QR solve (M1) | 3 | 1.100 | — | n = 20-100 |
-| Simpson | 1 | 1.006 | 0.284 (`scipy.integrate.simpson`) | ours is ~309x slower at n=12801 (pure-Python loop vs vectorised) |
-| IRGNM inner solve (`qr.lstsq`, rows = 4.52 x cols) | 3 | 2.698 | 2.170 (`numpy.linalg.lstsq`) | cols 23-736, synthetic (D-M5-2) |
-| Real `run_irgnm`, fixed 104x23 problem | — | 1.68 ms/iteration | — | 100 iterations, noiseless |
+| LU solve (M1) | 3 | 1.218 | — | n = 20-100 |
+| QR solve (M1) | 3 | 1.158 | — | n = 20-100 |
+| Simpson | 1 | 1.017 | 0.296 (`scipy.integrate.simpson`) | ours is ~84x slower at n=12801 (pure-Python loop vs vectorised) |
+| IRGNM inner solve (`qr.lstsq`, rows = 4.52 x cols) | 3 | 2.596 | 2.147 (`numpy.linalg.lstsq`) | cols 23-736, synthetic (D-M5-2) |
+| Real `run_irgnm`, fixed 104x23 problem | — | 1.96 ms/iteration | — | 100 iterations, noiseless |
 
 Measured exponents below the flop count are the project's known dispatch-overhead
 effect (remaining_task.md, Part 3): at small n, per-call Python/NumPy overhead
 dominates, so the ideal exponent only appears at larger n. The IRGNM inner solve, which
-spans a 32x range of sizes, gets closest (2.70).
+spans a 32x range of sizes, gets closest (2.60).
 
 ### Track A vs Track B (`results/m5/track_ab_comparison.json`)
 
 | Routine | Reference | Accuracy |
 |---|---|---|
-| `src.linalg.solve` (LU) | `numpy.linalg.solve` | max rel. error 4.99e-16, 200 systems |
-| `src.qr.lstsq` | `numpy.linalg.solve` | max rel. error 1.35e-15, 200 systems |
-| `src.quadrature.simpson` | `scipy.integrate.simpson` | within 2x of scipy up to n=401; above that ours rises to 1.8e-07 at n=12801 while scipy reaches 2.2e-16 (D-M5-6) |
-| `src.forward_model` closed form | `solve_ivp` (Radau) | max rel. diff 1.72e-13 |
-| `src.forward_model` quadrature | `solve_ivp` (Radau) | max rel. diff 5.88e-10 |
+| `src.linalg.solve` (LU) | `numpy.linalg.solve` | max rel. error 6.48e-16, 200 systems |
+| `src.qr.lstsq` | `numpy.linalg.solve` | max rel. error 1.13e-15, 200 systems |
+| `src.quadrature.simpson` | `scipy.integrate.simpson` | 1.3e-15 at n=12801 after Uday's local-weight fix (was 1.8e-07; D-M5-6, D-NUM-1); scipy 2.2e-16 |
+| `src.forward_model` closed form | `solve_ivp` (Radau) | max rel. diff 1.73e-13 |
+| `src.forward_model` quadrature | `solve_ivp` (Radau) | max rel. diff 3.29e-10 |
 | `src.eigen` power / inverse power | `numpy.linalg.eigvalsh` | from M3 (`results/m3/jacobian_and_solver.json`) |
-| `src.irgnm.run_irgnm` | `scipy.optimize.least_squares` (TRF, unregularised) | **ours 9.27e-07** (300 it, 0.51 s); **scipy 1.046** (40 evaluations, 0.05 s, `status=2`), worse than the initial guess |
+| `src.irgnm.run_irgnm` | `scipy.optimize.least_squares` (TRF, unregularised) | **ours 9.27e-07** (300 it, 0.60 s); **scipy 0.094** (43 evaluations, 0.06 s, `status=2`), better than its 0.30 start but about 1e5x less accurate (was 1.046 before the D-NUM changes; D-M5-8) |
 
 ### Regeneration (`results/m5/run_all_manifest.json`)
 
-15/15 scripts OK in 997.2 s. The long poles are the M4.3 grid (347 s), M4.4 noisy
-(336 s) and M4.4 noiseless (172 s). Running the same script twice gives bit-identical
+18/18 scripts OK in 2264.7 s. The long poles are the paper-settings grid (934 s), the M4.3
+grid (400 s) and M4.4 noisy (360 s). Running the same script twice gives bit-identical
 output. Across numerical stacks the output isn't bit-identical, but every headline
 number survives (D-M5-5).
 
@@ -130,37 +130,37 @@ does not require every method in a general numerical-methods course.
 
 ## 5c. Follow-up: the grid rerun under the paper's settings (D-M5-7)
 
-The Table 1 gap (498 blow-ups vs the paper's 97) was tested by rerunning all 960
+The Table 1 gap (494 blow-ups vs the paper's 97; 498 before the `exp_changes` merge) was tested by rerunning all 960
 fits with the paper's settings switched on step by step
 (`experiments/m4_grid_paper_settings.py`). Every run is counted both ways.
 
 | Variant | Blow-ups (ours) | No improvement (paper's criterion) |
 |---|---|---|
 | Paper, Table 1 | — | 97 |
-| Original M4.3 settings | 498 | 517 |
-| + stopping-rule fix, 200-step cap | 65 | 179 |
-| + paper's per-setup settings, paper-style Setup A | 53 | 232 |
-| + blood readings at all 25 frames | 86 | 211 |
+| Original M4.3 settings | 494 | 512 |
+| + stopping-rule fix, 200-step cap | 58 | 172 |
+| + paper's per-setup settings, paper-style Setup A | 43 | 222 |
+| + blood readings at all 25 frames | 84 | 209 |
 
 By noise level, with the paper's settings (paper's criterion, out of 240 each):
 
 | Noise | Paper | Ours |
 |---|---|---|
-| Noiseless | 1 | 33 |
-| High count | 19 | 18 |
-| Normal count | 35 | 20 |
+| Noiseless | 1 | 29 |
+| High count | 19 | 14 |
+| Normal count | 35 | 18 |
 | Low count | 42 | 161 |
 
 What this shows:
 
 1. **The stopping-rule bug caused most of the gap:** fixing it alone cuts blow-ups
-   from 498 to 65.
-2. **High and normal count now match the paper** (18 vs 19, 20 vs 35).
+   from 494 to 58.
+2. **High and normal count now match the paper** (14 vs 19, 18 vs 35).
 3. **Low count:** 158 of 161 failures stop at iteration 0 without blowing up. The
    stopping rule judges the data too noisy to improve on the starting guess. This
    is a noise-level mismatch from adding noise straight to the curves instead of
    simulating the scanner.
-4. **Noiseless:** 33 blow-ups against the paper's 1, all at larger starting
+4. **Noiseless:** 29 blow-ups against the paper's 1, all at larger starting
    distances. They are unchanged by every switch, because noiseless runs never
    stop early. This is the one gap left unexplained.
 
@@ -195,7 +195,9 @@ What this shows:
 - `scipy.optimize.least_squares` (Track B, unregularised trust-region), given the exact
   same residual and Jacobian as our IRGNM, converges by its own `xtol` criterion to a
   final relative parameter error of 1.05 — worse than the initial guess — on the
-  noiseless tissue+blood problem. This is not a bug; it is the expected behaviour of an
+  noiseless tissue+blood problem. After the D-NUM stability changes it reaches 0.094
+  instead: better than its start, but still about 1e5x less accurate than IRGNM
+  (D-M5-8). This is not a bug; it is the expected behaviour of an
   unregularised Gauss-Newton-family method on this paper's genuinely ill-posed inverse
   problem, and is reported as a *positive* result for the project (D-M5-3).
 - Trend 2's "clean C_WB beats noisy C_WB" leg is **mixed**, not a clean agreement: it
@@ -215,12 +217,13 @@ What this shows:
 - **`m4_grid.py` duplicated its 500-line section in `logs/failures.md` on every
   rerun**, which `run_all.py` exposed. Fixed so the section is rewritten in place;
   verified idempotent.
-- **Our Simpson has a round-off floor that scipy's does not** (D-M5-6). This revises
-  D-M1-6's "not a defect". Not fixed, because the fix would shift the M1/M2 numbers.
+- **Our Simpson had a round-off floor that scipy's does not** (D-M5-6). This revised
+  D-M1-6's "not a defect". Resolved after M5 by Uday's local-coordinate weights
+  (D-EXP-1, D-NUM-1): 1.3e-15 at n=12801.
 
 ## 9. Track A / Track B audit
 
-`tests/test_no_library_solvers.py`: 3/3 pass; full suite 134 passed.
+`tests/test_no_library_solvers.py`: 3/3 pass; full suite 176 passed (after the `exp_changes` merge).
 
 Library usage introduced this milestone, all under `experiments/` (never `src/`):
 
@@ -292,13 +295,11 @@ with M3's IRGNM recovery study for the same x0), none needed for the trend check
    dimension varied instead (e.g. more regions or more frames), which would require
    touching `src/config.py`'s region/frame counts and is a materially bigger change?
 
-4. Should `_quadratic_segment_integral` be rewritten in local coordinates to remove the
-   Simpson round-off floor (D-M5-6)? The fix is probably small, but it would change
-   M1/M2's recorded numbers, and I'd like the team's call before touching another
-   milestone's verified routine.
+4. ~~Should `_quadratic_segment_integral` be rewritten in local coordinates?~~ Done by
+   Uday (D-EXP-1, D-NUM-1); all results regenerated (D-M5-8).
 5. Should `requirements.txt` pin exact numpy/scipy versions, so `run_all.py` reproduces
    the committed results bit-for-bit (D-M5-5)?
-6. With the paper's settings, 33 of 240 noiseless runs still blow up against the
+6. With the paper's settings, 29 of 240 noiseless runs still blow up against the
    paper's 1, all from the farther starting points (§5c). What differs? Candidates
    are the projection onto the allowed ranges, or how the paper's initial guesses
    were drawn.

@@ -2,9 +2,9 @@
   "provenance": {
     "config_hash": "2f38ba062972",
     "seed": null,
-    "python": "3.12.1",
+    "python": "3.10.6",
     "numpy": "2.2.6",
-    "platform": "Windows-11-10.0.26200-SP0",
+    "platform": "Windows-10-10.0.26200-SP0",
     "src_sha256": "9d11616d97b7d173ea30f60bf272c977235d34214cc170b9a433a554929b0942"
   },
   "phi1_stability_study": {
@@ -937,45 +937,45 @@
     "per_region": {
       "frontal": {
         "closed_vs_quad_max_rel_diff": 3.178013030343215e-10,
-        "closed_vs_ivp_radau_max_rel_diff": 1.1129336399616336e-13,
-        "quad_vs_ivp_radau_max_rel_diff": 3.178001386163307e-10,
+        "closed_vs_ivp_radau_max_rel_diff": 1.118398125918892e-13,
+        "quad_vs_ivp_radau_max_rel_diff": 3.1780246745231227e-10,
         "closed_vs_ivp_rk45_max_rel_diff": 6.9293324928675065e-12,
-        "solve_ivp_radau_time_s": 1.0343455000038375,
-        "solve_ivp_rk45_time_s": 0.19485919999715406,
+        "solve_ivp_radau_time_s": 0.8570318999991287,
+        "solve_ivp_rk45_time_s": 0.17159699997864664,
         "fallback_fired": false
       },
       "temporal": {
         "closed_vs_quad_max_rel_diff": 3.293577091488238e-10,
-        "closed_vs_ivp_radau_max_rel_diff": 1.7089091266883218e-13,
-        "quad_vs_ivp_radau_max_rel_diff": 3.2935706314630437e-10,
-        "closed_vs_ivp_rk45_max_rel_diff": 8.294952510341177e-12,
-        "solve_ivp_radau_time_s": 0.8433342999996967,
-        "solve_ivp_rk45_time_s": 0.18690950000018347,
+        "closed_vs_ivp_radau_max_rel_diff": 1.7278970058737477e-13,
+        "quad_vs_ivp_radau_max_rel_diff": 3.2935512513874625e-10,
+        "closed_vs_ivp_rk45_max_rel_diff": 8.294818543602744e-12,
+        "solve_ivp_radau_time_s": 0.8366181000019424,
+        "solve_ivp_rk45_time_s": 0.17122700001345947,
         "fallback_fired": false
       },
       "occipital": {
         "closed_vs_quad_max_rel_diff": 2.396573756966045e-10,
-        "closed_vs_ivp_radau_max_rel_diff": 9.337107058472268e-14,
+        "closed_vs_ivp_radau_max_rel_diff": 9.543832676003019e-14,
         "quad_vs_ivp_radau_max_rel_diff": 2.3965756655174754e-10,
-        "closed_vs_ivp_rk45_max_rel_diff": 6.026205968164597e-12,
-        "solve_ivp_radau_time_s": 0.8333615000010468,
-        "solve_ivp_rk45_time_s": 0.1895959000030416,
+        "closed_vs_ivp_rk45_max_rel_diff": 6.026374208650601e-12,
+        "solve_ivp_radau_time_s": 0.8479732999985572,
+        "solve_ivp_rk45_time_s": 0.171308000019053,
         "fallback_fired": false
       },
       "white_matter": {
         "closed_vs_quad_max_rel_diff": 2.4721575811595867e-10,
-        "closed_vs_ivp_radau_max_rel_diff": 1.3714063008918312e-13,
-        "quad_vs_ivp_radau_max_rel_diff": 2.472152699249876e-10,
+        "closed_vs_ivp_radau_max_rel_diff": 1.3692500016765924e-13,
+        "quad_vs_ivp_radau_max_rel_diff": 2.47216124259187e-10,
         "closed_vs_ivp_rk45_max_rel_diff": 1.419556462368112e-11,
-        "solve_ivp_radau_time_s": 0.8246655000039027,
-        "solve_ivp_rk45_time_s": 0.1760774000067613,
+        "solve_ivp_radau_time_s": 0.8268239999888465,
+        "solve_ivp_rk45_time_s": 0.16956680000294,
         "fallback_fired": false
       }
     },
     "overall_max": {
       "closed_vs_quad": 3.293577091488238e-10,
-      "closed_vs_ivp_radau": 1.7089091266883218e-13,
-      "quad_vs_ivp_radau": 3.2935706314630437e-10,
+      "closed_vs_ivp_radau": 1.7278970058737477e-13,
+      "quad_vs_ivp_radau": 3.2935512513874625e-10,
       "closed_vs_ivp_rk45": 1.419556462368112e-11
     },
     "any_fallback_fired": false
@@ -999,10 +999,10 @@
         "k3": 0.118,
         "Ki_classical_plateau_assumption": 0.06344520547945207,
         "Ki_corrected_formula": 0.059921108742004264,
-        "measured_ratio_at_t_last_frame": 0.05988952374337724,
+        "measured_ratio_at_t_last_frame": 0.05988952374337722,
         "measured_ratio_at_t_800": 0.05992110874200426,
-        "rel_error_classical_at_t_last_frame": 0.05604334810179469,
-        "rel_error_corrected_at_t_last_frame": 0.0005271097162606683,
+        "rel_error_classical_at_t_last_frame": 0.05604334810179502,
+        "rel_error_corrected_at_t_last_frame": 0.0005271097162610158,
         "rel_error_corrected_at_t_800": 1.1580049250729424e-16
       },
       "temporal": {
@@ -1011,10 +1011,10 @@
         "k3": 0.096,
         "Ki_classical_plateau_assumption": 0.056203636363636365,
         "Ki_corrected_formula": 0.05200226928895612,
-        "measured_ratio_at_t_last_frame": 0.051961898737835945,
+        "measured_ratio_at_t_last_frame": 0.051961898737835965,
         "measured_ratio_at_t_800": 0.05200226928895615,
-        "rel_error_classical_at_t_last_frame": 0.07547087520025335,
-        "rel_error_corrected_at_t_last_frame": 0.0007763228734471554,
+        "rel_error_classical_at_t_last_frame": 0.07547087520025297,
+        "rel_error_corrected_at_t_last_frame": 0.0007763228734467551,
         "rel_error_corrected_at_t_800": 5.337377771228044e-16
       },
       "occipital": {
@@ -1023,10 +1023,10 @@
         "k3": 0.088,
         "Ki_classical_plateau_assumption": 0.06306072874493926,
         "Ki_corrected_formula": 0.057951776649746184,
-        "measured_ratio_at_t_last_frame": 0.05789487601657196,
+        "measured_ratio_at_t_last_frame": 0.05789487601657198,
         "measured_ratio_at_t_800": 0.05795177664974618,
-        "rel_error_classical_at_t_last_frame": 0.08191869696370853,
-        "rel_error_corrected_at_t_last_frame": 0.0009818617558203222,
+        "rel_error_classical_at_t_last_frame": 0.0819186969637082,
+        "rel_error_corrected_at_t_last_frame": 0.0009818617558199631,
         "rel_error_corrected_at_t_800": 1.197356544536175e-16
       },
       "white_matter": {
@@ -1059,11 +1059,11 @@
       },
       "temporal": {
         "Ki_classical": 0.056203636363636365,
-        "fitted_slope": 0.05609565990065493,
-        "rel_error_slope": 0.0019211650698689347,
+        "fitted_slope": 0.05609565990065491,
+        "rel_error_slope": 0.001921165069869305,
         "intercept_predicted": 0.39635538440379586,
-        "fitted_intercept": 0.4113223664224887,
-        "rel_error_intercept": 0.037761520614148884,
+        "fitted_intercept": 0.4113223664224885,
+        "rel_error_intercept": 0.03776152061414832,
         "r2_late_fit": 0.9997961735632966,
         "n_late_points": 13
       },
@@ -1079,8 +1079,8 @@
       },
       "white_matter": {
         "Ki_classical": 0.022596153846153846,
-        "fitted_slope": 0.022949369747149635,
-        "rel_error_slope": 0.01563168242704768,
+        "fitted_slope": 0.022949369747149638,
+        "rel_error_slope": 0.015631682427047832,
         "intercept_predicted": 0.3921167484997271,
         "fitted_intercept": 0.37890288251364074,
         "rel_error_intercept": 0.033698805359994886,

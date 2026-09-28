@@ -1,26 +1,30 @@
 {
   "provenance": {
     "config_hash": "2f38ba062972",
-    "seed": null
+    "seed": null,
+    "python": "3.10.6",
+    "numpy": "2.2.6",
+    "platform": "Windows-10-10.0.26200-SP0",
+    "src_sha256": "9d11616d97b7d173ea30f60bf272c977235d34214cc170b9a433a554929b0942"
   },
   "trend1_K1_vs_k3": {
     "per_setup": {
       "A": {
-        "n_runs_used": 182,
-        "mean_K1_rel_error": 0.2379345762839718,
-        "mean_k3_rel_error": 0.17370915139614512,
+        "n_runs_used": 177,
+        "mean_K1_rel_error": 0.23066881166924538,
+        "mean_k3_rel_error": 0.17373958230634007,
         "K1_better_than_k3": false
       },
       "B": {
-        "n_runs_used": 146,
-        "mean_K1_rel_error": 0.01033861052372718,
-        "mean_k3_rel_error": 0.1593223152014267,
+        "n_runs_used": 150,
+        "mean_K1_rel_error": 0.010554843231509762,
+        "mean_k3_rel_error": 0.15756043852272222,
         "K1_better_than_k3": true
       },
       "C": {
-        "n_runs_used": 134,
-        "mean_K1_rel_error": 0.016433445145111126,
-        "mean_k3_rel_error": 0.08638990307408415,
+        "n_runs_used": 139,
+        "mean_K1_rel_error": 0.015958024586887505,
+        "mean_k3_rel_error": 0.08497453179681036,
         "K1_better_than_k3": true
       }
     },
@@ -31,19 +35,19 @@
   "trend2_known_cp_vs_cwb": {
     "rows": {
       "high_count": {
-        "known_C_P_mean_kinetic_error": 0.12108934224694275,
-        "setup_B_clean_C_WB_mean_rel_error_K": 0.1271834092705035,
-        "setup_B_n_runs": 13,
-        "setup_C_noisy_C_WB_mean_rel_error_K": 0.15163016065122387,
+        "known_C_P_mean_kinetic_error": 0.12108934224694272,
+        "setup_B_clean_C_WB_mean_rel_error_K": 0.13239340459879295,
+        "setup_B_n_runs": 14,
+        "setup_C_noisy_C_WB_mean_rel_error_K": 0.16675707193345998,
         "setup_C_n_runs": 13,
         "known_cp_beats_clean_cwb": true,
         "clean_cwb_beats_noisy_cwb": true
       },
       "normal_count": {
-        "known_C_P_mean_kinetic_error": 0.14429534962070892,
-        "setup_B_clean_C_WB_mean_rel_error_K": 0.41489031328995274,
+        "known_C_P_mean_kinetic_error": 0.14429534962070964,
+        "setup_B_clean_C_WB_mean_rel_error_K": 0.4148903132904628,
         "setup_B_n_runs": 7,
-        "setup_C_noisy_C_WB_mean_rel_error_K": 0.3581976515701883,
+        "setup_C_noisy_C_WB_mean_rel_error_K": 0.35819765411378085,
         "setup_C_n_runs": 7,
         "known_cp_beats_clean_cwb": true,
         "clean_cwb_beats_noisy_cwb": false
@@ -56,31 +60,31 @@
     "by_noise_level": {
       "noiseless": {
         "n_total": 240,
-        "n_diverged": 32,
-        "divergence_rate": 0.13333333333333333,
-        "n_survivors_with_m_error": 208,
-        "mean_m_rel_error_on_survivors": 0.13467199519923104
+        "n_diverged": 28,
+        "divergence_rate": 0.11666666666666667,
+        "n_survivors_with_m_error": 212,
+        "mean_m_rel_error_on_survivors": 0.12112027431309959
       },
       "high_count": {
         "n_total": 240,
-        "n_diverged": 78,
-        "divergence_rate": 0.325,
-        "n_survivors_with_m_error": 162,
-        "mean_m_rel_error_on_survivors": 2.8945051640905644
+        "n_diverged": 76,
+        "divergence_rate": 0.31666666666666665,
+        "n_survivors_with_m_error": 164,
+        "mean_m_rel_error_on_survivors": 2.910222707580136
       },
       "normal_count": {
         "n_total": 240,
-        "n_diverged": 151,
-        "divergence_rate": 0.6291666666666667,
-        "n_survivors_with_m_error": 89,
-        "mean_m_rel_error_on_survivors": 0.7007731820042257
+        "n_diverged": 153,
+        "divergence_rate": 0.6375,
+        "n_survivors_with_m_error": 87,
+        "mean_m_rel_error_on_survivors": 0.7251940727778006
       },
       "low_count": {
         "n_total": 240,
         "n_diverged": 237,
         "divergence_rate": 0.9875,
         "n_survivors_with_m_error": 3,
-        "mean_m_rel_error_on_survivors": 0.4819967163347172
+        "mean_m_rel_error_on_survivors": 0.4819967163351347
       }
     },
     "verdict": "AGREES"
