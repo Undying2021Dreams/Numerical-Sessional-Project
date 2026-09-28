@@ -53,11 +53,27 @@ def _quadratic_segment_integral(
     return w0 * y0 + w1 * y1 + w2 * y2
 
 
-def simpson(x: np.ndarray, y: np.ndarray) -> float:
+def _quadratic_segment_integral_local(
+    x0: float, x1: float, x2: float, y0: float, y1: float, y2: float
+) -> float:
+    """Integrate the same quadratic using interval widths, avoiding differences
+    of cubic antiderivatives in absolute coordinates. See EXPERIMENT_README.md.
+    Requires distinct consecutive nodes, just like the original formula.
+    """
+    h0 = x1 - x0
+    h1 = x2 - x1
+    width = h0 + h1
+    w0 = width / 6.0 * (2.0 - h1 / h0)
+    w1 = width / 6.0 * (width / h0) * (width / h1)
+    w2 = width / 6.0 * (2.0 - h0 / h1)
+    return w0 * y0 + w1 * y1 + w2 * y2
+
+
+def simpson(x: np.ndarray, y: np.ndarray, *, local_weights: bool = True) -> float:
     """Composite Simpson's rule on an arbitrary (non-uniform) grid.
 
     Pairs up consecutive intervals two at a time and integrates the local
-    quadratic interpolant exactly (`_quadratic_segment_integral`) — this is
+    quadratic interpolant exactly (`_quadratic_segment_integral_local`) — this is
     algebraically identical to the standard composite Simpson 1/3 rule when
     the grid is uniform, and generalises correctly when it is not.
 
@@ -65,12 +81,17 @@ def simpson(x: np.ndarray, y: np.ndarray) -> float:
     it is closed with a single trapezoid step (DECISIONS.md D-M1-4) and the
     fallback is recorded in the returned diagnostics via `simpson_diag`
     (this function returns only the value; see `simpson_diag` for the flag).
+
+    By default evaluate weights using interval widths to avoid cancellation.
+    local_weights=False retains the historical formula for comparison only.
     """
-    value, _ = simpson_diag(x, y)
+    value, _ = simpson_diag(x, y, local_weights=local_weights)
     return value
 
 
-def simpson_diag(x: np.ndarray, y: np.ndarray) -> tuple[float, bool]:
+def simpson_diag(
+    x: np.ndarray, y: np.ndarray, *, local_weights: bool = True
+) -> tuple[float, bool]:
     """Same as `simpson`, but also returns whether the odd-leftover trapezoid
     fallback was used (True = fallback triggered on this call)."""
     x = np.asarray(x, dtype=np.float64)
@@ -83,10 +104,11 @@ def simpson_diag(x: np.ndarray, y: np.ndarray) -> tuple[float, bool]:
     if n == 2:
         return trapezoid(x, y), False
 
+    segment = _quadratic_segment_integral_local if local_weights else _quadratic_segment_integral
     total = 0.0
     i = 0
     while i + 2 <= n - 1:
-        total += _quadratic_segment_integral(x[i], x[i + 1], x[i + 2], y[i], y[i + 1], y[i + 2])
+        total += segment(x[i], x[i + 1], x[i + 2], y[i], y[i + 1], y[i + 2])
         i += 2
 
     fallback_used = False

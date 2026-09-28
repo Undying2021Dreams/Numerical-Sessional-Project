@@ -27,6 +27,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 import time
@@ -57,6 +58,8 @@ SCRIPTS = [
     ("M5 timing & complexity", "m5_timing_complexity.py"),
     ("M5 Track A vs Track B", "m5_track_ab_comparison.py"),
     ("M5 trend checklist", "m5_trend_checklist.py"),
+    ("Local Simpson comparison", "local_simpson.py"),
+    ("Stable evaluation: paired noiseless fits", "numerical_stability.py"),
 ]
 
 
@@ -65,10 +68,12 @@ def run_one(label: str, filename: str) -> dict:
     print(f"\n{'=' * 70}\n{label}  ({filename})\n{'=' * 70}")
     t0 = time.perf_counter()
     proc = subprocess.run(
-        [sys.executable, str(script_path)],
+        [sys.executable, "-u", str(script_path)],
         cwd=str(REPO_ROOT),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        env={**os.environ, "PYTHONIOENCODING": "utf-8"},
     )
     dt = time.perf_counter() - t0
     print(proc.stdout[-4000:])  # tail only: some scripts print large sweeps
