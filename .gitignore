@@ -1,6 +1,7 @@
 __pycache__/
 *.pyc
 .pytest_cache/
+.venv/
 
 # Internal working files — not part of the shared codebase.
 # (handoffs/, logs/, PLAN.md and DECISIONS.md ARE tracked: the milestone

@@ -1132,3 +1132,60 @@ records the resulting decisions.
   count 18 vs 19, normal 20 vs 35, noiseless 33 vs 1. The noiseless blow-ups at
   delta_x 0.3-0.4 (unchanged by every switch, since noiseless runs never stop
   early) are the one gap left unexplained.
+
+## Experimental numerical contribution
+
+- **D-EXP-1: evaluate nonuniform Simpson weights in local coordinates as an
+  opt-in experiment (`local_weights=True`).** Implements the remedy proposed in
+  D-M5-6: derive the weights from interval widths before evaluation, avoiding
+  differences of cubic antiderivatives at nearby absolute coordinates. Preserve
+  the original default, sequential summation, grids and trapezoid fallback so the
+  paired experiment isolates the weight formula and historical reports remain
+  reproducible. No changes to ground-truth constants or IRGNM. The deterministic
+  study compares three elementary integrals, translated quadratic data, and all
+  100 PET region/frame outputs against the existing closed form at q=3 and
+  n=401/1601/6401/12801. It uses no randomness (seed null) and records config,
+  source hashes and environment. Measured PET maximum relative error at n=6401:
+  baseline 2.270355e-8, local 1.285976e-12; at n=1601 the improvement is only
+  1.79x, and at n=401 the local result is marginally worse. This improves
+  independent integration/validation, not Table 1 fitting failures: IRGNM uses
+  closed-form evaluations. Full rationale and limitations: EXPERIMENT_README.md.
+
+## Mainline numerical adoption (requested after D-EXP-1)
+
+- **D-NUM-1: make local Simpson weights the default and regenerate all results.**
+  The user explicitly requested mainline adoption, superseding D-EXP-1's opt-in
+  status and D-M5-5's decision to retain historical generated files. Keep the
+  old weights behind `local_weights=False` for controlled comparisons. No new
+  summation, grid-size or fallback-policy change is bundled with this adoption.
+
+- **D-NUM-2: factor the exponential convolution and differentiate its moments.**
+  For t>=0, evaluate `E=t*exp(max(mu,-a)*t)*phi1(-abs(a+mu)*t)` instead of
+  `exp(-a*t)*t*phi1((a+mu)*t)`. Use reflected time moments for its mu/a
+  derivatives rather than the cancellation-prone `-t*E+B` expression. This
+  preserves the model, parameter domain and solver; it fixes intermediate
+  overflow (t=60,a=20,mu=-.01: old NaN, new relative error 3.79e-16 against an
+  80-digit Decimal reference). Unlike earlier interpretations of all overflow
+  as unavoidable, this distinguishes artificial intermediate overflow from
+  genuinely unrepresentable growth. True growth can still overflow.
+
+- **D-NUM-3: evaluate phi1' directly away from zero and by a bounded Taylor
+  polynomial near zero.** `((z-1)*exp(z)+1)/z^2` avoids cancellation as z tends
+  to negative infinity; for |z|<=1, a 20-term Horner polynomial has absolute
+  truncation tail <2e-20. Threshold and degree follow that bound; no fitting
+  constants or convergence thresholds are tuned. The phi2 helpers remain for
+  historical comparisons, but no longer produce the production derivative.
+
+- **D-NUM-4: move the decay inside the independent quadrature integral.**
+  Integrate `exp(-a*(t-s))*C_P(s)` instead of integrating `exp(a*s)*C_P(s)`
+  and multiplying by `exp(-a*t)` afterwards. This is the same integral with
+  bounded exponential factors for physical nonnegative a and t. It does not
+  promise that a fixed grid resolves every possible sharp endpoint layer.
+
+- **D-NUM-5: assess fit effects with 240 paired noiseless cases and regenerate
+  all 18 experiment scripts.** Both arms use frozen observations and exactly
+  the same seeds, guesses, QR, IRGNM schedule and cap. Report regressions as
+  well as rescues; arithmetic accuracy alone is not a convergence claim.
+  Generated JSON now records environment and a source hash as well as config
+  hash/seed. Historical reports remain identifiable as historical; current
+  outcomes belong to NUMERICAL_CHANGES_README.md and the adoption handoff.

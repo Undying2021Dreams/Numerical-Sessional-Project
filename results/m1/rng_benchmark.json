@@ -1,7 +1,11 @@
 {
   "provenance": {
     "config_hash": "2f38ba062972",
-    "seed": 123
+    "seed": 123,
+    "python": "3.12.1",
+    "numpy": "2.2.6",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "src_sha256": "9d11616d97b7d173ea30f60bf272c977235d34214cc170b9a433a554929b0942"
   },
   "uniform": {
     "n": 1000000,
@@ -32,9 +36,9 @@
   "normal": {
     "n": 1000000,
     "seed": 123,
-    "mean": 0.0003881713678650584,
+    "mean": 0.0003881713678650592,
     "variance": 1.000036773724296,
-    "skewness": 0.0035070573650067952,
+    "skewness": 0.003507057365006794,
     "excess_kurtosis": 0.0038355872390298806,
     "max_abs_empirical_cdf_diff_over_grid": 0.0005641627229711621
   },

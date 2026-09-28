@@ -182,14 +182,14 @@ def trend3_low_count_fails(grid_cells: list):
     return {
         "by_noise_level": summary,
         "verdict": verdict,
-        "caveat": "the divergence rate (near-total at low_count: 99%) is the "
-                  "primary evidence for this trend, not the mean_m_err on "
-                  "survivors. Only 3 of 60 low_count runs converge at all, so "
-                  "their mean m-error is a 3-sample statistic dominated by "
-                  "survivorship bias (the few non-diverged cases are not a "
-                  "representative sample) — it should not be read as 'f "
-                  "recovers fine at low_count', only 'almost nothing "
-                  "survives to be measured'.",
+        "caveat": (
+            f"Low-count divergences: {summary['low_count']['n_diverged']} / "
+            f"{summary['low_count']['n_total']}; finite runs with m-error: "
+            f"{summary['low_count']['n_survivors_with_m_error']}. "
+            "The divergence rate is the primary evidence. Error averages on "
+            "survivors are conditional and may have substantial survivorship "
+            "bias; finiteness alone does not establish successful recovery."
+        ),
     }
 
 

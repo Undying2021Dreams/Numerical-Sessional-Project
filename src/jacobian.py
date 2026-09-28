@@ -8,10 +8,10 @@ F: D(F) subset R^23 -> R^(n*T + q), n=4 regions, T=25 frames, q=4 blood samples
   F^2(x) in R^q: C_WB_data(s_l) * f_m(s_l) - C_P(lambda,mu)(s_l), for the q
     blood-sample times s_l (paper's "measurements of C_WB" channel).
 
-The analytic Jacobian reuses `phi1` from `src/forward_model.py` and adds
-`phi2` (a second, independently stability-treated helper — see its
-docstring) to express the mu-derivatives, which have their own removable
-singularity at mu_j = -(k2+k3) distinct from the one phi1 handles.
+The analytic Jacobian reuses stable exponential convolution moments and
+phi1/phi1' from `src/forward_model.py`. The historical phi2 helper remains
+for reference comparisons. See NUMERICAL_CHANGES_README.md for the numerical
+reformulations and their independently checked derivatives.
 """
 from __future__ import annotations
 
@@ -27,7 +27,7 @@ from src.config import (
     REGION_NAMES,
     region_slice,
 )
-from src.forward_model import _phi1, closed_form_C_T
+from src.forward_model import _phi1, _phi1_prime, _convolution_moments, closed_form_C_T
 
 # ---------------------------------------------------------------------------
 # phi2 and phi1' (DECISIONS.md D-M3-3)
@@ -73,14 +73,6 @@ def _phi2(x: np.ndarray) -> np.ndarray:
     x = np.asarray(x, dtype=np.float64)
     small = np.abs(x) < PHI2_SERIES_THRESHOLD
     return np.where(small, _phi2_series(x), _phi2_closed_form(x))
-
-
-def _phi1_prime(x: np.ndarray) -> np.ndarray:
-    """d/dx[phi1(x)] = 1 + (x-1)*phi2(x) (derived in DECISIONS.md D-M3-3 via
-    phi1(x) = int_0^1 exp(x s) ds, integrating by parts; phi1'(0) = 1/2,
-    consistent with phi1(x) = 1 + x/2 + x^2/6 + ...)."""
-    x = np.asarray(x, dtype=np.float64)
-    return 1.0 + (x - 1.0) * _phi2(x)
 
 
 # ---------------------------------------------------------------------------
@@ -164,34 +156,29 @@ def _dCT_block(t: np.ndarray, K1: float, k2: float, k3: float, lam: np.ndarray, 
         dA1/da = -t*A1 + B1,  B1 = exp(-at) t^2 sum_j lam_j phi1'(delta_j t)
         dCT/dk2 = K1*[ (k3/a^2)*(A1-A2) + (k2/a)*dA1/da ]
         dCT/dk3 = K1*[ (k2/a^2)*(A2-A1) + (k2/a)*dA1/da ]
+
+    These identities are evaluated via the convolution moments, without
+    forming large exponentials or subtracting -t*A1+B1 numerically.
     """
     t = np.asarray(t, dtype=np.float64)
     a = k2 + k3
-    delta = a + mu
-
-    od = np.outer(t, delta)  # (T,p)
     om = np.outer(t, mu)  # (T,p)
-    phi1_d = _phi1(od)
     phi1_m = _phi1(om)
-    phi1p_d = _phi1_prime(od)
     phi1p_m = _phi1_prime(om)
-
-    exp_at = np.exp(-a * t)  # (T,)
-    S1 = phi1_d @ lam  # (T,)
+    kernel, kernel_mu, kernel_a = _convolution_moments(t, a, mu)
     S2 = phi1_m @ lam  # (T,)
-    A1 = exp_at * t * S1
+    A1 = kernel @ lam
     A2 = t * S2
 
     dCT_dK1 = (k2 / a) * A1 + (k3 / a) * A2
 
-    dCT_dlam = (K1 * k2 / a) * (exp_at * t)[:, None] * phi1_d + (K1 * k3 / a) * t[:, None] * phi1_m
+    dCT_dlam = (K1 * k2 / a) * kernel + (K1 * k3 / a) * t[:, None] * phi1_m
 
     dCT_dmu = lam[None, :] * (
-        (K1 * k2 / a) * (exp_at * t**2)[:, None] * phi1p_d + (K1 * k3 / a) * (t**2)[:, None] * phi1p_m
+        (K1 * k2 / a) * kernel_mu + (K1 * k3 / a) * (t**2)[:, None] * phi1p_m
     )
 
-    B1 = exp_at * t**2 * (phi1p_d @ lam)
-    dA1_da = -t * A1 + B1
+    dA1_da = kernel_a @ lam
 
     dCT_dk2 = K1 * ((k3 / a**2) * (A1 - A2) + (k2 / a) * dA1_da)
     dCT_dk3 = K1 * ((k2 / a**2) * (A2 - A1) + (k2 / a) * dA1_da)

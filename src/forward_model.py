@@ -21,7 +21,6 @@ Implements:
 """
 from __future__ import annotations
 
-import math
 from dataclasses import dataclass
 
 import numpy as np
@@ -32,10 +31,11 @@ from src.quadrature import simpson_diag
 def _phi1(x: np.ndarray) -> np.ndarray:
     """phi1(x) = (e^x - 1) / x for x != 0, phi1(0) = 1 (its removable
     singularity's exact limit). See DECISIONS.md D-M2-1 for the numerical
-    stability analysis: built on `np.expm1`, which is accurate uniformly for
-    ALL x (no separate small-x branch/threshold needed — the only special
+    stability analysis: built on `np.expm1`, which avoids cancellation near
+    zero (no separate small-x branch/threshold needed — the only special
     case is x == 0.0 exactly, a division-by-zero guard, not a precision
-    workaround).
+    workaround). Large positive arguments can still overflow; convolution
+    kernels below avoid constructing those unnecessary intermediate values.
     """
     x = np.asarray(x, dtype=np.float64)
     safe_x = np.where(x == 0.0, 1.0, x)
@@ -48,6 +48,67 @@ def arterial_input(t: np.ndarray, lam: np.ndarray, mu: np.ndarray) -> np.ndarray
     lam = np.asarray(lam, dtype=np.float64)
     mu = np.asarray(mu, dtype=np.float64)
     return np.exp(np.outer(t, mu)) @ lam
+
+
+def _phi1_prime(x: np.ndarray) -> np.ndarray:
+    """Derivative of phi1 without cancellation for large negative arguments.
+
+    Use sum (k+1)*x**k/(k+2)! near zero, and
+    ((x-1)*exp(x)+1)/x**2 elsewhere. Twenty Taylor terms on |x|<=1
+    leave a tail below 2e-20. Masked evaluation avoids unused overflows.
+    """
+    x = np.asarray(x, dtype=np.float64)
+    out = np.empty_like(x)
+    small = np.abs(x) <= 1.0
+    z = x[small]
+    # Horner evaluation of 20 coefficients, with exact integer factorials.
+    coefficients = [0.5]
+    factorial = 2
+    for k in range(1, 20):
+        factorial *= k + 2
+        coefficients.append((k + 1) / factorial)
+    value = np.zeros_like(z) + coefficients[-1]
+    for coefficient in reversed(coefficients[:-1]):
+        value = coefficient + z * value
+    out[small] = value
+    z = x[~small]
+    out[~small] = ((z - 1.0) * np.exp(z) + 1.0) / z / z
+    return out
+
+
+def _convolution_kernel(t: np.ndarray, a: float, mu: np.ndarray) -> np.ndarray:
+    """Integral_0^t exp(-a*(t-s))*exp(mu*s) ds, shape (T,p).
+
+    Factor the larger endpoint exponential before evaluating phi1. For
+    physical t>=0, a>=0, mu<=0, no intermediate positive exponential occurs.
+    The delta=0 limit remains t*exp(-a*t), without division by delta.
+    """
+    t = np.asarray(t, dtype=np.float64)
+    mu = np.asarray(mu, dtype=np.float64)
+    z = np.outer(t, np.abs(a + mu))
+    scale = np.exp(np.outer(t, np.maximum(mu, -a)))
+    return t[:, None] * scale * _phi1(-z)
+
+
+def _convolution_moments(t: np.ndarray, a: float, mu: np.ndarray):
+    """Return the kernel and its mu/a derivatives without subtracting t*E.
+
+    The derivatives integrate s and -(t-s), respectively, against the same
+    exponential kernel. Reflect s about t when a+mu>=0, so phi arguments
+    are nonpositive in both branches. See NUMERICAL_CHANGES_README.md.
+    """
+    t = np.asarray(t, dtype=np.float64)
+    mu = np.asarray(mu, dtype=np.float64)
+    delta = a + mu
+    z = -np.outer(t, np.abs(delta))
+    scale = np.exp(np.outer(t, np.maximum(mu, -a)))
+    p = _phi1(z)
+    dp = _phi1_prime(z)
+    reflected = delta[None, :] >= 0.0
+    factor = t[:, None]**2 * scale
+    d_mu = factor * np.where(reflected, p - dp, dp)
+    d_a = -factor * np.where(reflected, dp, p - dp)
+    return t[:, None] * scale * p, d_mu, d_a
 
 
 def parent_plasma_fraction(t: np.ndarray, A: float, xi1: float, xi2: float) -> np.ndarray:
@@ -90,6 +151,11 @@ def closed_form_C_T(
         C_T(t) = (K1 k2 / a) * exp(-a t) * t * sum_j lambda_j * phi1(delta_j * t)
                +  (K1 k3 / a)             * t * sum_j lambda_j * phi1(mu_j * t)
 
+    The implementation further factors the first term's exponential using
+    `_convolution_kernel`: t*exp(max(mu_j,-a)*t)*phi1(-abs(delta_j)*t).
+    For nonnegative time this is the same expression without a separately
+    overflowing phi1(delta_j*t) and underflowing exp(-a*t).
+
     This is algebraically identical to the paper's eq. (3) (verified by hand
     and in tests/test_forward_model.py::test_stable_form_matches_paper_eq3_branches):
     expanding phi1 for delta_j != 0 / mu_j != 0 recovers exactly the paper's
@@ -107,9 +173,7 @@ def closed_form_C_T(
     lam = np.asarray(lam, dtype=np.float64)
     mu = np.asarray(mu, dtype=np.float64)
     a = k2 + k3
-    delta = a + mu
-
-    term1 = (K1 * k2 / a) * np.exp(-a * t) * t * (_phi1(np.outer(t, delta)) @ lam)
+    term1 = (K1 * k2 / a) * (_convolution_kernel(t, a, mu) @ lam)
     term2 = (K1 * k3 / a) * t * (_phi1(np.outer(t, mu)) @ lam)
     return term1 + term2
 
@@ -121,8 +185,7 @@ def closed_form_term1(t: np.ndarray, K1: float, k2: float, k3: float, lam: np.nd
     lam = np.asarray(lam, dtype=np.float64)
     mu = np.asarray(mu, dtype=np.float64)
     a = k2 + k3
-    delta = a + mu
-    return (K1 * k2 / a) * np.exp(-a * t) * t * (_phi1(np.outer(t, delta)) @ lam)
+    return (K1 * k2 / a) * (_convolution_kernel(t, a, mu) @ lam)
 
 
 def closed_form_C_T_derivative(
@@ -178,6 +241,8 @@ def quadrature_C_T(
     lam: np.ndarray,
     mu: np.ndarray,
     grid_spec: GradedGridSpec,
+    *,
+    local_weights: bool = True,
 ) -> tuple[np.ndarray, list[bool]]:
     """eq. (1) of Lemma 5, evaluated by direct Track A quadrature:
 
@@ -190,7 +255,8 @@ def quadrature_C_T(
     (C_T values, list of bool — whether Simpson's odd-interval trapezoid
     fallback fired for that t; the caller is expected to assert these are
     all False, since `grid_spec.build` always constructs an odd number of
-    points on purpose).
+    points on purpose). Stable local Simpson weights are the default;
+    local_weights=False is retained for comparison with the old weights.
     """
     t_values = np.asarray(t_values, dtype=np.float64)
     a = k2 + k3
@@ -200,10 +266,12 @@ def quadrature_C_T(
     for i, t_end in enumerate(t_values):
         grid = grid_spec.build(float(t_end))
         C_P_grid = arterial_input(grid, lam, mu)
-        integrand1 = np.exp(a * grid) * C_P_grid
-        I1, fb1 = simpson_diag(grid, integrand1)
-        I2, fb2 = simpson_diag(grid, C_P_grid)
-        out[i] = (K1 * k2 / a) * math.exp(-a * float(t_end)) * I1 + (K1 * k3 / a) * I2
+        # Keep the decay inside the integral: avoids an overflowing exp(a*s)
+        # followed by multiplication by an underflowed exp(-a*t).
+        integrand1 = np.exp(-a * (float(t_end) - grid)) * C_P_grid
+        I1, fb1 = simpson_diag(grid, integrand1, local_weights=local_weights)
+        I2, fb2 = simpson_diag(grid, C_P_grid, local_weights=local_weights)
+        out[i] = (K1 * k2 / a) * I1 + (K1 * k3 / a) * I2
         fallback_flags.append(bool(fb1) or bool(fb2))
 
     return out, fallback_flags

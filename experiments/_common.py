@@ -8,6 +8,9 @@ and config hash that produced it").
 from __future__ import annotations
 
 import json
+import hashlib
+import platform
+from importlib.metadata import version
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +37,15 @@ def save_json(milestone: str, name: str, data: dict, *, seed: int | None = None)
     out_dir.mkdir(parents=True, exist_ok=True)
     path = out_dir / f"{name}.json"
     payload = {
-        "provenance": {"config_hash": config_hash(), "seed": seed},
+        "provenance": {
+            "config_hash": config_hash(), "seed": seed,
+            "python": platform.python_version(), "numpy": version("numpy"),
+            "platform": platform.platform(),
+            "src_sha256": hashlib.sha256(b"".join(
+                p.name.encode() + b"\0" + p.read_bytes()
+                for p in sorted((RESULTS_DIR.parent / "src").glob("*.py"))
+            )).hexdigest(),
+        },
         **data,
     }
     path.write_text(json.dumps(payload, indent=2, default=_json_default))
