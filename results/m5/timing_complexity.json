@@ -68,8 +68,7 @@
     "our_fitted_constant_C": 2.3694269243916705e-06,
     "scipy_fitted_exponent_p": 0.2556091336727384,
     "scipy_fitted_constant_C": 8.357757193933715e-06,
-    "ours_over_scipy_predicted_ratio_at_n12801": 318.13721426307166,
-    "note": "our simpson is a pure-Python loop over quadratic segments (non-uniform-grid support, DECISIONS.md D-M1-4); scipy's is a vectorised C implementation, so a slower constant here is expected and not a correctness concern."
+    "ours_over_scipy_predicted_ratio_at_n12801": 318.13721426307166
   },
   "irgnm_inner_solve": {
     "cols": [
@@ -108,8 +107,7 @@
     "our_fitted_constant_C": 1.2774746161917173e-07,
     "numpy_fitted_exponent_p": 2.446908676626751,
     "numpy_fitted_constant_C": 7.185542643259942e-08,
-    "theoretical_exponent": 3.0,
-    "note": "synthetic stacked systems at the real problem's rows:cols aspect ratio (~4.52:1), benchmarking the exact src.qr.lstsq call irgnm_step makes every iteration. The real PET problem's own size (104x23) is fixed and not itself varied."
+    "theoretical_exponent": 3.0
   },
   "real_irgnm_per_iteration": {
     "n_iterations": 100,

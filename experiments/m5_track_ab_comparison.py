@@ -1,20 +1,3 @@
-"""M5: Track A vs Track B — accuracy and runtime comparison, one row per
-hand-written routine, against its library equivalent. Per AGENTS.md's table:
-LU/QR solve vs `numpy.linalg.solve`, least squares vs `numpy.linalg.lstsq`,
-quadrature vs `scipy.integrate`, eigenvalues vs `numpy.linalg.eigvalsh`/`svd`,
-and fitting/optimisation vs `scipy.optimize.least_squares`.
-
-Most rows are already measured elsewhere; this script *consolidates* them
-(reads the existing JSON, does not re-run the underlying benchmark) and adds
-the one comparison that does not exist yet: the whole IRGNM fit against
-`scipy.optimize.least_squares` on the same problem, same analytic Jacobian,
-same D(F) box constraints (DECISIONS.md D-M5-3). Track B usage throughout is
-reference-only, per AGENTS.md section 1 — nothing under `src/` imports scipy
-or calls these numpy.linalg functions.
-
-Run: `python3 experiments/m5_track_ab_comparison.py`
-Writes: results/m5/track_ab_comparison.json
-"""
 from __future__ import annotations
 
 import json
@@ -29,25 +12,22 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from experiments._common import RESULTS_DIR, save_json
 from experiments.m3_irgnm_recovery import S_BLOOD, T_FRAMES, X_TRUE, _cwb_data, perturb_initial_guess
-from src.config import METABOLIC_START, MU_SLICE  # noqa: F401 (documents slice layout used below)
+from src.config import METABOLIC_START, N_PARAMS, PROJECTION_EPS
 from src.irgnm import DEFAULT_SCHEDULE, DEFAULT_TAU, run_irgnm
 from src.jacobian import analytic_jacobian, forward_operator
+from src.rng import derive_seed
 
 DELTA_X = 0.1
-ROOT_SEED = 20240301  # same root as m3_irgnm_recovery, so seed_idx=0 gives the same x0
+ROOT_SEED = 20240301
 SEED_IDX = 0
 
 
 def _bounds_D_F():
-    """Box bounds matching src.irgnm.project's D(F) constraints exactly
-    (lambda, mu unconstrained; A>=0; xi1,xi2<=0; K1,k2,k3>=PROJECTION_EPS)."""
-    from src.config import N_PARAMS, PROJECTION_EPS
-
     lo = np.full(N_PARAMS, -np.inf)
     hi = np.full(N_PARAMS, np.inf)
-    lo[8] = 0.0            # A >= 0
-    hi[9] = 0.0             # xi1 <= 0
-    hi[10] = 0.0            # xi2 <= 0
+    lo[8] = 0.0
+    hi[9] = 0.0
+    hi[10] = 0.0
     lo[METABOLIC_START:] = PROJECTION_EPS
     return lo, hi
 
@@ -55,13 +35,9 @@ def _bounds_D_F():
 def irgnm_vs_scipy_least_squares():
     C_WB_data = _cwb_data(X_TRUE)
     y_true = forward_operator(X_TRUE, T_FRAMES, S_BLOOD, C_WB_data)
-    seed = ROOT_SEED  # reuse m3's derive_seed convention via perturb_initial_guess
-    from src.rng import derive_seed
-
     seed = derive_seed(ROOT_SEED, f"delta_x={DELTA_X}", f"seed_idx={SEED_IDX}")
     x0, _x0_raw = perturb_initial_guess(DELTA_X, seed)
 
-    # --- Track A: our own IRGNM ------------------------------------------
     t0 = time.perf_counter()
     ours = run_irgnm(
         x0, y_true, T_FRAMES, S_BLOOD, C_WB_data,
@@ -71,7 +47,6 @@ def irgnm_vs_scipy_least_squares():
     t_ours = time.perf_counter() - t0
     ours_final_err = ours["rel_error_total"][-1]
 
-    # --- Track B: scipy.optimize.least_squares, same residual + Jacobian -
     def fun(x):
         return forward_operator(x, T_FRAMES, S_BLOOD, C_WB_data) - y_true
 
@@ -101,12 +76,6 @@ def irgnm_vs_scipy_least_squares():
             "status": int(scipy_res.status),
             "time_s": t_scipy,
         },
-        "note": "IRGNM is Tikhonov-regularised (six-block schedule); "
-                "scipy's least_squares here is UNregularised trust-region "
-                "reflective, so a different final answer is expected, not a "
-                "bug — this compares the two as competing whole-problem "
-                "fitters on identical residual+Jacobian code, not as two "
-                "implementations of the same algorithm.",
     }
 
 
@@ -151,9 +120,6 @@ def build_table():
             "solve_ivp_radau_time_s_per_region": {
                 r: v["solve_ivp_radau_time_s"] for r, v in fwd["three_way_agreement"]["per_region"].items()
             },
-            "note": "closed-form and quadrature evaluate a single time in "
-                    "~microseconds (not separately re-timed here); solve_ivp "
-                    "times are per full-region ODE integration.",
         },
         "eigenvalues": {
             "routine": "src.eigen.power_method / inverse_power_iteration / symmetric_eigendecomposition",

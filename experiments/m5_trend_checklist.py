@@ -1,31 +1,3 @@
-"""M5: results narrative — the trend checklist from PLAN.md's M5 acceptance
-criterion, computed from already-produced M4 result files (nothing here
-re-runs the grid; it aggregates results/m4/*.json).
-
-Stated *in advance*, per PLAN.md: agreement means qualitative trend
-agreement, not digit matching — the imaging chain was cut, so absolute
-noise levels are not comparable to the paper's.
-
-Trends checked, each against the M4.3 grid (`table2_parameters.json`,
-`grid_results.json`) and, for trend 2, also the M4.5 known-C_P arm
-(`consistency_regularization.json`):
-
-1. K1 recovers better than k2/k3 (expected for Setups B/C; Setup A is
-   expected to *disagree*, per Proposition 12 — that disagreement is the
-   M4.4 finding, not a bug).
-2. Known C_P beats clean C_WB-only, which beats noisy C_WB.
-3. The low-count setting fails, especially for the parameters of f (the
-   plasma-fraction block m).
-
-DECISIONS.md D-M5-4 records the scope caveat for trend 2: the M4.5 known-C_P
-arm freezes m at truth and uses the corrected Morozov stopping rule
-(D-M4-9), while the M4.3 grid (Setups B/C) fits all 23 parameters under the
-uncorrected "rms" convention — the comparison is informative, not strictly
-apples-to-apples, and this script reports both facts rather than hiding it.
-
-Run: `python3 experiments/m5_trend_checklist.py`
-Writes: results/m5/trend_checklist.json
-"""
 from __future__ import annotations
 
 import json
@@ -47,19 +19,6 @@ def load(path):
 
 
 def trend1_K1_vs_k3(table2: dict, grid_cells: list):
-    """For Setups B and C, mean(|K1_est-K1_true|/K1_true) should be smaller
-    than mean(|k3_est-k3_true|/k3_true), averaged **per seed, then over
-    seeds** (Setup A is reported separately and is expected to disagree,
-    Prop 12).
-
-    Deliberately uses the raw per-run records in grid_results.json, not
-    table2_parameters.json's precomputed K1_mean/k3_mean. table2's K1_mean is
-    the mean of the *estimates* across seeds; taking |mean(estimate) -
-    truth| after that averaging silently cancels the ζ-scatter Proposition
-    12 predicts for Setup A (positive and negative ζ deviations partly
-    average out), which is exactly the effect this trend is supposed to
-    detect. Averaging the per-seed |error| first, THEN across seeds, does
-    not have that blind spot."""
     K1_true = np.array(table2["K1_true"])
     k3_true = np.array(table2["k3_true"])
 
@@ -98,17 +57,6 @@ def trend1_K1_vs_k3(table2: dict, grid_cells: list):
 
 
 def trend2_known_cp_vs_cwb(consistency: dict, grid_cells: list):
-    """Known C_P (M4.5 arm) vs clean C_WB (Setup B) vs noisy C_WB (Setup C),
-    at the matching delta_x=0.1 used by the M4.5 arm.
-
-    Uses `rel_error_K_final` from the raw grid cells for Setup B/C — the
-    SAME "12 kinetic parameters only" metric as the M4.5 arm's
-    `metabolic_error` (both restrict to METABOLIC_START:). An earlier version
-    of this script compared against table2's `mean_rel_error_total`, which
-    is the full 23-parameter (including arterial lambda/mu and plasma
-    fraction m) vector error — an apples-to-oranges comparison that
-    understated Setup B/C's kinetic accuracy. Fixed; see DECISIONS.md
-    D-M5-4."""
     rows = {}
     for noise in ("high_count", "normal_count"):
         known_cp_err = consistency["consistency"][noise]["error_mean"]
@@ -136,22 +84,12 @@ def trend2_known_cp_vs_cwb(consistency: dict, grid_cells: list):
 
     return {
         "rows": rows,
-        "caveat": "known-C_P arm (M4.5) freezes the plasma-fraction block m "
-                  "at truth and uses the corrected Morozov stopping rule "
-                  "(delta_y*sqrt(n_obs), D-M4-9); Setup B/C (M4.3 grid) fit "
-                  "all 23 parameters under the uncorrected rms convention, "
-                  "and only 7-13 of 20 seeds survive (non-diverged) per cell "
-                  "at normal_count/high_count. Informative, not a fully "
-                  "controlled comparison (DECISIONS.md D-M5-4).",
         "verdict_known_cp_beats_clean_cwb": "AGREES" if all_known_beats_clean else "MIXED/DISAGREES",
         "verdict_clean_beats_noisy_cwb": "AGREES" if all_clean_beats_noisy else "MIXED/DISAGREES — see rows",
     }
 
 
 def trend3_low_count_fails(grid_cells: list):
-    """Divergence/non-convergence rate at low_count vs other noise levels,
-    and the plasma-fraction (m) block's relative error specifically, on the
-    rare low_count runs that do not diverge."""
     by_noise = {n: {"n_total": 0, "n_diverged": 0, "m_errors": []} for n in NOISE_LEVELS}
     for run in grid_cells:
         n = run["noise_level"]
@@ -182,14 +120,6 @@ def trend3_low_count_fails(grid_cells: list):
     return {
         "by_noise_level": summary,
         "verdict": verdict,
-        "caveat": "the divergence rate (near-total at low_count: 99%) is the "
-                  "primary evidence for this trend, not the mean_m_err on "
-                  "survivors. Only 3 of 60 low_count runs converge at all, so "
-                  "their mean m-error is a 3-sample statistic dominated by "
-                  "survivorship bias (the few non-diverged cases are not a "
-                  "representative sample) — it should not be read as 'f "
-                  "recovers fine at low_count', only 'almost nothing "
-                  "survives to be measured'.",
     }
 
 

@@ -43,8 +43,7 @@
       "temporal": 0.5663164159996086,
       "occipital": 0.5592354160035029,
       "white_matter": 0.6050164170010248
-    },
-    "note": "closed-form and quadrature evaluate a single time in ~microseconds (not separately re-timed here); solve_ivp times are per full-region ODE integration."
+    }
   },
   "eigenvalues": {
     "routine": "src.eigen.power_method / inverse_power_iteration / symmetric_eigendecomposition",
@@ -68,15 +67,14 @@
       "final_rel_error": 9.271488953538655e-07,
       "n_iterations": 300,
       "diverged": false,
-      "time_s": 0.505597300012596
+      "time_s": 0.4709506999934092
     },
     "scipy_least_squares": {
       "final_rel_error": 1.0460381722805974,
       "n_iterations": 40,
       "converged": true,
       "status": 2,
-      "time_s": 0.04917340003885329
-    },
-    "note": "IRGNM is Tikhonov-regularised (six-block schedule); scipy's least_squares here is UNregularised trust-region reflective, so a different final answer is expected, not a bug \u2014 this compares the two as competing whole-problem fitters on identical residual+Jacobian code, not as two implementations of the same algorithm."
+      "time_s": 0.07139679999090731
+    }
   }
 }
