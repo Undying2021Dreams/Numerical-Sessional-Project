@@ -2,12 +2,16 @@ __pycache__/
 *.pyc
 .pytest_cache/
 .venv/
+presentation/
+Report/
 
 # Internal working files — not part of the shared codebase.
 # (handoffs/, logs/, PLAN.md and DECISIONS.md ARE tracked: the milestone
 #  reports, failure log, milestone spec and decision log the team needs.)
 CLAUDE.md
 input.txt
+COMMANDS.md
+EXPERIMENT_VIVA_GUIDE.*
 
 # OS cruft
 .DS_Store

@@ -1,26 +1,30 @@
 {
   "provenance": {
     "config_hash": "2f38ba062972",
-    "seed": null
+    "seed": null,
+    "python": "3.12.1",
+    "numpy": "2.2.6",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "src_sha256": "9d11616d97b7d173ea30f60bf272c977235d34214cc170b9a433a554929b0942"
   },
   "trend1_K1_vs_k3": {
     "per_setup": {
       "A": {
-        "n_runs_used": 182,
-        "mean_K1_rel_error": 0.2379345762839718,
-        "mean_k3_rel_error": 0.17370915139614512,
+        "n_runs_used": 180,
+        "mean_K1_rel_error": 0.23797787773534476,
+        "mean_k3_rel_error": 0.16073576669082523,
         "K1_better_than_k3": false
       },
       "B": {
-        "n_runs_used": 146,
-        "mean_K1_rel_error": 0.01033861052372718,
-        "mean_k3_rel_error": 0.1593223152014267,
+        "n_runs_used": 147,
+        "mean_K1_rel_error": 0.010677324400594821,
+        "mean_k3_rel_error": 0.16285171862859327,
         "K1_better_than_k3": true
       },
       "C": {
-        "n_runs_used": 134,
-        "mean_K1_rel_error": 0.016433445145111126,
-        "mean_k3_rel_error": 0.08638990307408415,
+        "n_runs_used": 136,
+        "mean_K1_rel_error": 0.016503724338008167,
+        "mean_k3_rel_error": 0.08280419055472443,
         "K1_better_than_k3": true
       }
     },
@@ -31,20 +35,20 @@
   "trend2_known_cp_vs_cwb": {
     "rows": {
       "high_count": {
-        "known_C_P_mean_kinetic_error": 0.12108934224694275,
-        "setup_B_clean_C_WB_mean_rel_error_K": 0.1271834092705035,
+        "known_C_P_mean_kinetic_error": 0.12108934224694272,
+        "setup_B_clean_C_WB_mean_rel_error_K": 0.16253072100997684,
         "setup_B_n_runs": 13,
-        "setup_C_noisy_C_WB_mean_rel_error_K": 0.15163016065122387,
+        "setup_C_noisy_C_WB_mean_rel_error_K": 0.16675707193340206,
         "setup_C_n_runs": 13,
         "known_cp_beats_clean_cwb": true,
         "clean_cwb_beats_noisy_cwb": true
       },
       "normal_count": {
-        "known_C_P_mean_kinetic_error": 0.14429534962070892,
-        "setup_B_clean_C_WB_mean_rel_error_K": 0.41489031328995274,
+        "known_C_P_mean_kinetic_error": 0.14429534962070964,
+        "setup_B_clean_C_WB_mean_rel_error_K": 0.4148903132904006,
         "setup_B_n_runs": 7,
-        "setup_C_noisy_C_WB_mean_rel_error_K": 0.3581976515701883,
-        "setup_C_n_runs": 7,
+        "setup_C_noisy_C_WB_mean_rel_error_K": 0.3349710178549265,
+        "setup_C_n_runs": 8,
         "known_cp_beats_clean_cwb": true,
         "clean_cwb_beats_noisy_cwb": false
       }
@@ -57,34 +61,34 @@
     "by_noise_level": {
       "noiseless": {
         "n_total": 240,
-        "n_diverged": 32,
-        "divergence_rate": 0.13333333333333333,
-        "n_survivors_with_m_error": 208,
-        "mean_m_rel_error_on_survivors": 0.13467199519923104
+        "n_diverged": 34,
+        "divergence_rate": 0.14166666666666666,
+        "n_survivors_with_m_error": 206,
+        "mean_m_rel_error_on_survivors": 0.12464796796025715
       },
       "high_count": {
         "n_total": 240,
-        "n_diverged": 78,
-        "divergence_rate": 0.325,
-        "n_survivors_with_m_error": 162,
-        "mean_m_rel_error_on_survivors": 2.8945051640905644
+        "n_diverged": 74,
+        "divergence_rate": 0.30833333333333335,
+        "n_survivors_with_m_error": 166,
+        "mean_m_rel_error_on_survivors": 2.8873956278966606
       },
       "normal_count": {
         "n_total": 240,
-        "n_diverged": 151,
-        "divergence_rate": 0.6291666666666667,
-        "n_survivors_with_m_error": 89,
-        "mean_m_rel_error_on_survivors": 0.7007731820042257
+        "n_diverged": 152,
+        "divergence_rate": 0.6333333333333333,
+        "n_survivors_with_m_error": 88,
+        "mean_m_rel_error_on_survivors": 0.6816164170549853
       },
       "low_count": {
         "n_total": 240,
         "n_diverged": 237,
         "divergence_rate": 0.9875,
         "n_survivors_with_m_error": 3,
-        "mean_m_rel_error_on_survivors": 0.4819967163347172
+        "mean_m_rel_error_on_survivors": 0.48199671633450647
       }
     },
     "verdict": "AGREES",
-    "caveat": "the divergence rate (near-total at low_count: 99%) is the primary evidence for this trend, not the mean_m_err on survivors. Only 3 of 60 low_count runs converge at all, so their mean m-error is a 3-sample statistic dominated by survivorship bias (the few non-diverged cases are not a representative sample) \u2014 it should not be read as 'f recovers fine at low_count', only 'almost nothing survives to be measured'."
+    "caveat": "Low-count divergences: 237 / 240; finite runs with m-error: 3. The divergence rate is the primary evidence. Error averages on survivors are conditional and may have substantial survivorship bias; finiteness alone does not establish successful recovery."
   }
 }

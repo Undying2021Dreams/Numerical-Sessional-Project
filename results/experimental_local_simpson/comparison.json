@@ -1,7 +1,11 @@
 {
   "provenance": {
     "config_hash": "2f38ba062972",
-    "seed": null
+    "seed": null,
+    "python": "3.12.1",
+    "numpy": "2.2.6",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "src_sha256": "9d11616d97b7d173ea30f60bf272c977235d34214cc170b9a433a554929b0942"
   },
   "environment": {
     "python": "3.12.1",
@@ -9,8 +13,8 @@
     "platform": "Windows-11-10.0.26200-SP0"
   },
   "source_sha256": {
-    "src/quadrature.py": "942c8a8d294e1cd90a9d0e38517885a1b60f849adf30306d45f15e64bed88be2",
-    "src/forward_model.py": "78bd0fc4b645372bd7394de3b9238bd055f71c3559697a4013c2955f1dc74511",
+    "src/quadrature.py": "cab057bcafa6b9918228532bdbc7d6be22c976b19cb19129450d00da8a05de0f",
+    "src/forward_model.py": "62496dc1605cbceeb88c27d0b1a9f2c8c694efdd7fa225d508f3eef9d4f29005",
     "experiments/local_simpson.py": "f5967f3de87fa2a7851beb6a2fe540f61c2563a833669a9056f293822663974f"
   },
   "method": "Same samples, float64, pair order and sequential summation; only weights differ",
@@ -298,8 +302,8 @@
           "local_max_relative_error": 6.126008300503974e-08
         },
         "white_matter": {
-          "baseline_max_relative_error": 6.320733552288612e-08,
-          "local_max_relative_error": 6.321526118125336e-08
+          "baseline_max_relative_error": 6.320733540083837e-08,
+          "local_max_relative_error": 6.321526105920561e-08
         }
       },
       "baseline_max_relative_error": 8.41509072845736e-08,
@@ -310,23 +314,23 @@
       "q": 3.0,
       "regions": {
         "frontal": {
-          "baseline_max_relative_error": 5.875748803183684e-10,
-          "local_max_relative_error": 3.1780149710398664e-10
+          "baseline_max_relative_error": 5.875751463693304e-10,
+          "local_max_relative_error": 3.178013030343215e-10
         },
         "temporal": {
-          "baseline_max_relative_error": 5.880317658433581e-10,
+          "baseline_max_relative_error": 5.880307255620269e-10,
           "local_max_relative_error": 3.293577091488238e-10
         },
         "occipital": {
-          "baseline_max_relative_error": 5.866575251732153e-10,
+          "baseline_max_relative_error": 5.866568211172997e-10,
           "local_max_relative_error": 2.396573756966045e-10
         },
         "white_matter": {
-          "baseline_max_relative_error": 5.869799973253249e-10,
-          "local_max_relative_error": 2.4721588016370147e-10
+          "baseline_max_relative_error": 5.869793732925497e-10,
+          "local_max_relative_error": 2.4721575811595867e-10
         }
       },
-      "baseline_max_relative_error": 5.880317658433581e-10,
+      "baseline_max_relative_error": 5.880307255620269e-10,
       "local_max_relative_error": 3.293577091488238e-10
     },
     {
@@ -334,23 +338,23 @@
       "q": 3.0,
       "regions": {
         "frontal": {
-          "baseline_max_relative_error": 1.8747992867362523e-08,
+          "baseline_max_relative_error": 1.874799435851914e-08,
           "local_max_relative_error": 1.2406873691567391e-12
         },
         "temporal": {
-          "baseline_max_relative_error": 1.875405273496908e-08,
+          "baseline_max_relative_error": 1.8754052007585243e-08,
           "local_max_relative_error": 1.2859756819214248e-12
         },
         "occipital": {
-          "baseline_max_relative_error": 1.873140134327916e-08,
+          "baseline_max_relative_error": 1.8731401343279156e-08,
           "local_max_relative_error": 9.351902009578395e-13
         },
         "white_matter": {
-          "baseline_max_relative_error": 2.2703549083276393e-08,
-          "local_max_relative_error": 9.652755975066314e-13
+          "baseline_max_relative_error": 2.2703549394551164e-08,
+          "local_max_relative_error": 9.65153549763869e-13
         }
       },
-      "baseline_max_relative_error": 2.2703549083276393e-08,
+      "baseline_max_relative_error": 2.2703549394551164e-08,
       "local_max_relative_error": 1.2859756819214248e-12
     },
     {
@@ -358,23 +362,23 @@
       "q": 3.0,
       "regions": {
         "frontal": {
-          "baseline_max_relative_error": 1.269714439711806e-07,
+          "baseline_max_relative_error": 1.2697144324258245e-07,
           "local_max_relative_error": 7.704565705540833e-14
         },
         "temporal": {
-          "baseline_max_relative_error": 1.2698943624841382e-07,
+          "baseline_max_relative_error": 1.2698943553774206e-07,
           "local_max_relative_error": 7.988897823055067e-14
         },
         "occipital": {
-          "baseline_max_relative_error": 1.2692017544256246e-07,
+          "baseline_max_relative_error": 1.269201765727295e-07,
           "local_max_relative_error": 5.801996348799658e-14
         },
         "white_matter": {
-          "baseline_max_relative_error": 1.2692820687206702e-07,
+          "baseline_max_relative_error": 1.2692820715786846e-07,
           "local_max_relative_error": 5.992544169626451e-14
         }
       },
-      "baseline_max_relative_error": 1.2698943624841382e-07,
+      "baseline_max_relative_error": 1.2698943553774206e-07,
       "local_max_relative_error": 7.988897823055067e-14
     }
   ]

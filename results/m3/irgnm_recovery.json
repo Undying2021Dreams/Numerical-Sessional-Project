@@ -50,7 +50,7 @@
           "final_rel_error": 9.271488959144592e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6377705999984755,
+          "time_s": 1.2311585999996169,
           "rel_error_total_trajectory": [
             0.30086076653615795,
             0.30082946522024917,
@@ -1575,7 +1575,7 @@
           "final_rel_error": 1.3730723772601842e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6118466000043554,
+          "time_s": 0.9446606999990763,
           "rel_error_total_trajectory": [
             0.1637270662463151,
             0.16368492126633963,
@@ -3100,7 +3100,7 @@
           "final_rel_error": 7.361390732061152e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5623669999986305,
+          "time_s": 1.0251369999969029,
           "rel_error_total_trajectory": [
             0.2920287883296544,
             0.2916018393623007,
@@ -4625,7 +4625,7 @@
           "final_rel_error": 4.6711200143071706e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.616209700005129,
+          "time_s": 1.1927144000001135,
           "rel_error_total_trajectory": [
             0.17572780062258184,
             0.17569460970587128,
@@ -6150,7 +6150,7 @@
           "final_rel_error": 5.169765804572855e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6612825999982306,
+          "time_s": 1.1098340000025928,
           "rel_error_total_trajectory": [
             0.21345218411978,
             0.2130760462721784,
@@ -7675,7 +7675,7 @@
           "final_rel_error": 2.628512965813809e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 1.2996836000020267,
+          "time_s": 0.8998397000032128,
           "rel_error_total_trajectory": [
             0.16246271686844233,
             0.16245781627973024,
@@ -9200,7 +9200,7 @@
           "final_rel_error": 5.44484923690647e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6954906000028132,
+          "time_s": 0.9822643000006792,
           "rel_error_total_trajectory": [
             0.2071028457920357,
             0.20707907654537078,
@@ -10725,7 +10725,7 @@
           "final_rel_error": 4.5125059402499536e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5846953000000212,
+          "time_s": 1.1260226000013063,
           "rel_error_total_trajectory": [
             0.26240252602873865,
             0.2623896201325531,
@@ -12250,7 +12250,7 @@
           "final_rel_error": 5.066263302295502e-08,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6020454999961657,
+          "time_s": 0.8888571999996202,
           "rel_error_total_trajectory": [
             0.1438576024012795,
             0.14381718409515887,
@@ -13775,7 +13775,7 @@
           "final_rel_error": 8.086389968836795e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5848383999982616,
+          "time_s": 0.9652599999972153,
           "rel_error_total_trajectory": [
             0.249994036643684,
             0.2499175902084491,
@@ -15300,7 +15300,7 @@
           "final_rel_error": 4.929013332736975e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6040844000017387,
+          "time_s": 1.1966257999956724,
           "rel_error_total_trajectory": [
             0.14954262522321343,
             0.14949780644777286,
@@ -16825,7 +16825,7 @@
           "final_rel_error": 4.4723340199464757e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6061523999960627,
+          "time_s": 0.8851112999982433,
           "rel_error_total_trajectory": [
             0.1602187734460299,
             0.16016972385721118,
@@ -18350,7 +18350,7 @@
           "final_rel_error": 8.990201373182045e-08,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6139437000019825,
+          "time_s": 0.8928860000014538,
           "rel_error_total_trajectory": [
             0.20478923212671063,
             0.20474185626022795,
@@ -19875,7 +19875,7 @@
           "final_rel_error": 9.917669819225707e-08,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5851603999981307,
+          "time_s": 1.0209074999947916,
           "rel_error_total_trajectory": [
             0.1295010469626058,
             0.12947188336673449,
@@ -21400,7 +21400,7 @@
           "final_rel_error": 4.0533816208624e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6677956999992603,
+          "time_s": 1.1983150000014575,
           "rel_error_total_trajectory": [
             0.17889087954170396,
             0.17875694815511214,
@@ -22925,7 +22925,7 @@
           "final_rel_error": 8.012877197266477e-08,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6141337999943062,
+          "time_s": 1.0822807000004104,
           "rel_error_total_trajectory": [
             0.10070359975235124,
             0.10052936845744465,
@@ -24450,7 +24450,7 @@
           "final_rel_error": 2.4506691840120224e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.623310599999968,
+          "time_s": 0.9492115000030026,
           "rel_error_total_trajectory": [
             0.08808870622081819,
             0.0879788705466993,
@@ -25975,7 +25975,7 @@
           "final_rel_error": 4.620052986628115e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.630247999994026,
+          "time_s": 1.3673357000006945,
           "rel_error_total_trajectory": [
             0.14235411480293744,
             0.14230195012531546,
@@ -27500,7 +27500,7 @@
           "final_rel_error": 1.5355039932991614e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6410700999986148,
+          "time_s": 1.1862836000000243,
           "rel_error_total_trajectory": [
             0.07927195650884453,
             0.07895401506328716,
@@ -29025,7 +29025,7 @@
           "final_rel_error": 1.2990733292992937e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6922513999961666,
+          "time_s": 1.1322768999962136,
           "rel_error_total_trajectory": [
             0.056402422346443944,
             0.05620048232481822,
@@ -30561,7 +30561,7 @@
           "final_rel_error": 1.239378280787188e-06,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6232933999999659,
+          "time_s": 0.9335388999970746,
           "rel_error_total_trajectory": [
             0.3830651708493363,
             0.38291122865814675,
@@ -32086,7 +32086,7 @@
           "final_rel_error": 9.591989822058944e-08,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5860202999974717,
+          "time_s": 0.8386731999999029,
           "rel_error_total_trajectory": [
             0.225345767238315,
             0.2251259516762771,
@@ -33611,7 +33611,7 @@
           "final_rel_error": 9.811894112572414e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6126640999937081,
+          "time_s": 0.8584837000016705,
           "rel_error_total_trajectory": [
             0.34477525097127654,
             0.34440208690496776,
@@ -35136,7 +35136,7 @@
           "final_rel_error": 9.287683496943417e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6020821999991313,
+          "time_s": 1.0448840999961249,
           "rel_error_total_trajectory": [
             0.3003047388502397,
             0.30006517965973173,
@@ -36661,7 +36661,7 @@
           "final_rel_error": 3.7990486733483655e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6223351000007824,
+          "time_s": 1.0760058000014396,
           "rel_error_total_trajectory": [
             0.3301476917166505,
             0.3293275522765115,
@@ -38186,7 +38186,7 @@
           "final_rel_error": 5.114412911488989e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6155873999960022,
+          "time_s": 1.3736800999977277,
           "rel_error_total_trajectory": [
             0.37588809808247214,
             0.37584563262226156,
@@ -39711,7 +39711,7 @@
           "final_rel_error": 1.2759151918477945e-06,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6149519999962649,
+          "time_s": 1.103953999998339,
           "rel_error_total_trajectory": [
             0.39176795812198806,
             0.39160615842032354,
@@ -41236,7 +41236,7 @@
           "final_rel_error": 5.572678891634415e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6767736000037985,
+          "time_s": 0.9912466999958269,
           "rel_error_total_trajectory": [
             0.2547325925306017,
             0.25460790793380417,
@@ -42761,7 +42761,7 @@
           "final_rel_error": 1.2969257971184424e+75,
           "n_iterations": 128,
           "diverged": true,
-          "time_s": 0.2573307999991812,
+          "time_s": 0.42533619999449,
           "rel_error_total_trajectory": [
             0.6395077511120986,
             0.6388808622666576,
@@ -43431,7 +43431,7 @@
           "final_rel_error": 7.359860738315219e-08,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6205494999958319,
+          "time_s": 0.9245203999962541,
           "rel_error_total_trajectory": [
             0.1238051929698054,
             0.12350985782443809,
@@ -44956,7 +44956,7 @@
           "final_rel_error": 2.3265167548550467e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6202991999962251,
+          "time_s": 0.9294674000047962,
           "rel_error_total_trajectory": [
             0.20491573015904319,
             0.20473694857354008,
@@ -46481,7 +46481,7 @@
           "final_rel_error": 7.442063542210405e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6239650999996229,
+          "time_s": 1.0210702999975183,
           "rel_error_total_trajectory": [
             0.35316082286774514,
             0.35277859033184406,
@@ -48006,7 +48006,7 @@
           "final_rel_error": 5.799149365021747e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.55389369999466,
+          "time_s": 0.9559741999983089,
           "rel_error_total_trajectory": [
             0.20243997053837637,
             0.2022796641452069,
@@ -49531,7 +49531,7 @@
           "final_rel_error": 5.101459356126442e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5841345000008005,
+          "time_s": 0.8499697000006563,
           "rel_error_total_trajectory": [
             0.270516625990674,
             0.2704893021644226,
@@ -51056,7 +51056,7 @@
           "final_rel_error": 2242779055298.73,
           "n_iterations": 61,
           "diverged": true,
-          "time_s": 0.13634479999745963,
+          "time_s": 0.2189970000035828,
           "rel_error_total_trajectory": [
             0.1855677102670449,
             0.18513907420283798,
@@ -51391,7 +51391,7 @@
           "final_rel_error": 5.207390127552817e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5911631000053603,
+          "time_s": 0.9469999000066309,
           "rel_error_total_trajectory": [
             0.2823768409602884,
             0.28228004526055417,
@@ -52916,7 +52916,7 @@
           "final_rel_error": 1.2984890384277246e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6165050999989035,
+          "time_s": 1.0904484999991837,
           "rel_error_total_trajectory": [
             0.36182046936934564,
             0.3597093414583105,
@@ -54441,7 +54441,7 @@
           "final_rel_error": 1.1451013471082883e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6208977000060258,
+          "time_s": 1.1735324999972363,
           "rel_error_total_trajectory": [
             0.09880799883394217,
             0.09867386387427836,
@@ -55966,7 +55966,7 @@
           "final_rel_error": 1.5923493293431972,
           "n_iterations": 231,
           "diverged": true,
-          "time_s": 0.47948080000060145,
+          "time_s": 0.8021225999982562,
           "rel_error_total_trajectory": [
             0.26289404830332586,
             0.2624165157267022,
@@ -57151,7 +57151,7 @@
           "final_rel_error": 5.985073053209688e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.594048400002066,
+          "time_s": 0.9497560000017984,
           "rel_error_total_trajectory": [
             0.483751572218812,
             0.4837281100106704,
@@ -58687,7 +58687,7 @@
           "final_rel_error": 13.658877373991693,
           "n_iterations": 200,
           "diverged": true,
-          "time_s": 0.41334370000549825,
+          "time_s": 0.656082300003618,
           "rel_error_total_trajectory": [
             0.2912268127559649,
             0.29057316725894755,
@@ -59717,7 +59717,7 @@
           "final_rel_error": 6.154693716299783e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6689650999978767,
+          "time_s": 0.9259173000027658,
           "rel_error_total_trajectory": [
             0.2959840687690366,
             0.2940580336965366,
@@ -61242,7 +61242,7 @@
           "final_rel_error": 8.57179165762224e-08,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6212981999997282,
+          "time_s": 1.0814955000023474,
           "rel_error_total_trajectory": [
             0.2424278411705869,
             0.2423585412158397,
@@ -62767,7 +62767,7 @@
           "final_rel_error": 6008315960648.177,
           "n_iterations": 189,
           "diverged": true,
-          "time_s": 0.5414575999966473,
+          "time_s": 0.6327598999996553,
           "rel_error_total_trajectory": [
             0.4231113621592079,
             0.42266771157960364,
@@ -63742,7 +63742,7 @@
           "final_rel_error": 6.452870411016465e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6297536000056425,
+          "time_s": 1.0299534999940079,
           "rel_error_total_trajectory": [
             0.2397196685229973,
             0.23950423345901817,
@@ -65267,7 +65267,7 @@
           "final_rel_error": 5.41169691598316e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6052722999957041,
+          "time_s": 1.1152776000017184,
           "rel_error_total_trajectory": [
             0.24652499072609968,
             0.2462799063281973,
@@ -66792,7 +66792,7 @@
           "final_rel_error": 2.754055198562507e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5749276999995345,
+          "time_s": 0.9229087999992771,
           "rel_error_total_trajectory": [
             0.3152954938444061,
             0.31518902930383397,
@@ -68317,7 +68317,7 @@
           "final_rel_error": 6.377085128053858,
           "n_iterations": 131,
           "diverged": true,
-          "time_s": 0.267674700000498,
+          "time_s": 0.4725345999977435,
           "rel_error_total_trajectory": [
             0.451068844713005,
             0.45044058409394483,
@@ -69002,7 +69002,7 @@
           "final_rel_error": 3.307294258265389e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5823712999990676,
+          "time_s": 1.443053900002269,
           "rel_error_total_trajectory": [
             0.11857468907799111,
             0.11808041490193731,
@@ -70527,7 +70527,7 @@
           "final_rel_error": 9.74659923546537e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.618115500001295,
+          "time_s": 1.0519522999966284,
           "rel_error_total_trajectory": [
             0.34523093746616007,
             0.34126388686325854,
@@ -72052,7 +72052,7 @@
           "final_rel_error": 7.088649226868955e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5814758999986225,
+          "time_s": 0.9398830999998609,
           "rel_error_total_trajectory": [
             0.227035523933471,
             0.22686940492520943,
@@ -73577,7 +73577,7 @@
           "final_rel_error": 1.1996646338151432e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6108776999972179,
+          "time_s": 0.9124301999981981,
           "rel_error_total_trajectory": [
             0.2844213988690224,
             0.2837579852103537,
@@ -75102,7 +75102,7 @@
           "final_rel_error": 3.5148698092986063e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6118419999984326,
+          "time_s": 1.4758127000022796,
           "rel_error_total_trajectory": [
             0.23770347767451058,
             0.23765169463327604,
@@ -76627,7 +76627,7 @@
           "final_rel_error": 1.7162551215658669e+28,
           "n_iterations": 180,
           "diverged": true,
-          "time_s": 0.37555820000125095,
+          "time_s": 1.1113744000031147,
           "rel_error_total_trajectory": [
             0.5522053518929002,
             0.5483813504652586,
@@ -77557,7 +77557,7 @@
           "final_rel_error": 8.19344804473934e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5919110000031651,
+          "time_s": 1.243476699994062,
           "rel_error_total_trajectory": [
             0.34020273014876534,
             0.3401284242247838,
@@ -79082,7 +79082,7 @@
           "final_rel_error": 4990.523809123925,
           "n_iterations": 157,
           "diverged": true,
-          "time_s": 0.3194128000031924,
+          "time_s": 0.6502822000038577,
           "rel_error_total_trajectory": [
             0.5037085804933551,
             0.5012286075619042,
@@ -79897,7 +79897,7 @@
           "final_rel_error": 1.4387864422887339e-06,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5848077999980887,
+          "time_s": 1.2838564999983646,
           "rel_error_total_trajectory": [
             0.47383354810988937,
             0.47381593782375275,
@@ -81422,7 +81422,7 @@
           "final_rel_error": 4.0400767140069137e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5787678000051528,
+          "time_s": 1.5420407999990857,
           "rel_error_total_trajectory": [
             0.4799806486050141,
             0.479866661751527,
@@ -82947,7 +82947,7 @@
           "final_rel_error": 6.297700979533824e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5831049999978859,
+          "time_s": 1.3785075999985565,
           "rel_error_total_trajectory": [
             0.5957275138172158,
             0.5955134245053062,
@@ -84472,7 +84472,7 @@
           "final_rel_error": 2.8884773627589964e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5857746000037878,
+          "time_s": 1.6759854000047198,
           "rel_error_total_trajectory": [
             0.25067914987639633,
             0.25063026364497837,
@@ -86008,7 +86008,7 @@
           "final_rel_error": 3.0597159946312865e+23,
           "n_iterations": 207,
           "diverged": true,
-          "time_s": 0.4055429000000004,
+          "time_s": 1.0004764000041177,
           "rel_error_total_trajectory": [
             0.58683534179851,
             0.5764437060224138,
@@ -87073,7 +87073,7 @@
           "final_rel_error": 75271356516362.88,
           "n_iterations": 166,
           "diverged": true,
-          "time_s": 0.3381987000029767,
+          "time_s": 0.8816925999999512,
           "rel_error_total_trajectory": [
             0.3732121589590122,
             0.37174653361006,
@@ -87933,7 +87933,7 @@
           "final_rel_error": 3.006664036376227e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6166999999986729,
+          "time_s": 1.6951326999987941,
           "rel_error_total_trajectory": [
             0.6590034940054632,
             0.6519731401690781,
@@ -89458,7 +89458,7 @@
           "final_rel_error": 1.4670453039155223e-06,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6634107000063523,
+          "time_s": 1.225711399994907,
           "rel_error_total_trajectory": [
             0.4439362756011998,
             0.44319017165580255,
@@ -90983,7 +90983,7 @@
           "final_rel_error": 1.5227167071234364e-06,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.692130499999621,
+          "time_s": 1.119327799999155,
           "rel_error_total_trajectory": [
             0.4925274422288821,
             0.49242533375249226,
@@ -92508,7 +92508,7 @@
           "final_rel_error": 7.646698023231467e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6200260999976308,
+          "time_s": 0.9270098000051803,
           "rel_error_total_trajectory": [
             0.26679843768635203,
             0.2664514138712687,
@@ -94033,7 +94033,7 @@
           "final_rel_error": 1.1490990600539635e-06,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6376129000054789,
+          "time_s": 1.1816812999968533,
           "rel_error_total_trajectory": [
             0.43589563223011923,
             0.43584552772890467,
@@ -95558,7 +95558,7 @@
           "final_rel_error": 0.03288848145822019,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6256309000018518,
+          "time_s": 1.0393223999999464,
           "rel_error_total_trajectory": [
             0.39983403051611194,
             0.3996269542364537,
@@ -97083,7 +97083,7 @@
           "final_rel_error": 48.906111554806216,
           "n_iterations": 182,
           "diverged": true,
-          "time_s": 0.38783150000381283,
+          "time_s": 0.5648624000023119,
           "rel_error_total_trajectory": [
             0.6272445482405257,
             0.626299471612578,
@@ -98023,7 +98023,7 @@
           "final_rel_error": 4.706275068931662e+20,
           "n_iterations": 135,
           "diverged": true,
-          "time_s": 0.2779599999994389,
+          "time_s": 0.4180737999995472,
           "rel_error_total_trajectory": [
             0.6120381609877127,
             0.6113651901452343,
@@ -98728,7 +98728,7 @@
           "final_rel_error": 1.4609113482074032e-06,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5635375000056229,
+          "time_s": 1.2568007000008947,
           "rel_error_total_trajectory": [
             0.48498306580979433,
             0.4847740782281206,
@@ -100253,7 +100253,7 @@
           "final_rel_error": 9.694065343201528e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5709836999958497,
+          "time_s": 1.2517184000025736,
           "rel_error_total_trajectory": [
             0.4148983335312813,
             0.4147564232321853,
@@ -101778,7 +101778,7 @@
           "final_rel_error": 7.270176714488083e+56,
           "n_iterations": 122,
           "diverged": true,
-          "time_s": 0.24165190000348957,
+          "time_s": 0.37072259999695234,
           "rel_error_total_trajectory": [
             0.4790083899824219,
             0.47401846482474763,
@@ -102418,7 +102418,7 @@
           "final_rel_error": 4.3889354438844695e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6415010999990045,
+          "time_s": 0.9217585000005784,
           "rel_error_total_trajectory": [
             0.3890905127490177,
             0.3889266406555279,
@@ -103943,7 +103943,7 @@
           "final_rel_error": 1.013967448261557e+74,
           "n_iterations": 136,
           "diverged": true,
-          "time_s": 0.26534990000072867,
+          "time_s": 0.4134821000043303,
           "rel_error_total_trajectory": [
             0.5863666295467426,
             0.5856374034283102,
@@ -104653,7 +104653,7 @@
           "final_rel_error": 2.851379057267383e+46,
           "n_iterations": 229,
           "diverged": true,
-          "time_s": 0.5312602000049083,
+          "time_s": 0.6965443000008236,
           "rel_error_total_trajectory": [
             0.40935621890779733,
             0.4086636258293344,
@@ -105828,7 +105828,7 @@
           "final_rel_error": 1.0416763385245297e+56,
           "n_iterations": 184,
           "diverged": true,
-          "time_s": 0.3735436999995727,
+          "time_s": 0.5686325999995461,
           "rel_error_total_trajectory": [
             0.7860885010676162,
             0.7810926706490765,
@@ -106778,7 +106778,7 @@
           "final_rel_error": 0.8994288597912462,
           "n_iterations": 209,
           "diverged": true,
-          "time_s": 0.4136173999941093,
+          "time_s": 0.6348666000048979,
           "rel_error_total_trajectory": [
             0.5266449715175889,
             0.5261237904221516,
@@ -107853,7 +107853,7 @@
           "final_rel_error": 5.838283173443888e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.5852835000041523,
+          "time_s": 0.9883203999997932,
           "rel_error_total_trajectory": [
             0.23999784616875833,
             0.23892563475899212,
@@ -109378,7 +109378,7 @@
           "final_rel_error": 2.2422057909078826e-07,
           "n_iterations": 300,
           "diverged": false,
-          "time_s": 0.6197385000050417,
+          "time_s": 1.0736782000021776,
           "rel_error_total_trajectory": [
             0.4743090088558652,
             0.4730161773912327,
