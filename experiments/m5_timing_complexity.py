@@ -12,7 +12,7 @@ cover:
 - Simpson (`src.quadrature.simpson`) runtime vs number of grid points,
   fitted the same way, plus `scipy.integrate.simpson` (Track B) at the same
   sizes for comparison. Track B usage here is a runtime/accuracy reference
-  only, per AGENTS.md section 1 — nothing under `src/` calls it.
+  only, per the project brief — nothing under `src/` calls it.
 - The IRGNM inner solve. The real PET problem has a *fixed* physical size
   (104-dim F, 23 parameters) — it cannot itself be "scaled up" meaningfully.
   What actually varies with problem size is the stacked least-squares solve

@@ -1,6 +1,6 @@
 """Track A: power method and inverse power iteration for symmetric matrices.
 
-CLAUDE.md section 1: "eigenvalue decomposition: power method" is explicitly
+The project brief: "eigenvalue decomposition: power method" is explicitly
 named as a graded course topic. Used in M3 for the conditioning analysis of
 F'^T F' (largest eigenvalue via power method, smallest via inverse power
 iteration using our own LU, full spectrum via repeated deflation).

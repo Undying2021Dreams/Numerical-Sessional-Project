@@ -2,7 +2,7 @@
 
 Not part of src/ (no Track A/B restriction applies here), but deliberately
 tiny and non-numerical: it only handles file I/O and JSON serialisation, per
-CLAUDE.md section 2 ("every artifact written to results/ records the seed
+the project brief ("every artifact written to results/ records the seed
 and config hash that produced it").
 """
 from __future__ import annotations

@@ -249,8 +249,8 @@ with M3's IRGNM recovery study for the same x0), none needed for the trend check
    small-sample effect sufficient for the report?
 2. The IRGNM-vs-scipy comparison (D-M5-3) is a single seed at a single delta_x. Should
    this be extended to the full 20-seed x 4-delta_x grid to report a distribution rather
-   than one number, given how central this Track B row is to the "fit/optimise" AGENTS.md
-   requirement?
+   than one number, given how central this Track B row is to the "fit/optimise"
+   requirement in the project brief?
 3. `m5_timing_complexity.py`'s synthetic IRGNM-inner-solve benchmark varies problem size
    independently of the model — is a reviewer likely to want the *real* problem's
    dimension varied instead (e.g. more regions or more frames), which would require

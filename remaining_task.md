@@ -324,7 +324,7 @@ quietly reduce the number of realisations, because the tables' statistics depend
 **Git:** one branch per work item, run `pytest` before opening a PR, and do not commit
 `__pycache__/` or large intermediate `.npy` dumps.
 
-**Not in the repo:** `PLAN.md`, `DECISIONS.md` and `CLAUDE.md` are git-ignored. Everything
+**Not in the repo:** `PLAN.md` and `DECISIONS.md` are git-ignored. Everything
 from them that you need is restated in this file; ask if you want the originals. The
 milestone reports in `handoffs/` and the failure log in `logs/` **are** tracked, and they
 are the best source of "what number did we actually get and why".

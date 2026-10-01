@@ -1,6 +1,6 @@
 """Track A random number generation.
 
-CLAUDE.md section 1: "our own uniform generator (LCG or Mersenne-style) plus
+The project brief: "our own uniform generator (LCG or Mersenne-style) plus
 our own Box-Muller normal and our own Poisson sampler, all explicitly seeded."
 No `numpy.random` symbol is used anywhere in this file (enforced mechanically
 by tests/test_no_library_solvers.py).

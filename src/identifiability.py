@@ -429,7 +429,7 @@ def run_identifiability_case(
 
 def summarise(runs: list[dict]) -> dict:
     """Aggregate a list of `run_identifiability_case` results, excluding
-    diverged runs (which are counted, never silently dropped — AGENTS.md
+    diverged runs (which are counted, never silently dropped — the project brief
     rule 3)."""
     ok = [r for r in runs if r["fit_accepted"]]
     n_div = sum(1 for r in runs if r["diverged"])

@@ -1,5 +1,5 @@
 """M5: Track A vs Track B — accuracy and runtime comparison, one row per
-hand-written routine, against its library equivalent. Per AGENTS.md's table:
+hand-written routine, against its library equivalent. Per the project brief's table:
 LU/QR solve vs `numpy.linalg.solve`, least squares vs `numpy.linalg.lstsq`,
 quadrature vs `scipy.integrate`, eigenvalues vs `numpy.linalg.eigvalsh`/`svd`,
 and fitting/optimisation vs `scipy.optimize.least_squares`.
@@ -9,7 +9,7 @@ Most rows are already measured elsewhere; this script *consolidates* them
 the one comparison that does not exist yet: the whole IRGNM fit against
 `scipy.optimize.least_squares` on the same problem, same analytic Jacobian,
 same D(F) box constraints (DECISIONS.md D-M5-3). Track B usage throughout is
-reference-only, per AGENTS.md section 1 — nothing under `src/` imports scipy
+reference-only, per the project brief — nothing under `src/` imports scipy
 or calls these numpy.linalg functions.
 
 Run: `python3 experiments/m5_track_ab_comparison.py`

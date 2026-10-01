@@ -296,7 +296,7 @@ Carlo study: `20240301` (all 80 per-run seeds derived via `src.rng.derive_seed`)
 3. **Regularisation hyperparameters are the paper's own, unmodified — is that
    sufficient justification, or does the assignment expect us to demonstrate our own
    tuning capability** (even a small, clearly-scoped grid search) somewhere before M5,
-   given CLAUDE.md's general preference for measurement-based choices over adopted
+   given the project brief's general preference for measurement-based choices over adopted
    ones? We verified they work (median error targets met) rather than re-deriving them;
    flagging this explicitly since it's a real methodological choice, not an oversight.
 4. **The `q=4` blood-sample times (D-M3-1) were chosen once, informally, for M3's

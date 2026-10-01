@@ -4,7 +4,7 @@ solver comparison on the real IRGNM problem.
 
 Track B usage (clearly marked): `numpy.linalg.eigvalsh`/`svd`/`cond` are
 used here as independent references for the conditioning analysis, per
-CLAUDE.md section 1 ("Track B ... clearly-marked benchmark scripts").
+the project brief ("Track B ... clearly-marked benchmark scripts").
 `src/eigen.py` (our own power method / inverse power iteration) is the
 primary Track A computation.
 

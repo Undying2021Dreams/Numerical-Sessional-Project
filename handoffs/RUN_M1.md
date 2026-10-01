@@ -15,7 +15,7 @@ regional kinetics, the 25-frame schedule, the 23-parameter unknown-vector layout
 deterministic config-hash function for artifact provenance, plotting helpers, and the
 Track A/B guard test that statically scans `src/` for banned library calls via Python's
 AST (not a plain grep, to avoid false positives on documentation that names the banned
-routines). M1 built the four Track A numerical primitives named in `CLAUDE.md`: LU
+routines). M1 built the four Track A numerical primitives named in the project brief: LU
 factorisation with partial pivoting, Householder QR (factor, solve, and least squares),
 a 64-bit LCG uniform generator with a Box-Muller normal sampler and a Knuth-algorithm
 Poisson sampler on top of it, and trapezoid/Simpson integration that both support
@@ -79,7 +79,7 @@ implementation (section 10) — it did, in 5 different tests.
   of the Poisson process via products of uniforms against `exp(-lambda)`), not an
   approximation. None of this corresponds to a specific paper equation; it is
   infrastructure the paper's Section 5.1 noise simulation (steps 5-7, adapted per
-  `CLAUDE.md` section 6's scope cut) will need from M4 onward.
+  the project brief's scope cut) will need from M4 onward.
 - **`src/quadrature.py`** — `trapezoid`: the standard composite trapezoid sum on an
   arbitrary grid. `simpson`: composite Simpson built from an exact closed-form integral
   of the unique quadratic interpolant through each consecutive point-triple (via
@@ -198,13 +198,13 @@ P(X=1) empirical 0.36737 vs theory 0.36788; P(X=2) empirical 0.18458 vs theory
 
 | Assumption | Why | Risk if wrong |
 |---|---|---|
-| `src/` is the importable package root (D-M0-1) | Matches CLAUDE.md's literal phrasing "anywhere under `src/`" | None; cosmetic |
+| `src/` is the importable package root (D-M0-1) | Matches the project brief's literal phrasing "anywhere under `src/`" | None; cosmetic |
 | `config.py` lives at `src/config.py` (D-M0-2) | Keeps one import convention for all Track A modules and tests | None; trivial to add a root re-export |
-| LCG with Knuth/MMIX multiplier, top-53-bits output (D-M1-1) | CLAUDE.md explicitly allows LCG; simpler/more auditable than a full Mersenne Twister for a teaching repo | LCGs have known lattice structure in high dimensions (Marsaglia); acceptable since downstream use is 1-D transforms and low-dim Monte Carlo, not quasi-random sampling — flagged as a standing risk, not resolved |
-| Basic (non-polar) Box-Muller (D-M1-2) | Named explicitly in CLAUDE.md; easiest to verify against the closed-form target density | None significant; polar variant would be marginally faster |
-| Knuth's multiplication algorithm for Poisson, no optimisation for large λ (D-M1-3) | Exact, easy to verify by hand; matches CLAUDE.md's preference for checkable code | **Carried into M4 as an open risk**: O(λ) cost per draw could be slow if noise calibration needs λ in the hundreds/thousands |
+| LCG with Knuth/MMIX multiplier, top-53-bits output (D-M1-1) | The project brief explicitly allows LCG; simpler/more auditable than a full Mersenne Twister for a teaching repo | LCGs have known lattice structure in high dimensions (Marsaglia); acceptable since downstream use is 1-D transforms and low-dim Monte Carlo, not quasi-random sampling — flagged as a standing risk, not resolved |
+| Basic (non-polar) Box-Muller (D-M1-2) | Named explicitly in the project brief; easiest to verify against the closed-form target density | None significant; polar variant would be marginally faster |
+| Knuth's multiplication algorithm for Poisson, no optimisation for large λ (D-M1-3) | Exact, easy to verify by hand; matches the project brief's preference for checkable code | **Carried into M4 as an open risk**: O(λ) cost per draw could be slow if noise calibration needs λ in the hundreds/thousands |
 | Non-uniform Simpson via per-triple exact quadratic integration, trapezoid fallback on an odd leftover interval (D-M1-4) | The forward model (M2) needs non-uniform support for the paper's 25-frame schedule; a uniform-only Simpson would be dead code for the actual pipeline | If the fallback triggers often in M2 (odd numbers of remaining points), local accuracy drops to 2nd order for that one interval — worth checking once the real 25-point grid is used |
-| Condition numbers computed via `numpy.linalg.cond`, confined to `experiments/` (D-M1-7) | Diagnostic-only use, explicitly permitted by CLAUDE.md for "clearly-marked benchmark scripts" | None; guard test would fail immediately if this leaked into `src/` |
+| Condition numbers computed via `numpy.linalg.cond`, confined to `experiments/` (D-M1-7) | Diagnostic-only use, explicitly permitted by the project brief for "clearly-marked benchmark scripts" | None; guard test would fail immediately if this leaked into `src/` |
 | Quadrature test/benchmark `n` values chosen to stay clear of the float64 round-off floor (D-M1-6) | Discovered empirically this milestone; a naive fixed large `n` measures round-off noise, not algorithm correctness | If M2/M3 evaluate quadrature at very fine non-uniform grids, the same floor could appear there and should be re-checked, not assumed away |
 
 ## 8. Failures, divergences, and things that did not work
@@ -220,7 +220,7 @@ P(X=1) empirical 0.36737 vs theory 0.36788; P(X=2) empirical 0.18458 vs theory
   round-off floor (measured floor: 2.1e-10 for sin, 2.4e-14 for exp, 1.4e-14 for runge,
   reached between n=257 and n=1025). Full account in `DECISIONS.md` D-M1-6 and
   `logs/failures.md`. This is exactly the kind of "tolerance was wrong for a stated
-  numerical reason" case CLAUDE.md section 3 asks to document rather than silently patch.
+  numerical reason" case the project brief asks to document rather than silently patch.
 - No Monte Carlo divergence to report yet — that class of failure starts at M3/M4
   (IRGNM iterations, noisy-data Monte Carlo).
 - The Poisson sampler's O(λ) cost is not a failure today (verified fine at λ up to 25)
@@ -243,7 +243,7 @@ Every place a banned symbol appears in this milestone's code, and why it is allo
 
 | File | Library call | Why allowed |
 |---|---|---|
-| `tests/test_linalg.py`, `tests/test_qr.py` | `numpy.linalg.solve`, `numpy.linalg.lstsq`, `numpy.linalg.cond`, `numpy.random.default_rng` | Reference/diagnostic only, inside `tests/`, per CLAUDE.md section 1 |
+| `tests/test_linalg.py`, `tests/test_qr.py` | `numpy.linalg.solve`, `numpy.linalg.lstsq`, `numpy.linalg.cond`, `numpy.random.default_rng` | Reference/diagnostic only, inside `tests/`, per the project brief |
 | `experiments/m1_linalg_benchmark.py` | `numpy.linalg.solve`, `numpy.linalg.cond` | Clearly-marked benchmark script (module docstring states this); comparison against Track A is the entire point of the script |
 | `tests/test_linalg.py`, `tests/test_qr.py`, `tests/test_quadrature.py`, `experiments/*` | `numpy.random.default_rng` / `numpy.random.Generator` | Generates synthetic test *inputs* (random matrices/vectors), not part of the scientific pipeline itself |
 
@@ -319,7 +319,7 @@ imported by any Track A code — reserved for M2's `solve_ivp` reference), matpl
    or is "observed, not fully explained" acceptable to leave as-is?
 3. **Poisson sampler performance ceiling (D-M1-3).** Knuth's algorithm is O(λ) per draw.
    We only validated it up to λ=25. If M4's noise calibration (approximating the paper's
-   high/normal/low count settings, per `CLAUDE.md` section 6's scope note) needs λ in the
+   high/normal/low count settings, per the project brief's scope note) needs λ in the
    hundreds or thousands per TAC point, this sampler needs revisiting before it goes
    inside a 20-realisation Monte Carlo loop — should that redesign happen now (small,
    contained change) or wait until M4 exposes the actual required λ range?

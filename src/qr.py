@@ -1,6 +1,6 @@
 """Track A dense linear algebra: Householder QR (factor + solve + least squares).
 
-CLAUDE.md section 1: "our own Householder QR." Q is never formed explicitly;
+The project brief: "our own Householder QR." Q is never formed explicitly;
 instead each reflector is stored as a vector and applied to a right-hand
 side on demand (`apply_qt`), which is both the standard efficient approach
 and the one that avoids ever materialising an m x m matrix for tall systems.

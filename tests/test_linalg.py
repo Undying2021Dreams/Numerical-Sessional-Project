@@ -1,6 +1,6 @@
 """M1 acceptance tests for src/linalg.py (LU with partial pivoting).
 
-Track B usage note (CLAUDE.md section 1): `numpy.linalg.solve` and
+Track B usage note (the project brief): `numpy.linalg.solve` and
 `numpy.linalg.cond` are used here, in tests/, purely as an independent
 reference to check Track A correctness. `numpy.random` is used here only to
 generate synthetic test matrices, which is not part of the scientific
@@ -47,7 +47,7 @@ def test_lu_solves_200_random_systems_accurately():
     # Reported in handoffs/RUN_M1.md with the actual measured values; these
     # thresholds are deliberately tight enough to fail on a broken
     # elimination or a permutation-bookkeeping bug, not just "loose enough
-    # to pass" (CLAUDE.md section 3).
+    # to pass" (the project brief).
     assert max_rel_residual < 1e-9, f"max relative residual too large: {max_rel_residual:.3e}"
     assert max_rel_error < 1e-8, f"max relative error too large: {max_rel_error:.3e}"
 

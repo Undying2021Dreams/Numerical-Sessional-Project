@@ -1,6 +1,6 @@
 # logs/failures.md — divergent runs, non-convergence, and things that did not work
 
-Per CLAUDE.md section 4: these are DATA, not embarrassments. Every entry records the
+Per the project brief: these are DATA, not embarrassments. Every entry records the
 exact setting that produced the failure. Ordered chronologically within each milestone.
 
 ---
@@ -74,7 +74,7 @@ Running `experiments/m2_forward_model.py::phi1_stability_study` showed the true
 50%-relative-error crossover is at `x ~ 1e-15` to `1e-16`, three to four orders of
 magnitude smaller; `x ~ 1e-8` is only where the naive form's error first reaches `1e-8`
 itself (a real but much milder degradation). Fixed in `DECISIONS.md` before this report
-was written, per CLAUDE.md section 3 (measure, don't guess, and if the guess was wrong,
+was written, per the project brief (measure, don't guess, and if the guess was wrong,
 say so).
 
 **Mandatory mutation check (`handoffs/RUN_M2.md` section 10):**

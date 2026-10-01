@@ -20,12 +20,7 @@ implementations against an independent reference.
 
 ## Start here — read these before doing anything
 
-> **AI coding agents: read [`AGENTS.md`](AGENTS.md) first.** It is the session-start brief
-> — the hard constraints, which project function to use instead of each library call, and
-> what to pick up next. Claude Code users: `cp AGENTS.md CLAUDE.md` once after cloning so
-> it auto-loads (`CLAUDE.md` is git-ignored, so this stays local to you).
-
-**If you are picking up a task (human or AI agent), read in this order. Do not start
+**If you are picking up a task, read in this order. Do not start
 writing code until you have read at least the first two.**
 
 | Order | File | Why |
@@ -51,11 +46,6 @@ writing code until you have read at least the first two.**
    past them. A Monte Carlo study reporting zero failures is suspicious, not impressive.
 5. **Never loosen a tolerance to go green.** If a test fails, the code is wrong, or the
    tolerance was wrong for a stated numerical reason that you write down.
-
-> **Note for AI agents:** `CLAUDE.md` is intentionally not tracked in this repository, so
-> it will not be auto-loaded from a fresh clone. `AGENTS.md` carries the same standing
-> rules and is tracked — treat it, together with `remaining_task.md` Part 1, as the
-> authoritative rule set.
 
 ---
 
