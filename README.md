@@ -5,126 +5,99 @@ reimplements, by hand, the numerical core of:
 
 > Holler, Morina, Schramm (2024). *Exact parameter identification in PET
 > pharmacokinetic modeling using the irreversible two tissue compartment model.*
-> Phys. Med. Biol. 69 165008. (`paper-2.pdf`)
+> Phys. Med. Biol. 69 165008.
 
-The course grades on the student implementing standard numerical methods from
-scratch, so every solver, integrator, and random number generator here is our own
-code — no `scipy.optimize`, `scipy.linalg`, `scipy.integrate`, `numpy.linalg.solve`,
-or `numpy.random` anywhere under `src/`. Library routines are only used in `tests/`
-and clearly-marked benchmark scripts under `experiments/`, purely to check our own
-implementations against an independent reference.
+## The problem
 
-`402.pdf` is the project proposal this work is graded against.
+In PET imaging, a radioactive tracer moves from the blood into tissue, where part of it
+leaks back out and part of it gets trapped. The irreversible two-tissue compartment
+model describes this with three rate constants per brain region: `K1` (uptake), `k2`
+(wash-out) and `k3` (trapping).
 
----
+- **Forward problem:** given the rates and the blood curve, predict the tissue curve the
+  scanner measures.
+- **Inverse problem:** given the measured curves, recover the rates. This is the goal.
 
-## Start here — read these before doing anything
+The paper shows that, with several brain regions sharing one blood supply plus a few
+blood samples, the rates can be identified exactly from noise-free data. This project
+implements and tests that claim numerically.
 
-**If you are picking up a task, read in this order. Do not start
-writing code until you have read at least the first two.**
+## Numerical methods, all written by hand
 
-| Order | File | Why |
-|---|---|---|
-| 1 | **`remaining_task.md`** | The single self-contained brief: the non-negotiable ground rules, what already exists and is verified, the decisions you must not silently contradict, and the full remaining task list. **If you read only one file, read this one.** |
-| 2 | **`PLAN.md`** | The milestone specification: what each milestone must build and the acceptance criteria that define "done". Your work is graded against these, so check them before you start, not after. |
-| 3 | **`DECISIONS.md`** | Every judgement call made so far and why (numbered `D-M<milestone>-<n>`). Check here before changing an existing approach — most surprising choices are deliberate and measured. |
-| 4 | **`handoffs/RUN_M1.md`, `RUN_M2.md`, `RUN_M3.md`** | The milestone reports, with every measured number. Also the standard your own report is held to; `handoffs/TEMPLATE.md` is the format to follow. |
-| 5 | **`logs/failures.md`** | Divergences, non-convergence, and things that did not work — including bugs already found and fixed. Read it so you do not rediscover them. |
-| 6 | **`paper-2.pdf`** | The source paper. Go to it for the specific equation, lemma or proposition you are implementing; the code comments name them explicitly (e.g. "eq. (3) of Lemma 6"). |
+Every solver, integrator and random number generator is our own code. No
+`scipy.optimize`, `scipy.linalg`, `scipy.integrate`, `numpy.linalg.solve`/`lstsq`/`inv`
+or `numpy.random` is used anywhere under `src/`; NumPy is used only for array storage
+and elementwise arithmetic. Library routines appear only in `tests/` and in clearly
+marked benchmark scripts, as an independent reference to check our implementations
+against. `tests/test_no_library_solvers.py` enforces this automatically.
 
-**Five rules that will get your work rejected if broken** (full versions in
-`remaining_task.md` Part 1):
+| Module | What it implements |
+|---|---|
+| `src/linalg.py` | LU factorisation with partial pivoting, forward/back substitution |
+| `src/qr.py` | Householder QR: square solves and linear least squares |
+| `src/quadrature.py` | Composite trapezoid and Simpson rules on non-uniform grids |
+| `src/rng.py` | Seeded 64-bit LCG, Box-Muller normal sampler, Poisson sampler |
+| `src/eigen.py` | Power method and inverse power iteration (condition numbers) |
+| `src/forward_model.py` | Closed-form solution of the compartment model (paper eq. 3) and a direct-quadrature evaluation (paper eq. 1) |
+| `src/jacobian.py` | Forward operator (23 unknowns → 104 data values) and its analytic Jacobian |
+| `src/irgnm.py` | Iteratively regularised Gauss-Newton method (IRGNM) |
+| `src/noise.py` | Poisson and Gaussian noise on the time-activity curves |
+| `src/montecarlo.py` | Monte Carlo study over setups, noise levels and starting guesses |
+| `src/identifiability.py` | Identifiability and null-space experiments |
+| `src/config.py` | Ground-truth constants from the paper (Section 5.1, Table 2) |
 
-1. **No library solvers under `src/`** — no `scipy.optimize`, `scipy.linalg`,
-   `scipy.integrate`, `numpy.linalg.solve`/`lstsq`/`inv`, or `numpy.random`. The whole
-   assignment is implementing these by hand. `tests/test_no_library_solvers.py` enforces
-   it automatically, alias-resolution included. Library calls belong in `tests/` and
-   marked benchmark scripts only, as references to check our own code against.
-2. **Everything stochastic takes an explicit seed** (`src.rng.derive_seed` for sub-streams).
-3. **Report measured numbers, not adjectives.** "Tests pass" is not a result.
-4. **Failures are data** — log divergences in `logs/failures.md` rather than reseeding
-   past them. A Monte Carlo study reporting zero failures is suspicious, not impressive.
-5. **Never loosen a tolerance to go green.** If a test fails, the code is wrong, or the
-   tolerance was wrong for a stated numerical reason that you write down.
+## Results
 
----
+- **Linear algebra:** LU and QR reach relative residuals of about 1e-16 on 200 random
+  systems. On Hilbert matrices both lose about log10(cond) digits, as theory predicts.
+- **Integration:** measured convergence orders of 2.00 (trapezoid) and 4.01 (Simpson).
+- **Random numbers:** the uniform generator passes a chi-square test (12.7 against a 5%
+  critical value of 16.9); the normal samples have mean 0, variance 1, and negligible
+  skew, kurtosis and autocorrelation.
+- **Forward model:** the closed-form formula, numerical integration and an independent
+  ODE solver agree to `5.9e-10` and `1.7e-13` relative difference across all four brain
+  regions and all 25 frame times.
+- **Inverse problem (noise-free):** the IRGNM recovers all 23 parameters to a median
+  relative error of about `4.3e-7` from starts 10% away from the truth. From worse starts
+  some runs diverge (20/20 converge at 10%, 17/20 at 20%, 15/20 at 30%, 10/20 at 40%).
+- **Identifiability:** without blood samples, `K1` and the blood-curve scale cannot be
+  separated (the null-space direction the paper predicts). One arterial sample removes
+  this ambiguity.
+- **Noisy data:** a 960-run Monte Carlo study (3 measurement setups × 4 noise levels × 4
+  starting errors × 20 seeds) reproduces the paper's qualitative trends: `K1` is
+  recovered best, and the low-count setting almost always fails. Divergent runs are
+  counted and reported, not discarded.
 
-## Where the project stands right now
+## Scope
 
-**Milestones M0-M5 are complete.** `python3 experiments/run_all.py` regenerates
-every result (15 scripts, ~17 minutes). The M5 report is `handoffs/RUN_M5.md`.
-Highlights:
-
-- **Numerical primitives** (`src/linalg.py`, `src/qr.py`, `src/rng.py`,
-  `src/quadrature.py`): LU factorisation with partial pivoting, Householder QR
-  (solve + least squares), a 64-bit LCG with a Box-Muller normal sampler and a
-  Knuth-algorithm Poisson sampler, and trapezoid/Simpson integration on non-uniform
-  grids. All four are checked against independent references (NumPy/SciPy in
-  `tests/`, closed-form values, or a second Track A code path) with measured errors
-  in the `1e-9` to machine-precision range.
-
-- **Forward model** (`src/forward_model.py`): the irreversible two-tissue
-  compartment ODE system's closed-form solution (paper eq. 3) and an independent
-  direct-quadrature evaluation (paper eq. 1), both built on the primitives above.
-  The two paths, plus a third independent ODE integration, agree to `5.9e-10` and
-  `1.7e-13` relative difference across all four brain regions and all 25 PET frame
-  times used in the paper's synthetic experiment.
-
-- **Jacobian, conditioning and solver** (`src/jacobian.py`, `src/eigen.py`,
-  `src/irgnm.py`): the analytic Jacobian of the forward operator with respect to all
-  23 parameters, verified against central finite differences; a conditioning analysis
-  using our own power method and inverse power iteration; the null-space experiment
-  showing the paper's predicted `K1`/`lambda` non-identifiability direction; and an
-  IRGNM solver with multi-parameter regularisation that recovers the ground truth from
-  noise-free data to a **median relative error of 4.3e-7** over 20 seeds, with zero
-  divergences.
-
-- **Noise modeling and measurement setups** (`src/noise.py`, `src/montecarlo.py`):
-  Poisson-derived TAC noise and Gaussian blood noise calibrated to the paper's
-  high/normal/low count levels. Three distinct measurement setups (A: fixed plasma
-  fraction, clean blood; B: full setup, clean blood; C: full setup, noisy blood)
-  implemented cleanly without solver duplication. A 960-cell Monte Carlo grid
-  successfully reproducing the divergence trends (Table 1), parameter recovery
-  accuracies (Table 2), and error trajectories (Figure 7) reported in the paper.
-
-- **Identifiability and consistency** (`src/identifiability.py`,
-  `experiments/m4_consistency_regularization.py`): the four tissue-only K1
-  ratios coincide to a worst spread of 1.83e-08 across 66 accepted noiseless
-  fits. One arterial sample removes the scaling ambiguity. At normal and
-  high count, mean kinetic error falls from 0.14430 to 0.12109; full-fit
-  regularisation reduces paired-survivor variance by 1.76x and 4.39x.
-  Low count yields no accepted fits under the corrected stopping rule.
-
-Config (`src/config.py`) hard-codes every ground-truth constant from the paper's
-Section 5.1 and Table 2 (arterial input, parent plasma fraction, four regional
-kinetic parameter sets, the 25-frame acquisition schedule), so every later milestone
-works against one shared, checkable source of truth. Everything is unit-tested
-(`tests/`, run with `pytest` — currently **134 tests**) and every reported number is
-regenerated by a script under `experiments/`, writing figures and JSON summaries to
-`results/`.
-
-## What comes next
-
-No milestones remain. The open questions for the team are in `handoffs/RUN_M5.md`
-§12: whether to fix the Simpson round-off floor (D-M5-6), and whether to pin library
-versions so regeneration is bit-identical across machines (D-M5-5).
+The image-reconstruction pipeline of the paper (brain phantom, PET scanner physics,
+sinogram generation, OSEM reconstruction) is not reproduced. Instead, noise is added
+directly to the regional time-activity curves, calibrated to the paper's high, normal
+and low count settings. Results are therefore compared with the paper by trend, not by
+exact numbers.
 
 ## Repository layout
 
 ```
-src/            Track A implementation (the only code graded on originality)
-tests/          pytest suite, including the guard that forbids library solvers under src/
-experiments/    Scripts that regenerate every figure/table in results/, with fixed seeds
-results/        Generated figures and JSON summaries (reproducible from experiments/)
+src/            numerical methods and the model
+tests/          pytest suite (134 tests)
+experiments/    scripts that regenerate every figure and table, with fixed seeds
+results/        generated figures and JSON summaries
 ```
 
 ## Running it
 
-```
+```bash
 pip install -r requirements.txt
-pytest                                    # full test suite
-python3 experiments/m1_linalg_benchmark.py
-python3 experiments/m1_rng_benchmark.py
-python3 experiments/m1_quadrature_benchmark.py
-python3 experiments/m2_forward_model.py
+python3 -m pytest tests/ -q                     # full test suite
+
+python3 experiments/m1_linalg_benchmark.py      # LU / QR
+python3 experiments/m1_quadrature_benchmark.py  # trapezoid / Simpson
+python3 experiments/m1_rng_benchmark.py         # random number generators
+python3 experiments/m2_forward_model.py         # forward model
+python3 experiments/m3_irgnm_recovery.py        # inverse problem
+
+python3 experiments/run_all.py                  # regenerate everything (~17 min)
 ```
+
+Every stochastic run uses an explicit seed, so results are reproducible.
