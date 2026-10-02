@@ -12,6 +12,19 @@
 % Many floats in a two-column layout: give LaTeX room to queue them.
 \extrafloats{100}
 
+% Let pages hold more, and larger, figures and tables, so that floats pack
+% together instead of each one opening a mostly empty page.
+\setcounter{topnumber}{4}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{6}
+\setcounter{dbltopnumber}{4}
+\renewcommand{\topfraction}{0.95}
+\renewcommand{\bottomfraction}{0.8}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.8}
+\renewcommand{\dbltopfraction}{0.95}
+\renewcommand{\dblfloatpagefraction}{0.8}
+
 % Colour for the repository link under the abstract.
 \definecolor{repoblue}{HTML}{1F5FBF}
 
@@ -732,6 +745,58 @@ Few failures (paper's settings) & Agrees at high and normal count (14 vs 19, 18 
   \label{fig:figure7}
 \end{figure*}
 
+\begin{table*}[t]
+\caption{Numerical enhancements tried during the project, the problem each addressed, and the measured outcome.}
+\label{tab:enhancements}
+\small
+\begin{tabular}{p{0.21\textwidth}p{0.29\textwidth}p{0.33\textwidth}p{0.09\textwidth}}
+\toprule
+Enhancement & Problem addressed & Measured outcome & Status \\
+\midrule
+Partial pivoting in LU & division by small pivots amplifies rounding & residual $\le\sci{4.7}{-16}$ on 200 systems & adopted \\
+Householder sign choice & cancellation in $x_1-\alpha$ & QR residual $\le\sci{9.2}{-16}$ & adopted \\
+Stacked QR instead of normal equations & $\kappa(F'^TF'+\Lambda)\approx\kappa(\text{stacked})^2$ & condition \sci{1.20}{6} instead of \sci{1.43}{12} & adopted \\
+Simpson on nonuniform grids & PET frames and graded grids are not uniform & orders 3.9987--4.0125 measured & adopted \\
+Local-coordinate Simpson weights & cancellation in cubic antiderivatives & floor \sci{2.10}{-10} (n=513) replaced by \sci{6.62}{-14} (n=2001) & adopted \\
+Graded grid $t=t_{\max}u^3$, $n=1601$ & early bolus needs dense sampling & last-frame error \sci{3.18}{-10} vs \sci{6.56}{-6} uniform & adopted \\
+\texttt{expm1}-based $\phi_1$ & $0/0$ and cancellation at small $x$ & relative error 0 vs 1.0 at $x\le10^{-16}$ & adopted \\
+Taylor series for $\phi_2$ below $10^{-4}$ & cancellation persists in $e^x-1-x$ & threshold measured; Jacobian agrees with finite differences & adopted \\
+Factored kernel~\eqref{eq:stablekernel} & $0\cdot\infty$ and $a+\mu\to0$ & smooth across the singular point, \sci{3.06}{-10} & adopted \\
+Poisson crossover at $\lambda=30$ & $O(\lambda)$ cost; endless loop for $\lambda\gtrsim745$ & mean and variance within Monte Carlo error up to $\lambda=1000$ & adopted \\
+Seed mixing and derived seeds & related streams from nearby seeds & identical streams across processes & adopted \\
+Corrected late-time slope & classical $K_i$ ignores the slowest input exponent & error 5.6--18.7\% reduced to 0.05--0.34\% & analysis \\
+Blockwise regularization & parameters span a scale ratio of 2690 & noiseless recovery to $\approx10^{-6}$ & adopted \\
+Corrected Morozov scale & RMS vs 2-norm mismatch in the stopping rule & non-finite failures 494 reduced to 58 (Table~\ref{tab:improvement-effects}) & adopted \\
+Paper's per-setup settings & one setting used for all three setups & failures match the paper at high and normal count & adopted \\
+Armijo line search & divergence from distant starts & same result on the reference fit; grid not yet evaluated & opt-in \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+\caption{Course topics used in the project.}
+\label{tab:course}
+\small
+\begin{tabular}{p{0.20\textwidth}p{0.30\textwidth}p{0.43\textwidth}}
+\toprule
+Topic & Implementation & Produced evidence \\
+\midrule
+Round-off/truncation error & \texttt{phi1}, \texttt{phi2} series, stable moments, local Simpson weights & Table~\ref{tab:phi1}; translated-quadratic and fine-grid study \\
+Condition number and ill-conditioning & Hilbert stress test; Jacobian spectrum & Table~\ref{tab:hilbert}: about $\log_{10}\kappa$ digits lost; $\kappa(F')=\sci{7.3}{4}$ \\
+Bisection root finding & \texttt{calibrate\_poisson}, \texttt{calibrate\_gaussian} & noise targets reached by log-scale bisection \\
+LU/Gaussian elimination & \texttt{src/linalg.py}, Algorithm~\ref{alg:lu} & $6.48\times10^{-16}$ max error over 200 systems \\
+Householder QR & \texttt{src/qr.py}, Algorithm~\ref{alg:qr} & stacked IRGNM solve and all log--log regressions \\
+Power method & \texttt{src/eigen.py} & Jacobian conditioning spectrum and smallest eigenvalue \\
+Random-number generation & \texttt{src/rng.py} & Table~\ref{tab:rng}: moments, $\chi^2$, autocorrelation, Poisson \\
+Monte Carlo simulation & \texttt{src/montecarlo.py} & 960-cell seeded noise/initialization grid \\
+Newton-type optimization & \texttt{src/irgnm.py} & regularized Gauss--Newton recovery and constraints \\
+Least-squares regression & \texttt{src/qr.lstsq}; Patlak experiment~\cite{patlak1983} & Table~\ref{tab:patlak}: late-time Patlak $R^2=0.9970$--$0.9999$ \\
+Newton--Cotes integration & \texttt{trapezoid}, \texttt{simpson} & Table~\ref{tab:quadratio}: second- and fourth-order convergence \\
+Numerical differentiation & central-difference benchmark & independent analytic-Jacobian verification \\
+\bottomrule
+\end{tabular}
+\end{table*}
+
 \subsection{Effect of the improvements}
 \label{sec:improvements}
 
@@ -806,65 +871,9 @@ Operation-count expectations and measured timing tell different stories at small
 
 Several choices in the final pipeline replaced a simpler first version after a measurement showed a problem. Table~\ref{tab:enhancements} lists them with the evidence that motivated each one, including one enhancement that was implemented but not yet evaluated. Two of them deserve comment. First, our first Simpson implementation integrated each quadratic through differences of cubic antiderivatives in absolute coordinates. Its error stopped improving at $n=513$ (\sci{2.10}{-10} for $\sin x$) and then grew to \sci{4.81}{-9} at $n=2001$. Rewriting the same weights in local coordinates~\eqref{eq:simpson} removed this floor: the error now keeps falling to \sci{6.62}{-14}. Second, the Armijo backtracking line search accepts a step only if it decreases the regularized objective sufficiently, and falls back to a scaled projected-gradient direction when projection destroys descent. It targets the divergences from distant starts in Table~\ref{tab:recovery}. It is merged into the solver as an opt-in flag, off by default. On the reference noiseless fit it accepts the full step every time and reaches the same $9.27\times10^{-7}$, but it has not been run through the recovery study or the Monte Carlo grid, so we make no claim about its effect on divergence.
 
-\begin{table*}[t]
-\caption{Numerical enhancements tried during the project, the problem each addressed, and the measured outcome.}
-\label{tab:enhancements}
-\small
-\begin{tabular}{p{0.21\textwidth}p{0.29\textwidth}p{0.33\textwidth}p{0.09\textwidth}}
-\toprule
-Enhancement & Problem addressed & Measured outcome & Status \\
-\midrule
-Partial pivoting in LU & division by small pivots amplifies rounding & residual $\le\sci{4.7}{-16}$ on 200 systems & adopted \\
-Householder sign choice & cancellation in $x_1-\alpha$ & QR residual $\le\sci{9.2}{-16}$ & adopted \\
-Stacked QR instead of normal equations & $\kappa(F'^TF'+\Lambda)\approx\kappa(\text{stacked})^2$ & condition \sci{1.20}{6} instead of \sci{1.43}{12} & adopted \\
-Simpson on nonuniform grids & PET frames and graded grids are not uniform & orders 3.9987--4.0125 measured & adopted \\
-Local-coordinate Simpson weights & cancellation in cubic antiderivatives & floor \sci{2.10}{-10} (n=513) replaced by \sci{6.62}{-14} (n=2001) & adopted \\
-Graded grid $t=t_{\max}u^3$, $n=1601$ & early bolus needs dense sampling & last-frame error \sci{3.18}{-10} vs \sci{6.56}{-6} uniform & adopted \\
-\texttt{expm1}-based $\phi_1$ & $0/0$ and cancellation at small $x$ & relative error 0 vs 1.0 at $x\le10^{-16}$ & adopted \\
-Taylor series for $\phi_2$ below $10^{-4}$ & cancellation persists in $e^x-1-x$ & threshold measured; Jacobian agrees with finite differences & adopted \\
-Factored kernel~\eqref{eq:stablekernel} & $0\cdot\infty$ and $a+\mu\to0$ & smooth across the singular point, \sci{3.06}{-10} & adopted \\
-Poisson crossover at $\lambda=30$ & $O(\lambda)$ cost; endless loop for $\lambda\gtrsim745$ & mean and variance within Monte Carlo error up to $\lambda=1000$ & adopted \\
-Seed mixing and derived seeds & related streams from nearby seeds & identical streams across processes & adopted \\
-Corrected late-time slope & classical $K_i$ ignores the slowest input exponent & error 5.6--18.7\% reduced to 0.05--0.34\% & analysis \\
-Blockwise regularization & parameters span a scale ratio of 2690 & noiseless recovery to $\approx10^{-6}$ & adopted \\
-Corrected Morozov scale & RMS vs 2-norm mismatch in the stopping rule & non-finite failures 494 reduced to 58 (Table~\ref{tab:improvement-effects}) & adopted \\
-Paper's per-setup settings & one setting used for all three setups & failures match the paper at high and normal count & adopted \\
-Armijo line search & divergence from distant starts & same result on the reference fit; grid not yet evaluated & opt-in \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
 \subsection{Course-topic mapping}
 
 Table~\ref{tab:course} maps the relevant CSE 402 topics to concrete code and evidence. Methods not required by this inverse problem, such as Bairstow, golden-section search, Romberg integration, and interpolation of tabulated solutions, were not inserted artificially.
-
-\begin{table*}[t]
-\caption{Course topics used in the project.}
-\label{tab:course}
-\small
-\begin{tabular}{p{0.20\textwidth}p{0.30\textwidth}p{0.43\textwidth}}
-\toprule
-Topic & Implementation & Produced evidence \\
-\midrule
-Round-off/truncation error & \texttt{phi1}, \texttt{phi2} series, stable moments, local Simpson weights & Table~\ref{tab:phi1}; translated-quadratic and fine-grid study \\
-Condition number and ill-conditioning & Hilbert stress test; Jacobian spectrum & Table~\ref{tab:hilbert}: about $\log_{10}\kappa$ digits lost; $\kappa(F')=\sci{7.3}{4}$ \\
-Bisection root finding & \texttt{calibrate\_poisson}, \texttt{calibrate\_gaussian} & noise targets reached by log-scale bisection \\
-LU/Gaussian elimination & \texttt{src/linalg.py}, Algorithm~\ref{alg:lu} & $6.48\times10^{-16}$ max error over 200 systems \\
-Householder QR & \texttt{src/qr.py}, Algorithm~\ref{alg:qr} & stacked IRGNM solve and all log--log regressions \\
-Power method & \texttt{src/eigen.py} & Jacobian conditioning spectrum and smallest eigenvalue \\
-Random-number generation & \texttt{src/rng.py} & Table~\ref{tab:rng}: moments, $\chi^2$, autocorrelation, Poisson \\
-Monte Carlo simulation & \texttt{src/montecarlo.py} & 960-cell seeded noise/initialization grid \\
-Newton-type optimization & \texttt{src/irgnm.py} & regularized Gauss--Newton recovery and constraints \\
-Least-squares regression & \texttt{src/qr.lstsq}; Patlak experiment~\cite{patlak1983} & Table~\ref{tab:patlak}: late-time Patlak $R^2=0.9970$--$0.9999$ \\
-Newton--Cotes integration & \texttt{trapezoid}, \texttt{simpson} & Table~\ref{tab:quadratio}: second- and fourth-order convergence \\
-Numerical differentiation & central-difference benchmark & independent analytic-Jacobian verification \\
-\bottomrule
-\end{tabular}
-\end{table*}
-
-% Flush every pending figure and table here, so the conclusion,
-% acknowledgments and references come last, after all floats.
-\clearpage
 
 \section{Conclusion and Future Work}
 
