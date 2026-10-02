@@ -144,6 +144,78 @@ def irgnm_step(
     return x_next, Fx, Fp
 
 
+def _armijo_line_search(
+    x_i: np.ndarray,
+    x_candidate: np.ndarray,
+    x0: np.ndarray,
+    y_delta: np.ndarray,
+    Fx: np.ndarray,
+    Fp: np.ndarray,
+    reg_diag: np.ndarray,
+    t_frames: np.ndarray,
+    s_blood: np.ndarray,
+    C_WB_data: np.ndarray,
+    *,
+    active_mask: np.ndarray | None = None,
+    include_blood: bool = True,
+) -> tuple[np.ndarray, np.ndarray, float, int] | None:
+    """Backtrack on the current iteration's regularized objective.
+
+    Phi_i(x) = (||F(x)-y_delta||^2 + sum(reg_diag*(x-x0)^2))/2.
+    The regularization weights stay fixed during this search. Use the
+    feasible segment toward the projected IRGNM endpoint; if projection
+    destroys descent, use a diagonally scaled projected-gradient direction.
+    Accept Phi_i(x_i + alpha*p) <= Phi_i(x_i) + 1e-4*alpha*grad(Phi_i)@p.
+    Try alpha=1, 1/2, ..., 2^-30; non-finite trials are rejected. Return
+    (accepted iterate, forward value, alpha, number of halvings), or None
+    on a stationary point / failed search. A failed search is not convergence.
+    """
+    r = Fx - y_delta
+    offset = x_i - x0
+    merit = float(0.5 * (r @ r + offset @ (reg_diag * offset)))
+    gradient = Fp.T @ r + reg_diag * offset
+    if active_mask is not None:
+        gradient = np.where(np.asarray(active_mask, dtype=bool), gradient, 0.0)
+    if not np.isfinite(merit) or not np.all(np.isfinite(gradient)):
+        raise ValueError("non-finite Armijo objective or gradient")
+
+    direction = x_candidate - x_i
+    slope = float(gradient @ direction)
+    if not np.all(np.isfinite(direction)) or not np.isfinite(slope) or slope >= 0.0:
+        # Diagonal Gauss-Newton scaling respects the different parameter
+        # scales. For positive scaling, box projection guarantees descent
+        # unless this projected-gradient step is zero (up to rounding).
+        diagonal = np.sum(Fp * Fp, axis=0) + reg_diag
+        diagonal = np.where(diagonal > 0.0, diagonal, 1.0)
+        direction = project(x_i - gradient / diagonal) - x_i
+        slope = float(gradient @ direction)
+    if not np.all(np.isfinite(direction)) or not np.isfinite(slope) or slope >= 0.0:
+        return None
+
+    alpha = 1.0
+    with np.errstate(over="ignore", invalid="ignore", divide="ignore"):
+        for backtracks in range(31):
+            x_trial = project(x_i + alpha * direction)
+            if np.array_equal(x_trial, x_i):
+                break  # further halvings cannot produce a representable step
+            if np.all(np.isfinite(x_trial)):
+                Fx_trial = forward_operator(
+                    x_trial, t_frames, s_blood, C_WB_data,
+                    include_blood=include_blood,
+                )
+                r_trial = Fx_trial - y_delta
+                offset_trial = x_trial - x0
+                merit_trial = float(0.5 * (
+                    r_trial @ r_trial + offset_trial @ (reg_diag * offset_trial)
+                ))
+                # Strict decrease also prevents accepting a rounded no-op.
+                if (np.isfinite(merit_trial) and merit_trial < merit
+                        and merit_trial <= merit + 1e-4 * alpha * slope):
+                    return x_trial, Fx_trial, alpha, backtracks
+            alpha *= 0.5
+    return None
+
+
 def run_irgnm(
     x0: np.ndarray,
     y_delta: np.ndarray,
@@ -159,10 +231,12 @@ def run_irgnm(
     *,
     active_mask: np.ndarray | None = None,
     include_blood: bool = True,
+    line_search: bool = False,
 ) -> dict:
     """Run IRGNM from initial guess `x0` until the discrepancy principle fires
     or `max_iter` is reached.  For noiseless data (`delta_y=0`), the rule
-    cannot fire, so the loop runs the full `max_iter`.
+    cannot fire, so the loop runs the full `max_iter` unless it fails or the
+    optional line search stalls.
 
     Parameters
     ----------
@@ -173,6 +247,12 @@ def run_irgnm(
     include_blood : when False, drop F^2 from the forward operator and
         Jacobian throughout the run.  Used for M4.2 Setup A and the
         M4.4 identifiability experiment.
+    line_search : opt-in Armijo backtracking on the regularized objective
+        with the current schedule weights held fixed. Adds accepted
+        ``step_sizes``, ``line_search_backtracks`` and
+        ``line_search_stalled_at`` to the result. A stall retains the last
+        accepted iterate and does not set ``converged_at`` or ``diverged``.
+        False preserves the original full-step behavior and result keys.
 
     If `x_true` is given, the relative error trajectory is recorded.
     """
@@ -185,6 +265,10 @@ def run_irgnm(
         "rel_error_m": [],
         "rel_error_K": [],
     }
+    if line_search:
+        history["step_sizes"] = []
+        history["line_search_backtracks"] = []
+    line_search_stalled_at = None
     x_true_norm = float(np.sqrt(x_true @ x_true)) if x_true is not None else None
 
     def _record(x_cur, r_norm):
@@ -229,6 +313,19 @@ def run_irgnm(
                     active_mask=active_mask,
                     include_blood=include_blood,
                 )
+                if line_search:
+                    accepted = _armijo_line_search(
+                        x_i, x_next, x0, y_delta, _Fx, _Fp, reg_diag,
+                        t_frames, s_blood, C_WB_data,
+                        active_mask=active_mask, include_blood=include_blood,
+                    )
+                    if accepted is None:
+                        line_search_stalled_at = i
+                        history["failure_reason"] = "Armijo line search stalled: no sufficient decrease"
+                        break
+                    x_next, Fx_next, step_size, backtracks = accepted
+                    history["step_sizes"].append(step_size)
+                    history["line_search_backtracks"].append(backtracks)
             except Exception as exc:  # noqa: BLE001 — log as a divergence, don't crash the sweep
                 diverged = True
                 history["failure_reason"] = str(exc)
@@ -239,7 +336,9 @@ def run_irgnm(
                 break
 
             x_i = x_next
-            Fx_i = forward_operator(x_i, t_frames, s_blood, C_WB_data, include_blood=include_blood)
+            Fx_i = (Fx_next if line_search else forward_operator(
+                x_i, t_frames, s_blood, C_WB_data, include_blood=include_blood,
+            ))
             r_i = y_delta - Fx_i
             r_norm = float(np.sqrt(r_i @ r_i))
             if not np.isfinite(r_norm):
@@ -254,5 +353,6 @@ def run_irgnm(
         "n_iterations": i,
         "converged_at": converged_at,
         "diverged": diverged,
+        **({"line_search_stalled_at": line_search_stalled_at} if line_search else {}),
         **history,
     }

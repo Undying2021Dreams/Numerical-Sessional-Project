@@ -1210,3 +1210,12 @@ records the resulting decisions.
   still stop at iteration 0. Other shifts are in the last digits or in 1-2 run
   counts (e.g. M3 noiseless divergences at delta_x 0.3/0.4: 5 and 8, were 4 and
   9). The deck and `handoffs/RUN_M5.md` quote these post-merge values.
+
+- **D-M5-9: Uday's Armijo line search (`exp_changes`, 47c1261) is merged as an
+  opt-in option, `run_irgnm(..., line_search=True)`, off by default.** No
+  experiment or test enables it, so every committed result stays valid. With
+  it off, 8 of 8 sampled noiseless fits are bit-identical to the pre-merge
+  code. With it on, the D-M5-3 test (delta_x=0.1, seed 0) takes full steps
+  throughout and reaches the same 9.27e-07. Its effect on distant-start
+  divergence has not been measured. Result files from that commit were
+  superseded by the D-M5-8 regeneration, so the merge kept the regenerated ones.
