@@ -160,8 +160,9 @@ def plot(cons: dict, var: dict) -> Path:
         if s["n_accepted"]:
             axes[0].errorbar(i, s["error_mean"], yerr=s["error_std"], fmt="o", capsize=4)
         else:
-            axes[0].text(i, 0.03, "0 fits\n(20 trivial)", ha="center", va="center", fontsize=8)
+            axes[0].text(i, 0.03, f"0 fits\n({s['n_trivial']} trivial)", ha="center", va="center", fontsize=8)
     axes[0].set_xticks(range(4), labels)
+    axes[0].set_xlim(-0.5, len(labels) - 0.5)
     axes[0].set_yscale("log")
     axes[0].set_ylabel("kinetic relative error (mean ± SD)")
     axes[0].set_title("Reconstruction error by noise level")

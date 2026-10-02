@@ -59,7 +59,8 @@ against. `tests/test_no_library_solvers.py` enforces this automatically.
   regions and all 25 frame times.
 - **Inverse problem (noise-free):** the IRGNM recovers all 23 parameters to a median
   relative error of about `4.3e-7` from starts 10% away from the truth. From worse starts
-  some runs diverge (20/20 converge at 10%, 17/20 at 20%, 15/20 at 30%, 12/20 at 40%).
+  some runs diverge (20/20 converge at 10%, 17/20 at 20%, 15/20 at 30%, and 11 or 12 of
+  20 at 40%, depending on the machine).
 - **Identifiability:** without blood samples, `K1` and the blood-curve scale cannot be
   separated (the null-space direction the paper predicts). One arterial sample removes
   this ambiguity.
