@@ -1,6 +1,6 @@
 """Track A dense linear algebra: LU with partial pivoting.
 
-Implements the two Track A linear-solve primitives named in CLAUDE.md
+Implements the two Track A linear-solve primitives named in the project brief
 section 1 for the LU path: "our own LU with partial pivoting (factor +
 solve)". Also exposes `forward_substitute`/`back_substitute`, which
 `src/qr.py` reuses for the triangular solves after Householder reduction, so

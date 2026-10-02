@@ -6,7 +6,6 @@ __pycache__/
 # Internal working files — not part of the shared codebase.
 # (handoffs/, logs/, PLAN.md and DECISIONS.md ARE tracked: the milestone
 #  reports, failure log, milestone spec and decision log the team needs.)
-CLAUDE.md
 input.txt
 
 # OS cruft

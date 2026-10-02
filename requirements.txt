@@ -1,7 +1,7 @@
 # Pinned to the versions this repo was developed and tested against.
 # numpy: array storage/elementwise ops in src/ (Track A), plus Track B
 #   reference calls (numpy.linalg.solve/lstsq/cond, numpy.random) confined to
-#   tests/ and experiments/ per CLAUDE.md section 1.
+#   tests/ and experiments/ per the project brief.
 # scipy: Track B reference only (e.g. scipy.integrate.solve_ivp from M2
 #   onward); never imported under src/.
 # matplotlib: figures only.

@@ -212,7 +212,7 @@ def config_snapshot() -> dict:
 def config_hash() -> str:
     """Short, stable hash of the ground-truth config for artifact provenance.
 
-    CLAUDE.md section 2: "Every artifact written to results/ records the seed
+    The project brief: "Every artifact written to results/ records the seed
     and config hash that produced it." Deterministic across processes because
     it hashes a canonical (sorted-keys) JSON encoding, not Python repr/id.
     """

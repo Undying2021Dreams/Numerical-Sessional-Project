@@ -214,7 +214,7 @@ Library calls added this milestone, and why they're allowed:
 
 | File | Library call | Why allowed |
 |---|---|---|
-| `tests/test_forward_model.py` | `scipy.integrate.solve_ivp` | The independent third code path for the three-way agreement acceptance criterion — Track B, tests/ only, exactly the use case CLAUDE.md section 1 describes |
+| `tests/test_forward_model.py` | `scipy.integrate.solve_ivp` | The independent third code path for the three-way agreement acceptance criterion — Track B, tests/ only, exactly the use case the project brief describes |
 | `experiments/m2_forward_model.py` | `scipy.integrate.solve_ivp` | Same, inside a clearly-marked benchmark script that reproduces the same three-way comparison for the report's numbers |
 
 Track A routines written this milestone, and what each was checked against:

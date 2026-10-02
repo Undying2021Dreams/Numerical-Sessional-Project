@@ -1,6 +1,6 @@
 """M1 benchmark: LU and QR accuracy on 200 random systems + a Hilbert(8) stress test.
 
-Track B usage (clearly marked, per CLAUDE.md section 1): `numpy.linalg.solve`
+Track B usage (clearly marked, per the project brief): `numpy.linalg.solve`
 and `numpy.linalg.cond` are reference/diagnostic only, used here to verify
 Track A (`src.linalg`, `src.qr`) and to report the condition number of the
 Hilbert matrix. Nothing in `src/` calls either.

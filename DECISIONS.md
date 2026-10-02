@@ -8,7 +8,7 @@ turns out to be wrong. Ordered by milestone.
 ## M0
 
 - **D-M0-1: `src/` is the importable package name, not `src/<project_name>/`.**
-  CLAUDE.md phrases the Track A/B rule as "anywhere under `src/`", so `src/` is
+  The project brief phrases the Track A/B rule as "anywhere under `src/`", so `src/` is
   treated as the package root directly (`src/config.py`, `src/rng.py`, ...),
   imported as `from src.config import ...`. Risk if wrong: none functionally,
   just a naming preference; trivial to rename later.
@@ -38,7 +38,7 @@ turns out to be wrong. Ordered by milestone.
   the Knuth/MMIX multiplier `a = 6364136223846793005`, increment
   `c = 1442695040888963407`, modulus `2**64`, output taken from the upper 33
   bits of the 64-bit state mapped to `[0, 1)`.**
-  CLAUDE.md explicitly allows "LCG or Mersenne-style". A full Mersenne
+  The project brief explicitly allows "LCG or Mersenne-style". A full Mersenne
   Twister is ~600 lines of bit-twiddling that would not teach any numerical
   method in this course; an LCG is transparent, is a single multiply-add-mask
   per draw, and using only the upper bits of a 64-bit state (rather than the
@@ -52,7 +52,7 @@ turns out to be wrong. Ordered by milestone.
 
 - **D-M1-2: normal sampling uses the basic (non-polar) Box-Muller transform,
   consuming two uniforms per pair of normals.**
-  This is the transform CLAUDE.md names explicitly. The polar (Marsaglia)
+  This is the transform the project brief names explicitly. The polar (Marsaglia)
   variant avoids `sin`/`cos` but adds a rejection loop; not needed at our
   scale and the basic transform is easier to verify against the closed-form
   target density. Edge case `u1 == 0` (giving `log(0)`) is handled by
@@ -63,7 +63,7 @@ turns out to be wrong. Ordered by milestone.
   (multiply uniforms until the running product drops below `exp(-lambda)`),
   not a rejection method for large lambda.**
   Knuth's algorithm is exact and trivial to verify by hand (mean = variance =
-  lambda falls out of the derivation directly), matching CLAUDE.md's
+  lambda falls out of the derivation directly), matching the project brief's
   preference for code whose correctness is checkable by a grader. Its cost is
   O(lambda) uniforms per sample, which is fine for the lambda values used in
   this project's RNG unit tests (single digits to a few dozen) but would be
@@ -108,12 +108,12 @@ turns out to be wrong. Ordered by milestone.
   which produced a spurious failure — not because the solver was wrong, but
   because the test measured round-off noise and mistook it for algorithm
   error. Fixed by picking `n` for a stated numerical reason instead of
-  loosening the tolerance blindly (CLAUDE.md section 3).
+  loosening the tolerance blindly (the project brief).
 
 - **D-M1-7: condition numbers reported for the Hilbert-matrix stress test are
   computed with `numpy.linalg.cond` (Track B), inside `experiments/`, not
   `src/`.** Condition number is a diagnostic used only for reporting, never
-  for the solve itself; CLAUDE.md permits Track B "inside `tests/` and inside
+  for the solve itself; the project brief permits Track B "inside `tests/` and inside
   clearly-marked benchmark scripts". `experiments/m1_linalg_benchmark.py` is
   such a script and says so in a comment at the point of use.
 
@@ -281,7 +281,7 @@ resulting decisions; `logs/failures.md` records the mutation-check outcomes as d
 
 - **D-M1-11 (open M4 decision, recorded not resolved): TAC-level noise may end up
   Gaussian (time- and region-dependent sigma) rather than Poisson, since the sinogram/
-  OSEM chain was cut per CLAUDE.md section 6.** Both a Poisson-based and a
+  OSEM chain was cut per the project brief.** Both a Poisson-based and a
   Gaussian-based noise generator now exist in `src/rng.py` (`poisson`/`poisson_one` and
   `normal`), so M4 can build either without new Track A primitives. Which one (or both)
   to use for the "high/normal/low count" calibration is explicitly left open here per
@@ -526,7 +526,7 @@ resulting decisions; `logs/failures.md` records the mutation-check outcomes as d
   measured in `handoffs/RUN_M2.md` against `closed_form_C_T`, both `RK45` (default) and
   `Radau` were tried and the results/numbers for both are reported so the reviewer can
   see this made no material difference to the conclusion — recorded as a decision
-  anyway per CLAUDE.md section 5, since which one to *feature* as the headline number
+  anyway per the project brief, since which one to *feature* as the headline number
   was a judgement call.
 
 - **D-M2-6: the near-degeneracy stress sweep (PLAN.md M2's last bullet) sweeps a

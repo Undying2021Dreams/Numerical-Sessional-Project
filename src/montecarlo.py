@@ -26,7 +26,7 @@ For Setups A and B, TAC noise is Poisson-derived (the more physically motivated
 choice for PET; see remaining_task.md M4.1 open decision).  For Setup C,
 TAC noise is also Poisson-derived, and the C_WB blood-measurement noise is
 Gaussian (blood draws have a different noise character than scanned frames).
-This choice is recorded here per AGENTS.md rule: "every modelling choice not
+This choice is recorded here per the project brief rule: "every modelling choice not
 dictated by the paper gets recorded with a one-line justification."
 """
 from __future__ import annotations

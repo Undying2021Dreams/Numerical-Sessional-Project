@@ -1,4 +1,4 @@
-"""Track A / Track B guard (CLAUDE.md section 1 — the most important rule here).
+"""Track A / Track B guard (the project brief — the most important rule here).
 
 Statically checks every .py file under src/ for use of the banned library
 routines:
@@ -156,7 +156,7 @@ def test_no_banned_library_solvers_under_src():
         report = "\n".join(all_violations)
         pytest.fail(
             "Track A / Track B violation(s) found under src/ "
-            "(see CLAUDE.md section 1):\n" + report
+            "(see the project brief):\n" + report
         )
 
 

@@ -1,6 +1,6 @@
 """Track A numerical integration: trapezoid and Simpson on non-uniform grids.
 
-CLAUDE.md section 1: "our own trapezoid, Simpson, and (if used) Romberg."
+The project brief: "our own trapezoid, Simpson, and (if used) Romberg."
 Non-uniform support is required (not optional) because the forward model
 (M2) evaluates PET time-activity curves on the paper's 25 non-uniform frame
 midtimes (config.frame_midtimes_minutes), so a Track A integrator that only
