@@ -3,7 +3,6 @@ __pycache__/
 .pytest_cache/
 .venv/
 presentation/
-Report/
 
 # Internal working files — not part of the shared codebase.
 # (handoffs/, logs/, PLAN.md and DECISIONS.md ARE tracked: the milestone

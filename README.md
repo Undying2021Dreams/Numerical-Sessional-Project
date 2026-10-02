@@ -89,6 +89,7 @@ src/            numerical methods and the model
 tests/          pytest suite (176 tests)
 experiments/    scripts that regenerate every figure and table, with fixed seeds
 results/        generated figures and JSON summaries
+report/         final report (PDF and LaTeX source)
 ```
 
 ## Running it
